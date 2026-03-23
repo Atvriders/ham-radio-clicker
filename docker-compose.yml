@@ -1,0 +1,10 @@
+services:
+  hamclicker:
+    image: ghcr.io/atvriders/ham-radio-clicker:latest
+    ports:
+      - "3011:3011"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
