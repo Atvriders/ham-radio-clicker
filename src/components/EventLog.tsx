@@ -47,6 +47,16 @@ const FLAVOR_MESSAGES = [
   'QRT for dinner... just kidding',
   'Logbook updated',
   'Tuning across the band...',
+  'QRZ? QRZ? de W1AW',
+  'Your signal is 59 into the repeater',
+  'The pileup on 20m is insane right now',
+  'Checking into the net on 7.290...',
+  'Copy, you\'re 5 by 9 into Omaha. QSL?',
+  '73 and good DX!',
+  'Heard a new DXCC entity on 15m!',
+  'Band is dead... switching to 40m',
+  'Someone\'s splatter is 10 kHz wide',
+  'Time to check the SWR on that new antenna',
 ];
 
 function formatTimestamp(ts: number): string {

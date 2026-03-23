@@ -141,3 +141,116 @@ button {
     background-color: rgba(255, 50, 50, 0.1);
   }
 }
+
+/* ============================================================
+   Mobile Responsive — 768px and below
+   ============================================================ */
+@media (max-width: 768px) {
+  body {
+    font-size: 13px;
+  }
+
+  /* --- Top Bar: stack title above stats --- */
+  .mobile-topbar {
+    flex-wrap: wrap !important;
+    padding: 6px 10px !important;
+    gap: 4px;
+  }
+
+  .mobile-topbar .title-block {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mobile-topbar .stats-block {
+    width: 100%;
+    justify-content: center;
+    gap: 12px !important;
+  }
+
+  .mobile-topbar .action-block {
+    position: absolute;
+    right: 8px;
+    top: 6px;
+  }
+
+  /* --- PTT Button: shrink --- */
+  .ptt-button,
+  button[class*="ptt"] {
+    width: 140px !important;
+    height: 140px !important;
+    font-size: 14px !important;
+  }
+
+  /* --- Meters: narrower --- */
+  .meter-container,
+  div[class*="meter"] {
+    max-width: 280px !important;
+    width: 100% !important;
+  }
+
+  /* --- Shop cards: compact --- */
+  .shop-card,
+  div[class*="shop"] button {
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+  }
+
+  /* --- Bottom tab bar --- */
+  .mobile-tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: #0d1117;
+    border-top: 1px solid #1a3a1a;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .mobile-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    height: 100%;
+    background: none;
+    border: none;
+    color: #557755;
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color 0.15s, text-shadow 0.15s;
+  }
+
+  .mobile-tab.active {
+    color: #33ff33;
+    text-shadow: 0 0 6px rgba(51, 255, 51, 0.5);
+  }
+
+  .mobile-tab-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .mobile-tab-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* --- Mobile content area needs bottom padding for tab bar --- */
+  .mobile-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 56px;
+  }
+}

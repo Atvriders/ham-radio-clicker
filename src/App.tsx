@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useGameStore } from './stores/useGameStore';
 import StatsPanel from './components/StatsPanel';
@@ -11,6 +11,33 @@ import Shop from './components/Shop';
 import EventPopup from './components/EventPopup';
 import { formatNumber } from './utils/format';
 
+const MOBILE_BREAKPOINT = 768;
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth <= MOBILE_BREAKPOINT
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return isMobile;
+}
+
+type MobileTab = 'play' | 'stats' | 'shop' | 'log';
+
+const TABS: { key: MobileTab; icon: string; label: string }[] = [
+  { key: 'play', icon: '\u{1F4E1}', label: 'Play' },
+  { key: 'stats', icon: '\u{1F4CA}', label: 'Stats' },
+  { key: 'shop', icon: '\u{1F6D2}', label: 'Shop' },
+  { key: 'log', icon: '\u{1F4DC}', label: 'Log' },
+];
+
 const App: React.FC = () => {
   useGameLoop();
 
@@ -18,6 +45,8 @@ const App: React.FC = () => {
   const qsoPerSecond = useGameStore((s) => s.qsoPerSecond);
   const save = useGameStore((s) => s.save);
   const reset = useGameStore((s) => s.reset);
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState<MobileTab>('play');
 
   const handleSave = useCallback(() => {
     save();
@@ -29,6 +58,78 @@ const App: React.FC = () => {
     }
   }, [reset]);
 
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <div style={styles.wrapper}>
+        <div style={styles.scanlineOverlay} />
+
+        {/* Top Bar — mobile stacked */}
+        <header style={styles.topBarMobile} className="mobile-topbar">
+          <div style={styles.titleBlockMobile} className="title-block">
+            <h1 style={styles.titleMobile}>HAM RADIO CLICKER</h1>
+          </div>
+          <div style={styles.statsBlockMobile} className="stats-block">
+            <span style={styles.statItem}>
+              QSOs: <strong style={styles.statValue}>{formatNumber(qsos)}</strong>
+            </span>
+            <span style={styles.statItem}>
+              QSO/s: <strong style={styles.statValue}>{qsoPerSecond.toFixed(1)}</strong>
+            </span>
+          </div>
+          <div style={styles.actionBlockMobile} className="action-block">
+            <button style={styles.headerBtn} onClick={handleSave}>SAVE</button>
+            <button style={{ ...styles.headerBtn, ...styles.resetBtn }} onClick={handleReset}>RESET</button>
+          </div>
+        </header>
+
+        {/* Tab Content */}
+        <div className="mobile-content" style={styles.mobileContent}>
+          {activeTab === 'play' && (
+            <section style={styles.mobileSection}>
+              <PTTButton />
+              <SWRMeter />
+              <SMeter />
+            </section>
+          )}
+          {activeTab === 'stats' && (
+            <section style={styles.mobileSection}>
+              <StatsPanel />
+              <StationList />
+            </section>
+          )}
+          {activeTab === 'shop' && (
+            <section style={styles.mobileSection}>
+              <Shop />
+            </section>
+          )}
+          {activeTab === 'log' && (
+            <section style={styles.mobileSection}>
+              <EventLog />
+            </section>
+          )}
+        </div>
+
+        {/* Bottom Tab Bar */}
+        <nav className="mobile-tab-bar">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              className={`mobile-tab${activeTab === tab.key ? ' active' : ''}`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              <span className="mobile-tab-icon">{tab.icon}</span>
+              <span className="mobile-tab-label">{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <EventPopup />
+      </div>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
     <div style={styles.wrapper}>
       {/* CRT Scanline Overlay */}
@@ -79,7 +180,7 @@ const App: React.FC = () => {
       <EventPopup />
 
       <style>{`
-        @media (max-width: 900px) {
+        @media (max-width: 900px) and (min-width: 769px) {
           main {
             flex-direction: column !important;
           }
@@ -114,6 +215,8 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)',
     opacity: 0.5,
   },
+
+  // Desktop top bar
   topBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '8px 16px', background: '#0d1117',
@@ -135,6 +238,8 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: '2px', textTransform: 'uppercase' as const, cursor: 'pointer',
   },
   resetBtn: { borderColor: '#cc4444', color: '#cc4444', background: '#2a1a1a' },
+
+  // Desktop columns
   main: { display: 'flex', flex: 1, overflow: 'hidden' },
   leftCol: {
     width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column',
@@ -147,6 +252,45 @@ const styles: Record<string, React.CSSProperties> = {
   rightCol: {
     width: '360px', flexShrink: 0, display: 'flex', flexDirection: 'column',
     padding: '8px', overflowY: 'auto', borderLeft: '1px solid #1a2a1a',
+  },
+
+  // Mobile top bar
+  topBarMobile: {
+    position: 'relative',
+    display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center',
+    padding: '6px 10px', background: '#0d1117',
+    borderBottom: '1px solid #1a3a1a', zIndex: 10, flexShrink: 0,
+    gap: '2px',
+  },
+  titleBlockMobile: {
+    width: '100%', display: 'flex', justifyContent: 'center',
+  },
+  titleMobile: {
+    margin: 0, fontSize: '14px', fontWeight: 700, letterSpacing: '2px',
+    color: '#33ff33',
+    textShadow: '0 0 8px rgba(51,255,51,0.6), 0 0 20px rgba(51,255,51,0.3)',
+  },
+  statsBlockMobile: {
+    width: '100%', display: 'flex', justifyContent: 'center', gap: '12px',
+  },
+  actionBlockMobile: {
+    position: 'absolute' as const, right: '8px', top: '6px',
+    display: 'flex', gap: '4px',
+  },
+
+  // Mobile content
+  mobileContent: {
+    flex: 1,
+    overflowY: 'auto',
+    paddingBottom: '56px',
+  },
+  mobileSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '10px 8px',
+    width: '100%',
   },
 };
 
