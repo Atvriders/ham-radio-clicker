@@ -1,0 +1,118 @@
+// ============================================================
+// Ham Radio Clicker — Achievement Definitions
+// ============================================================
+
+import { Achievement } from '../types';
+
+export const ACHIEVEMENTS: Achievement[] = [
+  {
+    id: 'first_qso',
+    name: 'First QSO',
+    description: 'Make your very first contact.',
+    flavor: 'You keyed up, someone answered, and you forgot your callsign. Classic first QSO.',
+    icon: '📻',
+    condition: { type: 'total_qsos', value: 1 },
+    hidden: false,
+  },
+  {
+    id: 'ragchewer',
+    name: 'Ragchewer',
+    description: 'Make 100 total QSOs.',
+    flavor: 'You talked about the weather, your rig, the weather again, and then signed off. 100 times.',
+    icon: '🗣️',
+    condition: { type: 'total_qsos', value: 100 },
+    hidden: false,
+  },
+  {
+    id: 'worked_all_states',
+    name: 'Worked All States',
+    description: 'Make 1,000 total QSOs.',
+    flavor: 'You\'ve contacted all 50 states. Delaware was the hard one. It\'s always Delaware.',
+    icon: '🗺️',
+    condition: { type: 'total_qsos', value: 1_000 },
+    hidden: false,
+  },
+  {
+    id: 'dxcc',
+    name: 'DXCC',
+    description: 'Make 10,000 total QSOs.',
+    flavor: 'You\'ve worked 100 countries! The wall of QSL cards is now load-bearing.',
+    icon: '🌍',
+    condition: { type: 'total_qsos', value: 10_000 },
+    hidden: false,
+  },
+  {
+    id: 'five_band_dxcc',
+    name: '5 Band DXCC',
+    description: 'Make 50,000 total QSOs.',
+    flavor: 'You did DXCC on five bands. Your mail carrier hates you because of all the incoming QSL cards.',
+    icon: '🏅',
+    condition: { type: 'total_qsos', value: 50_000 },
+    hidden: false,
+  },
+  {
+    id: 'honor_roll',
+    name: 'Honor Roll',
+    description: 'Make 100,000 total QSOs.',
+    flavor: 'You\'re in the top 1% of all hams. Your shack is now a tourist destination at Dayton.',
+    icon: '👑',
+    condition: { type: 'total_qsos', value: 100_000 },
+    hidden: false,
+  },
+  {
+    id: 'swr_nightmare',
+    name: 'SWR Nightmare',
+    description: 'Survive an SWR above 9.0 without blowing your finals.',
+    flavor: 'Your coax was basically a space heater at that point. The RF burn on your lip will heal. Eventually.',
+    icon: '😱',
+    condition: { type: 'swr_above', value: 9 },
+    hidden: true,
+  },
+  {
+    id: 'finals_blown',
+    name: 'Finals Blown!',
+    description: 'Blow your finals for the first time.',
+    flavor: 'That popping sound was $400 worth of transistors becoming modern art. The magic smoke has escaped.',
+    icon: '💥',
+    condition: { type: 'finals_blown', value: 1 },
+    hidden: false,
+  },
+  {
+    id: 'elmer',
+    name: 'Elmer',
+    description: 'Own at least one of every station type.',
+    flavor: 'You own everything from a Baofeng to a Deep Space Network. You are the Elmer now. New hams come to you for advice and leave confused.',
+    icon: '🧙',
+    condition: { type: 'own_all_stations' },
+    hidden: false,
+  },
+  {
+    id: 'qro',
+    name: 'QRO',
+    description: 'Own 5 Linear Amplifiers.',
+    flavor: 'You have 7,500 watts of amplification. Your neighbors\' garage door opens every time you transmit. On 40 meters.',
+    icon: '⚡',
+    condition: { type: 'station_owned', stationId: 'linear_amp', count: 5 },
+    hidden: false,
+  },
+  {
+    id: 'field_day_champion',
+    name: 'Field Day Champion',
+    description: 'Reach 1,000,000 total QSOs.',
+    flavor: 'You set up 14 stations in a parking lot, ran on generator power for 24 hours, and still lost to that club in Texas. But a million QSOs is a million QSOs.',
+    icon: '🏆',
+    condition: { type: 'total_qsos', value: 1_000_000 },
+    hidden: false,
+  },
+  {
+    id: 'worked_all_bands',
+    name: 'Worked All Bands',
+    description: 'Own every type of station at least once.',
+    flavor: 'From 160 meters to deep space, you\'ve covered every band. The FCC sends you a Christmas card.',
+    icon: '🌈',
+    condition: { type: 'own_all_stations' },
+    hidden: true,
+  },
+];
+
+export const achievements = ACHIEVEMENTS;
