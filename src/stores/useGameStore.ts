@@ -18,6 +18,7 @@ import { randomCallsign } from '../data/events';
 // ---- Constants ----
 
 const SAVE_KEY = 'ham-radio-clicker-save';
+const CALLSIGN_KEY = 'ham-radio-clicker-callsign';
 
 // ---- SWR penalty helper ----
 
@@ -56,6 +57,7 @@ const initialState: GameState = {
   discountActive: 0,
   maxSwrReached: 1.0,
   finalsBlownCount: 0,
+  callsign: '',
 };
 
 // ---- Store actions interface ----
@@ -461,6 +463,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // --- Save / Load / Reset ---
   save: () => {
     const s = get();
+    const callsign = localStorage.getItem(CALLSIGN_KEY) || s.callsign;
     const saveData: GameState = {
       qsos: s.qsos,
       totalQsos: s.totalQsos,
@@ -478,25 +481,78 @@ export const useGameStore = create<GameStore>((set, get) => ({
       discountActive: s.discountActive,
       maxSwrReached: s.maxSwrReached,
       finalsBlownCount: s.finalsBlownCount,
+      callsign: callsign,
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
     } catch {
       // Storage full or unavailable
     }
+
+    // Sync to server if logged in
+    if (callsign) {
+      const stationsOwned = Object.values(s.stations).reduce((sum, n) => sum + n, 0);
+      // Determine license class from upgrades
+      let licenseClass = 'Technician';
+      if (s.upgrades.includes('license_extra')) licenseClass = 'Extra';
+      else if (s.upgrades.includes('license_general')) licenseClass = 'General';
+
+      fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callsign, saveData }),
+      }).catch(() => {});
+
+      fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callsign,
+          totalQsos: s.totalQsos,
+          qsoPerSecond: s.qsoPerSecond,
+          stationsOwned,
+          achievementsCount: s.achievements.length,
+          licenseClass,
+        }),
+      }).catch(() => {});
+    }
   },
 
   load: () => {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (!raw) return;
-      const data = JSON.parse(raw) as Partial<GameState>;
-      // Merge with defaults so new fields don't break old saves
-      set({ ...initialState, ...data });
-      // Recalculate derived values
-      get().recalcQps();
-    } catch {
-      // Corrupted save — ignore
+    const callsign = localStorage.getItem(CALLSIGN_KEY);
+
+    // Try server first if logged in
+    if (callsign) {
+      fetch(`/api/save?callsign=${encodeURIComponent(callsign)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((result) => {
+          if (result?.saveData) {
+            const data = result.saveData as Partial<GameState>;
+            set({ ...initialState, ...data, callsign });
+            get().recalcQps();
+            return;
+          }
+          // No server save — fall back to localStorage
+          loadFromLocalStorage();
+        })
+        .catch(() => {
+          // Server unavailable — fall back to localStorage
+          loadFromLocalStorage();
+        });
+    } else {
+      loadFromLocalStorage();
+    }
+
+    function loadFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw) as Partial<GameState>;
+        set({ ...initialState, ...data, callsign: callsign || '' });
+        get().recalcQps();
+      } catch {
+        // Corrupted save — ignore
+      }
     }
   },
 

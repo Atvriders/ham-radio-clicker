@@ -139,4 +139,5 @@ export interface GameState {
   discountActive: number;
   maxSwrReached: number;
   finalsBlownCount: number;
+  callsign: string;
 }

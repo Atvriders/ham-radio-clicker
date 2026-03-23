@@ -9,9 +9,12 @@ import SMeter from './components/SMeter';
 import EventLog from './components/EventLog';
 import Shop from './components/Shop';
 import EventPopup from './components/EventPopup';
+import Login from './components/Login';
+import Leaderboard from './components/Leaderboard';
 import { formatNumber } from './utils/format';
 
 const MOBILE_BREAKPOINT = 768;
+const CALLSIGN_KEY = 'ham-radio-clicker-callsign';
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(
@@ -39,6 +42,42 @@ const TABS: { key: MobileTab; icon: string; label: string }[] = [
 ];
 
 const App: React.FC = () => {
+  const [loggedIn, setLoggedIn] = useState<string | null>(() => localStorage.getItem(CALLSIGN_KEY));
+  const [loginMessage, setLoginMessage] = useState('');
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+
+  // Only run game loop when logged in
+  if (loggedIn) {
+    return <GameApp
+      callsign={loggedIn}
+      loginMessage={loginMessage}
+      showLeaderboard={showLeaderboard}
+      setShowLeaderboard={setShowLeaderboard}
+      onLogout={() => {
+        localStorage.removeItem(CALLSIGN_KEY);
+        setLoggedIn(null);
+        setLoginMessage('');
+      }}
+    />;
+  }
+
+  return (
+    <Login onLogin={(callsign, isNew) => {
+      setLoggedIn(callsign);
+      setLoginMessage(isNew ? `New operator ${callsign} registered!` : `Welcome back, ${callsign}!`);
+    }} />
+  );
+};
+
+interface GameAppProps {
+  callsign: string;
+  loginMessage: string;
+  showLeaderboard: boolean;
+  setShowLeaderboard: (show: boolean) => void;
+  onLogout: () => void;
+}
+
+const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboard, setShowLeaderboard, onLogout }) => {
   useGameLoop();
 
   const qsos = useGameStore((s) => s.qsos);
@@ -47,6 +86,15 @@ const App: React.FC = () => {
   const reset = useGameStore((s) => s.reset);
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<MobileTab>('play');
+  const [showWelcome, setShowWelcome] = useState(!!loginMessage);
+
+  // Auto-dismiss welcome message
+  useEffect(() => {
+    if (showWelcome) {
+      const timer = setTimeout(() => setShowWelcome(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showWelcome]);
 
   const handleSave = useCallback(() => {
     save();
@@ -64,6 +112,10 @@ const App: React.FC = () => {
       <div style={styles.wrapper}>
         <div style={styles.scanlineOverlay} />
 
+        {showWelcome && loginMessage && (
+          <div style={styles.welcomeBanner}>{loginMessage}</div>
+        )}
+
         {/* Top Bar — mobile stacked */}
         <header style={styles.topBarMobile} className="mobile-topbar">
           <div style={styles.titleBlockMobile} className="title-block">
@@ -77,9 +129,13 @@ const App: React.FC = () => {
               QSO/s: <strong style={styles.statValue}>{qsoPerSecond.toFixed(1)}</strong>
             </span>
           </div>
+          <div style={styles.callsignBlockMobile}>
+            <span style={styles.callsignLabel}>{callsign}</span>
+          </div>
           <div style={styles.actionBlockMobile} className="action-block">
             <button style={styles.headerBtn} onClick={handleSave}>SAVE</button>
-            <button style={{ ...styles.headerBtn, ...styles.resetBtn }} onClick={handleReset}>RESET</button>
+            <button style={styles.headerBtn} onClick={() => setShowLeaderboard(true)}>LB</button>
+            <button style={{ ...styles.headerBtn, ...styles.logoutBtn }} onClick={onLogout}>OUT</button>
           </div>
         </header>
 
@@ -125,15 +181,22 @@ const App: React.FC = () => {
         </nav>
 
         <EventPopup />
+        {showLeaderboard && (
+          <Leaderboard currentCallsign={callsign} onClose={() => setShowLeaderboard(false)} />
+        )}
       </div>
     );
   }
 
-  // Desktop layout (unchanged)
+  // Desktop layout
   return (
     <div style={styles.wrapper}>
       {/* CRT Scanline Overlay */}
       <div style={styles.scanlineOverlay} />
+
+      {showWelcome && loginMessage && (
+        <div style={styles.welcomeBanner}>{loginMessage}</div>
+      )}
 
       {/* Top Bar */}
       <header style={styles.topBar}>
@@ -149,7 +212,10 @@ const App: React.FC = () => {
           </span>
         </div>
         <div style={styles.actionBlock}>
+          <span style={styles.callsignLabel}>{callsign}</span>
           <button style={styles.headerBtn} onClick={handleSave}>SAVE</button>
+          <button style={styles.headerBtn} onClick={() => setShowLeaderboard(true)}>LEADERBOARD</button>
+          <button style={{ ...styles.headerBtn, ...styles.logoutBtn }} onClick={onLogout}>LOG OUT</button>
           <button style={{ ...styles.headerBtn, ...styles.resetBtn }} onClick={handleReset}>RESET</button>
         </div>
       </header>
@@ -178,6 +244,11 @@ const App: React.FC = () => {
 
       {/* Event Popup Overlay */}
       <EventPopup />
+
+      {/* Leaderboard Modal */}
+      {showLeaderboard && (
+        <Leaderboard currentCallsign={callsign} onClose={() => setShowLeaderboard(false)} />
+      )}
 
       <style>{`
         @media (max-width: 900px) and (min-width: 769px) {
@@ -216,6 +287,33 @@ const styles: Record<string, React.CSSProperties> = {
     opacity: 0.5,
   },
 
+  // Welcome banner
+  welcomeBanner: {
+    position: 'fixed',
+    top: '60px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#0d1117',
+    border: '1px solid #33ff33',
+    color: '#33ff33',
+    padding: '10px 24px',
+    fontSize: '13px',
+    letterSpacing: '2px',
+    zIndex: 6000,
+    textShadow: '0 0 6px rgba(51,255,51,0.4)',
+    boxShadow: '0 0 20px rgba(51,255,51,0.15)',
+    whiteSpace: 'nowrap',
+  },
+
+  // Callsign display
+  callsignLabel: {
+    color: '#ffcc00',
+    fontSize: '12px',
+    fontWeight: 700,
+    letterSpacing: '2px',
+    textShadow: '0 0 6px rgba(255,204,0,0.4)',
+  },
+
   // Desktop top bar
   topBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -231,13 +329,14 @@ const styles: Record<string, React.CSSProperties> = {
   statsBlock: { display: 'flex', gap: '24px', alignItems: 'center' },
   statItem: { fontSize: '13px', color: '#88aa88', letterSpacing: '1px' },
   statValue: { color: '#33ff33', fontSize: '15px', textShadow: '0 0 6px rgba(51,255,51,0.4)' },
-  actionBlock: { display: 'flex', gap: '8px' },
+  actionBlock: { display: 'flex', gap: '8px', alignItems: 'center' },
   headerBtn: {
     padding: '4px 14px', background: '#1a2a1a', border: '1px solid #33ff33',
     color: '#33ff33', fontSize: '11px', fontFamily: 'inherit',
     letterSpacing: '2px', textTransform: 'uppercase' as const, cursor: 'pointer',
   },
   resetBtn: { borderColor: '#cc4444', color: '#cc4444', background: '#2a1a1a' },
+  logoutBtn: { borderColor: '#aa8833', color: '#aa8833', background: '#2a2a1a' },
 
   // Desktop columns
   main: { display: 'flex', flex: 1, overflow: 'hidden' },
@@ -272,6 +371,9 @@ const styles: Record<string, React.CSSProperties> = {
   },
   statsBlockMobile: {
     width: '100%', display: 'flex', justifyContent: 'center', gap: '12px',
+  },
+  callsignBlockMobile: {
+    width: '100%', display: 'flex', justifyContent: 'center',
   },
   actionBlockMobile: {
     position: 'absolute' as const, right: '8px', top: '6px',
