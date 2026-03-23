@@ -203,6 +203,34 @@ export const ACHIEVEMENTS: Achievement[] = [
     condition: { type: 'swr_above', value: 7 },
     hidden: true,
   },
+  // --- Power Achievements ---
+  {
+    id: 'qrp_hero',
+    name: 'QRP Hero',
+    description: 'Reach 1,000 QSOs running QRP power.',
+    flavor: 'Five watts and a wire. You worked the world with less power than a nightlight. The QRP community salutes you.',
+    icon: '🔋',
+    condition: { type: 'total_qsos', value: 1_000 },
+    hidden: false,
+  },
+  {
+    id: 'kilowatt_club',
+    name: 'Kilowatt Club',
+    description: 'Unlock the 1000W power upgrade.',
+    flavor: 'Welcome to the kilowatt club. Your electric meter spins like a top and your power company sends you a thank-you card every month.',
+    icon: '⚡',
+    condition: { type: 'total_qsos', value: 150_000 },
+    hidden: false,
+  },
+  {
+    id: 'maximum_legal_power',
+    name: 'Maximum Legal Power',
+    description: 'Unlock the 1500W power upgrade — the FCC legal max.',
+    flavor: 'Fifteen hundred watts. Your signal rattles fillings, opens garage doors, and makes your neighbor\'s baby monitor play classic rock.',
+    icon: '💥',
+    condition: { type: 'total_qsos', value: 500_000 },
+    hidden: false,
+  },
 ];
 
 export const achievements = ACHIEVEMENTS;

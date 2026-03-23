@@ -39,6 +39,7 @@ export const PTTButton: React.FC = () => {
   const repairEquipment = useGameStore((s) => s.repairEquipment);
   const swr = useGameStore((s) => s.swr);
   const qsoPerClick = useGameStore((s) => s.qsoPerClick);
+  const transmitPower = useGameStore((s) => s.transmitPower);
 
   const [floats, setFloats] = useState<FloatingText[]>([]);
   const [pressed, setPressed] = useState(false);
@@ -281,6 +282,19 @@ export const PTTButton: React.FC = () => {
             </span>
           )}
         </div>
+      </div>
+
+      {/* TX Power indicator */}
+      <div style={{
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: (transmitPower ?? 5) <= 5 ? '#33ff33' : (transmitPower ?? 5) <= 100 ? '#ffaa00' : '#ff4444',
+        textShadow: (transmitPower ?? 5) >= 500 ? '0 0 6px #ff4444' : 'none',
+        letterSpacing: '2px',
+        textTransform: 'uppercase' as const,
+        marginTop: '-8px',
+      }}>
+        TX: {transmitPower ?? 5}W{(transmitPower ?? 5) <= 5 ? ' QRP' : ''}
       </div>
 
       {/* Repair button when damaged */}

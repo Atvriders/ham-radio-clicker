@@ -58,6 +58,7 @@ const initialState: GameState = {
   maxSwrReached: 1.0,
   finalsBlownCount: 0,
   callsign: '',
+  transmitPower: 5,
 };
 
 // ---- Store actions interface ----
@@ -358,6 +359,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Check prerequisite
     if (upgrade.requires && !s.upgrades.includes(upgrade.requires)) return;
 
+    // Power upgrades with additional license requirements
+    if (id === 'power_100w' && !s.upgrades.includes('general_license')) return;
+    if (id === 'power_1000w' && !s.upgrades.includes('extra_class_license')) return;
+
     let cost = upgrade.cost;
     if (s.discountActive) cost = Math.floor(cost * (1 - s.discountActive));
     if (s.qsos < cost) return;
@@ -377,6 +382,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Handle auto-tuner upgrades (data stores interval in seconds, convert to ms)
     if (upgrade.type === 'auto_tuner') {
       patch.swr = { ...s.swr, autoTunerInterval: upgrade.value * 1000 };
+    }
+
+    // Handle power upgrades — update transmitPower to the watt value
+    const powerMatch = id.match(/^power_(\d+)w$/);
+    if (powerMatch) {
+      patch.transmitPower = parseInt(powerMatch[1], 10);
     }
 
     // Handle SWR drift reduction (already computed in tick, but store for reference)
@@ -482,6 +493,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       maxSwrReached: s.maxSwrReached,
       finalsBlownCount: s.finalsBlownCount,
       callsign: callsign,
+      transmitPower: s.transmitPower,
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));

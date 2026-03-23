@@ -140,4 +140,5 @@ export interface GameState {
   maxSwrReached: number;
   finalsBlownCount: number;
   callsign: string;
+  transmitPower: number;
 }

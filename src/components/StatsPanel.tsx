@@ -117,6 +117,7 @@ const StatsPanel: React.FC = () => {
     swr,
     activeEvent,
     startTime,
+    transmitPower,
   } = useGameStore();
 
   const [elapsed, setElapsed] = useState(0);
@@ -181,6 +182,28 @@ const StatsPanel: React.FC = () => {
           }}
         >
           {swr.equipmentDamaged ? 'DAMAGED' : 'OPERATIONAL'}
+        </span>
+      </div>
+
+      <div style={styles.divider} />
+
+      {/* TX Power */}
+      <div style={styles.statRow}>
+        <span style={styles.statLabel}>TX POWER</span>
+        <span
+          style={{
+            ...styles.statValue,
+            color: (transmitPower ?? 5) <= 5
+              ? COLORS.green
+              : (transmitPower ?? 5) <= 100
+                ? COLORS.amber
+                : COLORS.red,
+            textShadow: (transmitPower ?? 5) >= 500 ? `0 0 8px ${COLORS.red}` : 'none',
+          }}
+        >
+          {(transmitPower ?? 5)}W
+          {(transmitPower ?? 5) <= 5 ? ' (QRP)' : ''}
+          {(transmitPower ?? 5) >= 1500 ? ' (MAX LEGAL)' : ''}
         </span>
       </div>
 
