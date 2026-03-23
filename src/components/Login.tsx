@@ -15,16 +15,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Auto-login if callsign exists in localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem(CALLSIGN_KEY);
-    if (saved) {
-      doLogin(saved);
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
   const doLogin = useCallback(async (cs: string) => {
     setLoading(true);
     setError('');
@@ -46,6 +36,16 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       setLoading(false);
     }
   }, [onLogin]);
+
+  // Auto-login if callsign exists in localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(CALLSIGN_KEY);
+    if (saved) {
+      doLogin(saved);
+    } else {
+      setLoading(false);
+    }
+  }, [doLogin]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
