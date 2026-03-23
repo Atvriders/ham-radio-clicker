@@ -7,6 +7,7 @@ import { useGameStore } from '../stores/useGameStore';
 import { stations, getStationCost } from '../data/stations';
 import { upgrades } from '../data/upgrades';
 import { formatNumber } from '../utils/format';
+import Achievements from './Achievements';
 
 const COLORS = {
   green: '#33ff33',
@@ -17,7 +18,7 @@ const COLORS = {
   border: 'rgba(51,255,51,0.15)',
 };
 
-type ShopTab = 'STATIONS' | 'UPGRADES';
+type ShopTab = 'STATIONS' | 'UPGRADES' | 'ACHIEVEMENTS';
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
@@ -194,18 +195,29 @@ const Shop: React.FC = () => {
         <button
           style={{
             ...styles.tab,
-            ...styles.tabRight,
             ...(tab === 'UPGRADES' ? styles.tabActive : {}),
           }}
           onClick={() => setTab('UPGRADES')}
         >
           UPGRADES
         </button>
+        <button
+          style={{
+            ...styles.tab,
+            ...styles.tabRight,
+            ...(tab === 'ACHIEVEMENTS' ? styles.tabActive : {}),
+          }}
+          onClick={() => setTab('ACHIEVEMENTS')}
+        >
+          🏆
+        </button>
       </div>
 
       {/* List */}
       <div style={styles.list}>
-        {tab === 'STATIONS' ? (
+        {tab === 'ACHIEVEMENTS' ? (
+          <Achievements />
+        ) : tab === 'STATIONS' ? (
           unlockedStations.length === 0 ? (
             <div style={styles.emptyMsg}>No stations unlocked yet</div>
           ) : (
