@@ -42,10 +42,10 @@ export function formatSWR(swr: number): string {
  * Format elapsed seconds as HH:MM:SS.
  */
 export function formatTime(totalSeconds: number): string {
-  const seconds = Math.floor(totalSeconds);
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
+  const abs = Math.max(0, Math.floor(totalSeconds));
+  const h = Math.floor(abs / 3600);
+  const m = Math.floor((abs % 3600) / 60);
+  const s = abs % 60;
 
   const pad = (v: number) => v.toString().padStart(2, '0');
   return `${pad(h)}:${pad(m)}:${pad(s)}`;

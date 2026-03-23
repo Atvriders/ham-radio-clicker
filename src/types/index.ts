@@ -110,7 +110,7 @@ export interface SWRState {
 
 // --- Event Log ---
 
-export type EventLogType = 'event' | 'achievement' | 'milestone' | 'warning';
+export type EventLogType = 'event' | 'achievement' | 'milestone' | 'warning' | 'qso' | 'purchase' | 'swr' | 'damage';
 
 export interface EventLogEntry {
   id: string;
@@ -135,7 +135,7 @@ export interface GameState {
   activeEvent: ActiveEvent | null;
   eventLog: EventLogEntry[];
   startTime: number;
-  discountActive: boolean;
+  discountActive: number;
   maxSwrReached: number;
   finalsBlownCount: number;
 }

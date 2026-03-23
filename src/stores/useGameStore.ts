@@ -53,7 +53,7 @@ const initialState: GameState = {
   activeEvent: null,
   eventLog: [],
   startTime: Date.now(),
-  discountActive: false,
+  discountActive: 0,
   maxSwrReached: 1.0,
   finalsBlownCount: 0,
 };
@@ -112,7 +112,7 @@ function applyImmediateEffect(
       patch.totalQsos = state.totalQsos + effect.value;
       break;
     case 'discount':
-      patch.discountActive = true;
+      patch.discountActive = effect.value;
       break;
     case 'combined':
       // Recursively apply each sub-effect
@@ -304,7 +304,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       let activeEvent = s.activeEvent;
       if (activeEvent && activeEvent.endsAt > 0 && now >= activeEvent.endsAt) {
         activeEvent = null;
-        patch.discountActive = false;
+        patch.discountActive = 0;
       }
       patch.activeEvent = activeEvent;
 
@@ -329,7 +329,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const owned = s.stations[id] ?? 0;
     let cost = getStationCost(station, owned);
-    if (s.discountActive) cost = Math.floor(cost * 0.7);
+    if (s.discountActive) cost = Math.floor(cost * (1 - s.discountActive));
     if (s.qsos < cost) return;
 
     const newStations = { ...s.stations, [id]: owned + 1 };
@@ -354,7 +354,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (upgrade.requires && !s.upgrades.includes(upgrade.requires)) return;
 
     let cost = upgrade.cost;
-    if (s.discountActive) cost = Math.floor(cost * 0.7);
+    if (s.discountActive) cost = Math.floor(cost * (1 - s.discountActive));
     if (s.qsos < cost) return;
 
     const newUpgrades = [...s.upgrades, id];
@@ -433,7 +433,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   clearEvent: () => {
-    set({ activeEvent: null, discountActive: false });
+    set({ activeEvent: null, discountActive: 0 });
   },
 
   // --- Log ---
@@ -470,7 +470,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       upgrades: s.upgrades,
       achievements: s.achievements,
       activeEvent: s.activeEvent,
-      eventLog: s.eventLog.slice(0, 50), // Only save last 50 entries
+      eventLog: s.eventLog.slice(-50), // Save most recent 50 entries
       startTime: s.startTime,
       discountActive: s.discountActive,
       maxSwrReached: s.maxSwrReached,
