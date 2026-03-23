@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../stores/useGameStore';
 import { stations, getStationCost } from '../data/stations';
-import { upgrades } from '../data/upgrades';
+import { upgrades, UPGRADES } from '../data/upgrades';
 import { formatNumber } from '../utils/format';
 import Achievements from './Achievements';
 
@@ -224,21 +224,27 @@ const Shop: React.FC = () => {
             unlockedStations.map((st) => {
               const owned = ownedStations[st.id] ?? 0;
               const cost = getStationCost(st, owned);
-              const canAfford = qsos >= cost;
+              const hasLicense = !st.requiredLicense || purchasedUpgrades.includes(st.requiredLicense);
+              const canAfford = qsos >= cost && hasLicense;
+              const licenseName = st.requiredLicense
+                ? UPGRADES.find((u) => u.id === st.requiredLicense)?.name ?? st.requiredLicense
+                : '';
 
               return (
                 <div
                   key={st.id}
                   style={{
                     ...styles.card,
-                    ...(canAfford
-                      ? { borderColor: 'rgba(51,255,51,0.3)' }
-                      : styles.cardDisabled),
+                    ...(!hasLicense
+                      ? { ...styles.cardDisabled, borderColor: 'rgba(255,68,68,0.2)' }
+                      : canAfford
+                        ? { borderColor: 'rgba(51,255,51,0.3)' }
+                        : styles.cardDisabled),
                   }}
                   onClick={() => canAfford && buyStation(st.id)}
                 >
                   <div style={styles.cardHeader}>
-                    <span style={styles.cardIcon}>{st.icon}</span>
+                    <span style={styles.cardIcon}>{hasLicense ? st.icon : '🔒'}</span>
                     <span style={styles.cardName}>{st.name}</span>
                     {owned > 0 && (
                       <span style={styles.cardCount}>&times;{owned}</span>
@@ -252,19 +258,30 @@ const Shop: React.FC = () => {
                     <span style={styles.cardEffect}>
                       +{st.baseQps} QSO/s
                     </span>
-                    <button
-                      style={{
-                        ...styles.buyBtn,
-                        ...(!canAfford ? styles.buyBtnDisabled : {}),
-                      }}
-                      disabled={!canAfford}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (canAfford) buyStation(st.id);
-                      }}
-                    >
-                      BUY
-                    </button>
+                    {!hasLicense ? (
+                      <span style={{
+                        fontSize: 10,
+                        color: COLORS.red,
+                        fontWeight: 'bold',
+                        letterSpacing: 0.5,
+                      }}>
+                        Requires {licenseName}
+                      </span>
+                    ) : (
+                      <button
+                        style={{
+                          ...styles.buyBtn,
+                          ...(!canAfford ? styles.buyBtnDisabled : {}),
+                        }}
+                        disabled={!canAfford}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (canAfford) buyStation(st.id);
+                        }}
+                      >
+                        BUY
+                      </button>
+                    )}
                   </div>
                 </div>
               );

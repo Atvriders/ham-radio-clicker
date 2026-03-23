@@ -327,6 +327,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const station = stations.find((st) => st.id === id);
     if (!station) return;
 
+    // Check license requirement
+    if (station.requiredLicense && !s.upgrades.includes(station.requiredLicense)) return;
+
     const owned = s.stations[id] ?? 0;
     let cost = getStationCost(station, owned);
     if (s.discountActive) cost = Math.floor(cost * (1 - s.discountActive));

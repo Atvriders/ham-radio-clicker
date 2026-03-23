@@ -15,6 +15,7 @@ export interface Station {
   icon: string;
   tier: number;
   unlockAt: number;
+  requiredLicense?: string;  // upgrade ID that must be purchased to buy this station
 }
 
 // --- Upgrades ---
