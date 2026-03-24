@@ -224,34 +224,111 @@ export function randomMursName(): string {
   return FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
 }
 
-// --- Callsign generator (kept for UI flavor) ---
+// --- Callsign generators by license tier ---
 
-export const CALLSIGN_PREFIXES = [
-  'W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W0',
-  'K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'K9', 'K0',
-  'N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8', 'N9', 'N0',
-  'KA', 'KB', 'KC', 'KD', 'KE', 'KF', 'KG',
-  'WA', 'WB', 'WD', 'WR',
-  'VE1', 'VE2', 'VE3', 'VE4', 'VE5', 'VE6', 'VE7',
-  'JA', 'JH', 'JR',
+const CALLSIGN_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+function randomSuffix(len: number): string {
+  let s = '';
+  for (let i = 0; i < len; i++) {
+    s += CALLSIGN_LETTERS[Math.floor(Math.random() * CALLSIGN_LETTERS.length)];
+  }
+  return s;
+}
+
+// US-only prefixes (letter(s) + area digit built separately)
+const US_SINGLE_LETTER_PREFIXES = ['W', 'K', 'N'];
+const US_TWO_LETTER_PREFIXES = ['WA', 'WB', 'WD', 'KB', 'KD', 'KE', 'KF'];
+
+function randomUsCallsign(): string {
+  const digit = Math.floor(Math.random() * 10);
+  const suffixLen = 2 + Math.floor(Math.random() * 2); // 2-3 letters
+  if (Math.random() < 0.5) {
+    // Single-letter prefix: W3ABC, K7QSO, N0XY
+    const p = US_SINGLE_LETTER_PREFIXES[Math.floor(Math.random() * US_SINGLE_LETTER_PREFIXES.length)];
+    return `${p}${digit}${randomSuffix(suffixLen)}`;
+  } else {
+    // Two-letter prefix: KD2FMW, WB9ABC
+    const p = US_TWO_LETTER_PREFIXES[Math.floor(Math.random() * US_TWO_LETTER_PREFIXES.length)];
+    return `${p}${digit}${randomSuffix(suffixLen)}`;
+  }
+}
+
+// Common DX prefixes (General level) — prefix includes area digit where typical
+const COMMON_DX_PREFIXES = [
+  'VE3', 'VE7', 'VE2', 'VE4', 'VE5', 'VE6', 'VE1',
+  'XE1', 'XE2',
   'G3', 'G4', 'G0', 'M0',
-  'DL1', 'DL2', 'DK3',
+  'DL1', 'DL2', 'DL5', 'DK3',
+  'F5', 'F6',
+  'JA1', 'JA3', 'JH1', 'JR2',
   'VK2', 'VK3', 'VK4',
-  'ZL1', 'ZL2',
-  'LU1', 'LU2',
-  'PY1', 'PY2',
 ];
 
-const CALLSIGN_SUFFIXES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+// Rare/worldwide DX prefixes (Extra level)
+const RARE_DX_PREFIXES = [
+  'ZL1', 'ZL2',
+  'PY1', 'PY2',
+  'LU1', 'LU2',
+  'CE3',
+  'HS1',
+  '9V1',
+  'A61',
+  'ZS6',
+  'SV1', 'SV9',
+  'UA3', 'UA6',
+  'OH2', 'OH6',
+  'SM5', 'SM0',
+  'OZ1',
+  'PA3',
+  'ON4',
+  'HB9',
+  'EA4', 'EA8',
+  'I2',
+  'HL1',
+  'BV2',
+  'YB0',
+  '4X4',
+  '5B4',
+  'A7',
+  'VP9',
+  'V3',
+  'TI2',
+  'HP1',
+];
 
-export function randomCallsign(): string {
-  const prefix = CALLSIGN_PREFIXES[Math.floor(Math.random() * CALLSIGN_PREFIXES.length)];
-  const len = 2 + Math.floor(Math.random() * 2); // 2-3 suffix chars
-  let suffix = '';
-  for (let i = 0; i < len; i++) {
-    suffix += CALLSIGN_SUFFIXES[Math.floor(Math.random() * CALLSIGN_SUFFIXES.length)];
+function randomDxCallsign(prefixes: string[]): string {
+  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+  const suffixLen = 2 + Math.floor(Math.random() * 2);
+  return `${prefix}${randomSuffix(suffixLen)}`;
+}
+
+/** Technician: US-only local/VHF contacts */
+export function randomLocalCallsign(): string {
+  return randomUsCallsign();
+}
+
+/** General: US + common DX (70% US, 30% DX) */
+export function randomDomesticDxCallsign(): string {
+  if (Math.random() < 0.7) {
+    return randomUsCallsign();
   }
-  return prefix + suffix;
+  return randomDxCallsign(COMMON_DX_PREFIXES);
+}
+
+/** Extra: US + all worldwide DX (50% US, 50% DX) */
+export function randomWorldwideCallsign(): string {
+  if (Math.random() < 0.5) {
+    return randomUsCallsign();
+  }
+  // Pick from common + rare DX combined
+  const allDx = [...COMMON_DX_PREFIXES, ...RARE_DX_PREFIXES];
+  return randomDxCallsign(allDx);
+}
+
+// Keep backward-compatible export (defaults to worldwide)
+export function randomCallsign(): string {
+  return randomWorldwideCallsign();
 }
 
 export const events = RANDOM_EVENTS;

@@ -4,32 +4,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useGameStore } from '../stores/useGameStore';
-
-// Random callsign generator
-const PREFIXES = [
-  'W3', 'K1', 'N4', 'W6', 'KA9', 'WB2', 'K7', 'N0', 'W1', 'K5',
-  'JA1', 'JA3', 'VK2', 'VK3', 'G4', 'G3', 'DL1', 'DL3', 'F5', 'I2',
-  'EA4', 'UA3', 'OH2', 'SM5', 'OZ1', 'PA3', 'ON4', 'HB9', 'LU1', 'PY2',
-  'VE3', 'VE7', 'ZL1', 'ZS6', 'HL1', 'BV2', 'HS1', '9V1', 'YB0',
-];
-const SUFFIXES = [
-  'ABC', 'XYZ', 'QSO', 'DXR', 'HAM', 'CQD', 'RIG', 'ANT', 'PTT', 'VFO',
-  'BPF', 'AGC', 'SSB', 'CWX', 'FMR', 'DIG', 'SAT', 'EME', 'QRP', 'QRO',
-  'NR', 'TK', 'WZ', 'BN', 'JF', 'LM', 'GP', 'RA', 'SV', 'KD',
-];
-
-function randomCallsign(): string {
-  const p = PREFIXES[Math.floor(Math.random() * PREFIXES.length)];
-  const s = SUFFIXES[Math.floor(Math.random() * SUFFIXES.length)];
-  return `${p}${s}`;
-}
-
-// MURS names (no license needed)
-const MURS_NAMES = ['Mike', 'Steve', 'Karen', 'Dave', 'Lisa', 'Bob', 'Sarah', 'Jim', 'Pam', 'Tony', 'Rick', 'Jenny', 'Mark', 'Sue', 'Dan', 'Amy', 'Chris', 'Pat', 'Joe', 'Liz', 'Tom', 'Beth', 'Ray', 'Kim', 'Pete'];
-
-function randomMursName(): string {
-  return MURS_NAMES[Math.floor(Math.random() * MURS_NAMES.length)];
-}
+import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomMursName } from '../data/events';
 
 interface FloatingText {
   id: number;
@@ -48,7 +23,9 @@ export const PTTButton: React.FC = () => {
   const qsoPerClick = useGameStore((s) => s.qsoPerClick);
   const transmitPower = useGameStore((s) => s.transmitPower);
   const upgrades = useGameStore((s) => s.upgrades);
-  const hasLicense = upgrades.includes('technician_license');
+  const hasTech = upgrades.includes('technician_license');
+  const hasGeneral = upgrades.includes('general_license');
+  const hasExtra = upgrades.includes('extra_class_license');
 
   const [floats, setFloats] = useState<FloatingText[]>([]);
   const [pressed, setPressed] = useState(false);
@@ -70,14 +47,20 @@ export const PTTButton: React.FC = () => {
     if (swr.equipmentDamaged) return;
     click();
     const amount = Math.max(1, Math.floor(qsoPerClick));
-    const contactName = hasLicense ? randomCallsign() : randomMursName();
+    const contactName = !hasTech
+      ? randomMursName()
+      : !hasGeneral
+        ? randomLocalCallsign()
+        : !hasExtra
+          ? randomDomesticDxCallsign()
+          : randomWorldwideCallsign();
     const id = ++floatId;
     const x = 60 + Math.random() * 60; // random horizontal offset (px from center area)
     setFloats((prev) => [...prev, { id, text: `+${amount} ${contactName}`, x, y: 0 }]);
     setTimeout(() => {
       setFloats((prev) => prev.filter((f) => f.id !== id));
     }, 1200);
-  }, [click, qsoPerClick, swr.equipmentDamaged, hasLicense]);
+  }, [click, qsoPerClick, swr.equipmentDamaged, hasTech, hasGeneral, hasExtra]);
 
   // Spacebar trigger
   useEffect(() => {
@@ -283,11 +266,11 @@ export const PTTButton: React.FC = () => {
             <span style={{
               fontFamily: 'monospace',
               fontSize: '10px',
-              color: hasLicense ? '#666' : '#aa8800',
+              color: hasTech ? '#666' : '#aa8800',
               marginTop: '4px',
               letterSpacing: '1px',
             }}>
-              {hasLicense ? 'HAM' : 'MURS'}
+              {hasTech ? 'HAM' : 'MURS'}
             </span>
           )}
         </div>

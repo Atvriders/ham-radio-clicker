@@ -13,7 +13,7 @@ import {
 } from '../types';
 import { stations, getStationCost } from '../data/stations';
 import { upgrades as UPGRADES } from '../data/upgrades';
-import { randomCallsign, randomMursName } from '../data/events';
+import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomMursName } from '../data/events';
 
 // ---- Constants ----
 
@@ -223,10 +223,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const eventMods = getEventModifiers(s.activeEvent);
       const gained =
         s.qsoPerClick * s.clickMultiplier * eventMods.clickMult * penalty;
-      const hasLicense = s.upgrades.includes('technician_license');
-      const contactLabel = hasLicense
-        ? `QSO with ${randomCallsign()} (+${gained.toFixed(1)})`
-        : `MURS contact with ${randomMursName()} (+${gained.toFixed(1)})`;
+      const hasTech = s.upgrades.includes('technician_license');
+      const hasGeneral = s.upgrades.includes('general_license');
+      const hasExtra = s.upgrades.includes('extra_class_license');
+
+      let contactLabel: string;
+      if (!hasTech) {
+        contactLabel = `MURS contact with ${randomMursName()} (+${gained.toFixed(1)})`;
+      } else if (!hasGeneral) {
+        contactLabel = `VHF QSO with ${randomLocalCallsign()} (+${gained.toFixed(1)})`;
+      } else if (!hasExtra) {
+        contactLabel = `QSO with ${randomDomesticDxCallsign()} (+${gained.toFixed(1)})`;
+      } else {
+        contactLabel = `DX QSO with ${randomWorldwideCallsign()} (+${gained.toFixed(1)})`;
+      }
       const newLog = [
         makeLogEntry(contactLabel, 'milestone'),
         ...s.eventLog,
