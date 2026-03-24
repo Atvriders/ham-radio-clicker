@@ -28,8 +28,8 @@ You start on **MURS** (Multi-Use Radio Service) — no license needed. Click the
 |---------|------|--------|----------|---------|
 | **None** | -- | -- | MURS (random names: Mike, Karen...) | Handheld, Mobile Rig |
 | **Technician** | 50 QSOs | QPS x1.2 | US local VHF/UHF callsigns (WB9ABC, N3QSO) | Repeater access, entry-level upgrades, power to 50W |
-| **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | HF privileges, Base Station, Linear Amp, Beam, POTA/SOTA, power to 500W |
-| **Extra Class** | 50,000 QSOs | 3x click | Full worldwide DX (ZL, PY, HS, A6, ZS...) | All bands, Tower, Remote, EME, Contest Station, power to 1500W |
+| **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | HF privileges, Base Station, Linear Amp, Beam, POTA/SOTA, power to 1500W (FCC max) |
+| **Extra Class** | 50,000 QSOs | 3x click | Full worldwide DX (ZL, PY, HS, A6, ZS...) | All band segments, Tower, Remote, EME, Contest Station |
 
 ---
 
@@ -66,7 +66,7 @@ Each station can be purchased multiple times. Costs increase by 15% per unit own
 
 **Operating Activities** -- Weekly Rag Chew Net, ARES/RACES Emergency Comms, POTA Activation, SOTA Activation, Field Day Station, DXpedition, IOTA Activation, Satellite Operations
 
-**Power Levels** -- 10W → 25W → 50W → 100W → 200W → 500W → 1000W → 1500W (sequential chain, 100W requires General, 1000W requires Extra)
+**Power Levels** -- 10W → 25W → 50W (Tech max) → 100W → 200W → 500W → 1000W → 1500W (sequential chain, 100W+ requires General per FCC rules)
 
 ---
 
