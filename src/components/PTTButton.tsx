@@ -77,8 +77,12 @@ export const PTTButton: React.FC = () => {
 
   // Spacebar trigger
   useEffect(() => {
+    const isTyping = () => {
+      const tag = document.activeElement?.tagName;
+      return tag === 'INPUT' || tag === 'TEXTAREA';
+    };
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !e.repeat) {
+      if (e.code === 'Space' && !e.repeat && !isTyping()) {
         e.preventDefault();
         setPressed(true);
         handleClick();
