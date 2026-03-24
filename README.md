@@ -157,29 +157,47 @@ This builds the frontend to `dist/` and serves everything from the Express serve
 
 ## Docker Deployment
 
-```dockerfile
-FROM node:20-alpine
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --production=false
-COPY . .
-RUN npm run build
-
-ENV NODE_ENV=production
-ENV PORT=3011
-EXPOSE 3011
-
-# SQLite data persisted in /app/data
-VOLUME ["/app/data"]
-
-CMD ["node", "server/index.js"]
-```
+Pre-built multi-arch images (amd64, arm64, armv7) available from GitHub Container Registry.
 
 ```bash
-# Build and run
+# Quick start with docker-compose
+git clone https://github.com/Atvriders/ham-radio-clicker.git
+cd ham-radio-clicker
+docker compose up -d
+```
+
+Open `http://localhost:3011` in your browser.
+
+### docker-compose.yml
+
+```yaml
+services:
+  hamclicker:
+    image: ghcr.io/atvriders/ham-radio-clicker:latest
+    ports:
+      - "3011:3011"
+    volumes:
+      - ./data:/app/data   # SQLite persistence
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+```
+
+### Docker Commands
+
+```bash
+# View logs
+docker logs -f hamclicker
+
+# Update to latest
+docker compose pull && docker compose up -d
+
+# Stop
+docker compose down
+
+# Build locally instead of pulling
 docker build -t ham-radio-clicker .
-docker run -d -p 3011:3011 -v hamclicker-data:/app/data ham-radio-clicker
+docker run -d -p 3011:3011 -v ./data:/app/data ham-radio-clicker
 ```
 
 ## Mobile Support
