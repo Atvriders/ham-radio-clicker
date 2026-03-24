@@ -26,29 +26,42 @@ const TYPE_COLORS: Record<string, string> = {
   warning: COLORS.red,
 };
 
-const FLAVOR_MESSAGES = [
+// Flavor messages split by license level
+const MURS_FLAVOR = [
+  'Scanning MURS channels...',
+  'Radio check, radio check',
+  'Charging batteries...',
+  'Testing the antenna',
+  'Listening on channel 3',
+];
+
+const TECH_FLAVOR = [
+  'Your signal is 59 into the repeater',
+  'Checking 6m for sporadic E',
+  'VFO drift compensated',
+  'AGC holding steady',
+  'QSB fading on signal',
+  'Antenna SWR looks good',
+  'Rig temperature nominal',
+  'Logbook updated',
+  'Tuning across the band...',
+  'QRT for dinner... just kidding',
+  'Time to check the SWR on that new antenna',
+];
+
+const GENERAL_FLAVOR = [
   'CQ CQ CQ de W1AW K',
   'Band noise: S3',
   '73 de K5ZD',
   'QRM on 20 meters...',
   'Checking propagation on 40m',
-  'VFO drift compensated',
-  'AGC holding steady',
   'Monitoring 14.074 MHz',
   'PSK31 waterfall looks clean',
   'Band opening on 15m!',
-  'QSB fading on signal',
   'CW keyer speed: 25 WPM',
-  'Antenna SWR looks good',
   'Calling CQ on 7.055',
   'DX cluster spot received',
-  'Rig temperature nominal',
-  'Checking 6m for sporadic E',
-  'QRT for dinner... just kidding',
-  'Logbook updated',
-  'Tuning across the band...',
   'QRZ? QRZ? de W1AW',
-  'Your signal is 59 into the repeater',
   'The pileup on 20m is insane right now',
   'Checking into the net on 7.290...',
   'Copy, you\'re 5 by 9 into Omaha. QSL?',
@@ -56,7 +69,6 @@ const FLAVOR_MESSAGES = [
   'Heard a new DXCC entity on 15m!',
   'Band is dead... switching to 40m',
   'Someone\'s splatter is 10 kHz wide',
-  'Time to check the SWR on that new antenna',
 ];
 
 function formatTimestamp(ts: number): string {
@@ -111,7 +123,21 @@ const styles: Record<string, React.CSSProperties> = {
 const EventLog: React.FC = () => {
   const eventLog = useGameStore((s) => s.eventLog);
   const addLogEntry = useGameStore((s) => s.addLogEntry);
+  const upgrades = useGameStore((s) => s.upgrades);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Build flavor messages based on license level
+  const hasTech = upgrades.includes('technician_license');
+  const hasGeneral = upgrades.includes('general_license');
+
+  let flavorPool: string[];
+  if (!hasTech) {
+    flavorPool = MURS_FLAVOR;
+  } else if (!hasGeneral) {
+    flavorPool = [...MURS_FLAVOR, ...TECH_FLAVOR];
+  } else {
+    flavorPool = [...TECH_FLAVOR, ...GENERAL_FLAVOR];
+  }
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -124,7 +150,7 @@ const EventLog: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const msg =
-        FLAVOR_MESSAGES[Math.floor(Math.random() * FLAVOR_MESSAGES.length)];
+        flavorPool[Math.floor(Math.random() * flavorPool.length)];
       if (addLogEntry) {
         addLogEntry(msg, 'event');
       }
