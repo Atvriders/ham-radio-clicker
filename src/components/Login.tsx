@@ -76,7 +76,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div style={styles.subtitle}>OPERATOR LOGIN</div>
 
         <form onSubmit={handleSubmit} style={styles.form}>
-          <label style={styles.label}>ENTER YOUR CALLSIGN</label>
+          <label style={styles.label}>ENTER YOUR CALLSIGN OR USERNAME</label>
           <input
             type="text"
             value={callsign}
@@ -84,8 +84,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             placeholder="W1AW"
             style={styles.input}
             autoFocus
-            maxLength={10}
+            maxLength={15}
           />
+
+          <div style={styles.altHint}>
+            No callsign? Use any name or username
+          </div>
 
           {error && <div style={styles.error}>{error}</div>}
 
@@ -95,7 +99,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </form>
 
         <div style={styles.hint}>
-          Your callsign is your identity. No password needed.
+          Your callsign or username is your identity. No password needed.
         </div>
       </div>
     </div>
@@ -172,6 +176,12 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase',
     outline: 'none',
     boxSizing: 'border-box',
+  },
+  altHint: {
+    fontSize: '10px',
+    color: '#ffaa00',
+    letterSpacing: '1px',
+    opacity: 0.7,
   },
   error: {
     color: '#cc4444',
