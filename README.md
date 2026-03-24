@@ -206,9 +206,30 @@ docker build -t ham-radio-clicker .
 docker run -d -p 3011:3011 -v ./data:/app/data ham-radio-clicker
 ```
 
+## Live Chat
+
+WebSocket-based ephemeral chat between online operators. Messages are temporary — lost on page reload. Shows who's online with green indicators. No chat history stored on server.
+
 ## Mobile Support
 
 Fully responsive with a tabbed mobile interface (Play, Stats, Shop, Log) and a bottom navigation bar. Touch-friendly PTT button. Works on any screen size.
+
+## UI Layout
+
+Packed instrument panel design — no wasted space:
+- **Center:** PTT button + SWR meter + S-meter side by side, QSO log fills remaining space
+- **Left:** Station status with live stats (band, last QSO, awards), station list with QPS contribution bars
+- **Right:** Equipment rack shop with stations, upgrades (sorted by cost), and achievements
+
+## QSO Log
+
+Real-time log with band and mode information matching your license:
+- **MURS:** `[MURS CH3] Contact with Mike (+1.0)`
+- **Technician:** `[2m FM] VHF QSO with WB9ABC (+1.0)`
+- **General:** `[20m FT8] QSO with DL5ABC (+1.0)`
+- **Extra:** `[17m CW] DX QSO with ZL2QSO (+1.0)`
+
+Flavor messages also match your license level (no HF references for Tech operators).
 
 ---
 
@@ -217,22 +238,33 @@ Fully responsive with a tabbed mobile interface (Play, Stats, Shop, Log) and a b
 ```
 ham-radio-clicker/
   server/
-    index.js            Express + SQLite backend
+    index.js            Express + SQLite + WebSocket server
   src/
-    components/         React UI components
+    components/
+      PTTButton.tsx     Main click target with floating callsigns
+      SWRMeter.tsx      Animated SVG SWR gauge
+      SMeter.tsx        Signal strength meter with jitter
+      StatsPanel.tsx    Station status with live stats
+      StationList.tsx   Owned stations with QPS bars
+      Shop.tsx          Equipment rack (stations/upgrades/achievements)
+      EventLog.tsx      QSO log with band/mode info
+      EventPopup.tsx    Random event notifications
+      Chat.tsx          WebSocket ephemeral chat
+      Login.tsx         Callsign/username login
+      Leaderboard.tsx   Global rankings with online status
     data/
-      stations.ts       12 station definitions
-      upgrades.ts       30+ upgrade definitions
-      achievements.ts   25 achievement definitions
-      events.ts         18 random event definitions
+      stations.ts       12 station definitions (balanced QPS curve)
+      upgrades.ts       36+ upgrades (licenses, activities, power, equipment)
+      achievements.ts   25+ achievement definitions
+      events.ts         20+ random events + callsign generators
     hooks/
       useGameLoop.ts    requestAnimationFrame game loop
     stores/
-      useGameStore.ts   Zustand state management
+      useGameStore.ts   Zustand state (SWR, physics, save/load)
     types/
       index.ts          TypeScript type definitions
     utils/
-      format.ts         Number formatting
+      format.ts         Number/SWR/time formatting
   data/
     hamclicker.db       SQLite database (auto-created)
 ```
