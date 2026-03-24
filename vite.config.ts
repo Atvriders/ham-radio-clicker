@@ -7,6 +7,10 @@ export default defineConfig({
     port: 3012,
     proxy: {
       '/api': 'http://localhost:3011',
+      '/ws': {
+        target: 'ws://localhost:3011',
+        ws: true,
+      },
     },
   },
   build: { outDir: 'dist' },

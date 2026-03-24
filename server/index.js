@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker — Backend Server (Express + SQLite)
+// Ham Radio Clicker — Backend Server (Express + SQLite + WebSocket)
 // ============================================================
 
 import express from 'express';
@@ -8,6 +8,8 @@ import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,15 +53,6 @@ db.exec(`
     updated_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
-
-  CREATE TABLE IF NOT EXISTS chat_messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    callsign TEXT NOT NULL,
-    message TEXT NOT NULL,
-    created_at TEXT DEFAULT (datetime('now'))
-  );
-
-  CREATE INDEX IF NOT EXISTS idx_chat_created_at ON chat_messages(created_at);
 `);
 
 // ---- Prepared statements ----
@@ -78,17 +71,6 @@ const stmts = {
     FROM leaderboard
     ORDER BY total_qsos DESC
     LIMIT 50
-  `),
-  getChatRecent: db.prepare(`
-    SELECT id, callsign, message, created_at FROM chat_messages
-    ORDER BY created_at DESC LIMIT 50
-  `),
-  getChatSince: db.prepare(`
-    SELECT id, callsign, message, created_at FROM chat_messages
-    WHERE created_at > ? ORDER BY created_at ASC LIMIT 50
-  `),
-  insertChat: db.prepare(`
-    INSERT INTO chat_messages (callsign, message) VALUES (?, ?)
   `),
   upsertLeaderboard: db.prepare(`
     INSERT INTO leaderboard (user_id, callsign, total_qsos, qso_per_second, stations_owned, achievements_count, license_class, updated_at)
@@ -199,37 +181,6 @@ app.post('/api/leaderboard', (req, res) => {
   res.json({ ok: true });
 });
 
-// ---- Chat endpoints ----
-
-app.get('/api/chat', (req, res) => {
-  const since = req.query.since;
-  if (since) {
-    const rows = stmts.getChatSince.all(String(since));
-    return res.json(rows);
-  }
-  const rows = stmts.getChatRecent.all().reverse();
-  res.json(rows);
-});
-
-app.post('/api/chat', (req, res) => {
-  const { callsign, message } = req.body;
-  if (!callsign || typeof callsign !== 'string' || callsign.trim().length === 0) {
-    return res.status(400).json({ error: 'callsign required' });
-  }
-  if (!message || typeof message !== 'string' || message.trim().length === 0) {
-    return res.status(400).json({ error: 'message required' });
-  }
-
-  const trimmed = message.trim().slice(0, 200);
-  const normalized = callsign.trim().toUpperCase();
-
-  const user = stmts.findUser.get(normalized);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-
-  stmts.insertChat.run(normalized, trimmed);
-  res.json({ ok: true });
-});
-
 // ---- Admin: fix stale leaderboard license classes from save data ----
 app.post('/api/admin/fix-licenses', (req, res) => {
   try {
@@ -263,8 +214,73 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// ---- Create HTTP server and WebSocket server ----
+const server = createServer(app);
+
+const wss = new WebSocketServer({ server, path: '/ws' });
+
+// Track connected users: ws -> callsign
+const connectedUsers = new Map();
+
+function getOnlineUsers() {
+  const users = [];
+  for (const callsign of connectedUsers.values()) {
+    if (callsign && !users.includes(callsign)) {
+      users.push(callsign);
+    }
+  }
+  return users.sort();
+}
+
+function broadcast(data) {
+  const msg = JSON.stringify(data);
+  for (const client of wss.clients) {
+    if (client.readyState === 1) { // WebSocket.OPEN
+      client.send(msg);
+    }
+  }
+}
+
+wss.on('connection', (ws) => {
+  connectedUsers.set(ws, null);
+
+  ws.on('message', (raw) => {
+    try {
+      const data = JSON.parse(raw.toString());
+
+      if (data.type === 'join' && data.callsign) {
+        const callsign = String(data.callsign).trim().toUpperCase();
+        connectedUsers.set(ws, callsign);
+        // Broadcast updated online list to all
+        broadcast({ type: 'online', users: getOnlineUsers() });
+      } else if (data.type === 'chat' && data.callsign && data.message) {
+        const callsign = String(data.callsign).trim().toUpperCase();
+        const message = String(data.message).trim().slice(0, 200);
+        if (message.length > 0) {
+          broadcast({
+            type: 'chat',
+            callsign,
+            message,
+            timestamp: new Date().toISOString(),
+          });
+        }
+      } else if (data.type === 'ping') {
+        ws.send(JSON.stringify({ type: 'online', users: getOnlineUsers() }));
+      }
+    } catch {
+      // Ignore malformed messages
+    }
+  });
+
+  ws.on('close', () => {
+    connectedUsers.delete(ws);
+    // Broadcast updated online list after disconnect
+    broadcast({ type: 'online', users: getOnlineUsers() });
+  });
+});
+
 // ---- Start server ----
 const PORT = process.env.PORT || 3011;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Ham Radio Clicker server running on http://localhost:${PORT}`);
 });

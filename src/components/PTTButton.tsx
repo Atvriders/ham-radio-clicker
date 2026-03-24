@@ -47,16 +47,29 @@ export const PTTButton: React.FC = () => {
     if (swr.equipmentDamaged) return;
     click();
     const amount = Math.max(1, Math.floor(qsoPerClick));
-    const contactName = !hasTech
-      ? randomMursName()
-      : !hasGeneral
-        ? randomLocalCallsign()
-        : !hasExtra
-          ? randomDomesticDxCallsign()
-          : randomWorldwideCallsign();
+
+    // Pick random item from array
+    const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+    let band: string;
+    let contactName: string;
+    if (!hasTech) {
+      band = pick(['MURS']);
+      contactName = randomMursName();
+    } else if (!hasGeneral) {
+      band = pick(['2m', '70cm', '6m']);
+      contactName = randomLocalCallsign();
+    } else if (!hasExtra) {
+      band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m']);
+      contactName = ['2m', '70cm', '6m'].includes(band) ? randomLocalCallsign() : randomDomesticDxCallsign();
+    } else {
+      band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m', '160m', '30m', '17m', '12m', '60m']);
+      contactName = ['2m', '70cm', '6m'].includes(band) ? randomLocalCallsign() : randomWorldwideCallsign();
+    }
+
     const id = ++floatId;
     const x = 60 + Math.random() * 60; // random horizontal offset (px from center area)
-    setFloats((prev) => [...prev, { id, text: `+${amount} ${contactName}`, x, y: 0 }]);
+    setFloats((prev) => [...prev, { id, text: `+${amount} [${band}] ${contactName}`, x, y: 0 }]);
     setTimeout(() => {
       setFloats((prev) => prev.filter((f) => f.id !== id));
     }, 1200);

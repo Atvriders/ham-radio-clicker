@@ -227,15 +227,48 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const hasGeneral = s.upgrades.includes('general_license');
       const hasExtra = s.upgrades.includes('extra_class_license');
 
+      // Pick random item from array
+      const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+      // Weighted random selection
+      const weightedPick = (options: [string, number][]): string => {
+        const total = options.reduce((sum, [, w]) => sum + w, 0);
+        let r = Math.random() * total;
+        for (const [val, w] of options) {
+          r -= w;
+          if (r <= 0) return val;
+        }
+        return options[0][0];
+      };
+
       let contactLabel: string;
       if (!hasTech) {
-        contactLabel = `MURS contact with ${randomMursName()} (+${gained.toFixed(1)})`;
+        // MURS — no license
+        const ch = pick(['CH1', 'CH2', 'CH3', 'CH4', 'CH5']);
+        contactLabel = `[MURS ${ch}] Contact with ${randomMursName()} (+${gained.toFixed(1)})`;
       } else if (!hasGeneral) {
-        contactLabel = `VHF QSO with ${randomLocalCallsign()} (+${gained.toFixed(1)})`;
+        // Technician — VHF only
+        const band = pick(['2m', '70cm', '6m']);
+        const mode = weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]]);
+        contactLabel = `[${band} ${mode}] VHF QSO with ${randomLocalCallsign()} (+${gained.toFixed(1)})`;
       } else if (!hasExtra) {
-        contactLabel = `QSO with ${randomDomesticDxCallsign()} (+${gained.toFixed(1)})`;
+        // General — VHF + HF
+        const band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m']);
+        const isVhf = ['2m', '70cm', '6m'].includes(band);
+        const mode = isVhf
+          ? weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]])
+          : weightedPick([['FT8', 60], ['SSB', 20], ['CW', 10], ['FT4', 10]]);
+        const callFn = isVhf ? randomLocalCallsign : randomDomesticDxCallsign;
+        contactLabel = `[${band} ${mode}] QSO with ${callFn()} (+${gained.toFixed(1)})`;
       } else {
-        contactLabel = `DX QSO with ${randomWorldwideCallsign()} (+${gained.toFixed(1)})`;
+        // Extra — all bands
+        const band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m', '160m', '30m', '17m', '12m', '60m']);
+        const isVhf = ['2m', '70cm', '6m'].includes(band);
+        const mode = isVhf
+          ? weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]])
+          : weightedPick([['FT8', 60], ['SSB', 20], ['CW', 10], ['FT4', 10]]);
+        const callFn = isVhf ? randomLocalCallsign : randomWorldwideCallsign;
+        contactLabel = `[${band} ${mode}] DX QSO with ${callFn()} (+${gained.toFixed(1)})`;
       }
       const newLog = [
         makeLogEntry(contactLabel, 'milestone'),

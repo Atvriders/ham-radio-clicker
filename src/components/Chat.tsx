@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker — Chat Box
+// Ham Radio Clicker — Chat Box (WebSocket ephemeral chat)
 // ============================================================
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -8,7 +8,7 @@ interface ChatMessage {
   id: number;
   callsign: string;
   message: string;
-  created_at: string;
+  timestamp: string;
 }
 
 interface ChatProps {
@@ -16,10 +16,11 @@ interface ChatProps {
   isMobile?: boolean;
 }
 
+let msgIdCounter = 0;
+
 function formatTime(isoStr: string): string {
   try {
-    // Server returns UTC datetime without Z — append Z for correct parsing
-    const d = new Date(isoStr.endsWith('Z') ? isoStr : isoStr + 'Z');
+    const d = new Date(isoStr);
     const hh = d.getHours().toString().padStart(2, '0');
     const mm = d.getMinutes().toString().padStart(2, '0');
     return `${hh}:${mm}`;
@@ -31,58 +32,27 @@ function formatTime(isoStr: string): string {
 const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [unread, setUnread] = useState(0);
-  const [sending, setSending] = useState(false);
+  const [connected, setConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const lastSeenIdRef = useRef<number>(0);
-  const wasOpenRef = useRef(false);
-  const sessionStartRef = useRef<string>(new Date().toISOString());
+  const wsRef = useRef<WebSocket | null>(null);
+  const openRef = useRef(false);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  const fetchMessages = useCallback(async () => {
-    try {
-      // Only fetch messages since this window opened
-      const res = await fetch(`/api/chat?since=${encodeURIComponent(sessionStartRef.current)}`);
-      if (res.ok) {
-        const data: ChatMessage[] = await res.json();
-        setMessages(data);
-
-        if (data.length > 0) {
-          const latestId = data[data.length - 1].id;
-          if (!wasOpenRef.current && latestId > lastSeenIdRef.current) {
-            const newCount = data.filter((m) => m.id > lastSeenIdRef.current).length;
-            setUnread(newCount);
-          }
-          if (wasOpenRef.current) {
-            lastSeenIdRef.current = latestId;
-            setUnread(0);
-          }
-        }
-      }
-    } catch {
-      // Network error — keep existing
-    }
-  }, []);
-
-  // Initial fetch and polling
+  // Track open state in ref for WS callback access
   useEffect(() => {
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 3000);
-    return () => clearInterval(interval);
-  }, [fetchMessages]);
-
-  // Track open state
-  useEffect(() => {
-    wasOpenRef.current = open;
-    if (open && messages.length > 0) {
-      lastSeenIdRef.current = messages[messages.length - 1].id;
+    openRef.current = open;
+    if (open) {
       setUnread(0);
     }
-  }, [open, messages]);
+  }, [open]);
 
   // Auto-scroll when new messages arrive while open
   useEffect(() => {
@@ -91,25 +61,93 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
     }
   }, [messages, open, scrollToBottom]);
 
-  const sendMessage = async () => {
-    const trimmed = input.trim();
-    if (!trimmed || sending) return;
-
-    setSending(true);
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ callsign, message: trimmed }),
-      });
-      if (res.ok) {
-        setInput('');
-        await fetchMessages();
-      }
-    } catch {
-      // Network error
+  // WebSocket connection
+  const connectWs = useCallback(() => {
+    if (wsRef.current && (wsRef.current.readyState === WebSocket.CONNECTING || wsRef.current.readyState === WebSocket.OPEN)) {
+      return;
     }
-    setSending(false);
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      setConnected(true);
+      // Register callsign
+      ws.send(JSON.stringify({ type: 'join', callsign }));
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'chat') {
+          const msg: ChatMessage = {
+            id: ++msgIdCounter,
+            callsign: data.callsign,
+            message: data.message,
+            timestamp: data.timestamp,
+          };
+          setMessages((prev) => [...prev.slice(-199), msg]);
+          // Increment unread if chat is closed
+          if (!openRef.current) {
+            setUnread((prev) => prev + 1);
+          }
+        } else if (data.type === 'online') {
+          setOnlineUsers(data.users || []);
+        }
+      } catch {
+        // Ignore malformed messages
+      }
+    };
+
+    ws.onclose = () => {
+      setConnected(false);
+      wsRef.current = null;
+      // Auto-reconnect after 3 seconds
+      reconnectTimerRef.current = setTimeout(() => {
+        connectWs();
+      }, 3000);
+    };
+
+    ws.onerror = () => {
+      // onclose will fire after onerror, triggering reconnect
+    };
+  }, [callsign]);
+
+  // Connect on mount, cleanup on unmount
+  useEffect(() => {
+    connectWs();
+
+    // Ping every 5 seconds for online user list
+    pingTimerRef.current = setInterval(() => {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 5000);
+
+    return () => {
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      if (pingTimerRef.current) clearInterval(pingTimerRef.current);
+      if (wsRef.current) {
+        wsRef.current.onclose = null; // Prevent reconnect on intentional close
+        wsRef.current.close();
+      }
+    };
+  }, [connectWs]);
+
+  const sendMessage = () => {
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+
+    wsRef.current.send(JSON.stringify({
+      type: 'chat',
+      callsign,
+      message: trimmed,
+    }));
+    setInput('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -152,6 +190,13 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
         <button style={styles.chatCloseBtn} onClick={() => setOpen(false)}>X</button>
       </div>
 
+      {/* Online users */}
+      <div style={styles.onlineBar}>
+        <span style={styles.onlineIndicator}>{connected ? '\u25CF' : '\u25CB'}</span>
+        {' '}
+        ONLINE: {onlineUsers.length > 0 ? onlineUsers.join(', ') : 'none'}
+      </div>
+
       {/* Messages */}
       <div style={styles.messageList}>
         {messages.length === 0 ? (
@@ -161,7 +206,7 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
             const isOwn = msg.callsign === callsign;
             return (
               <div key={msg.id} style={styles.messageRow}>
-                <span style={styles.timestamp}>[{formatTime(msg.created_at)}]</span>{' '}
+                <span style={styles.timestamp}>[{formatTime(msg.timestamp)}]</span>{' '}
                 <span style={isOwn ? styles.ownCallsign : styles.otherCallsign}>
                   {msg.callsign}:
                 </span>{' '}
@@ -189,10 +234,10 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
         <button
           style={{
             ...styles.sendBtn,
-            opacity: sending || !input.trim() ? 0.4 : 1,
+            opacity: !input.trim() || !connected ? 0.4 : 1,
           }}
           onClick={sendMessage}
-          disabled={sending || !input.trim()}
+          disabled={!input.trim() || !connected}
         >
           TX
         </button>
@@ -273,6 +318,23 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     padding: '2px 6px',
     letterSpacing: '1px',
+  },
+
+  // Online users bar
+  onlineBar: {
+    padding: '4px 10px',
+    fontSize: '9px',
+    color: '#33ff33',
+    letterSpacing: '1px',
+    borderBottom: '1px solid rgba(51, 255, 51, 0.1)',
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    textShadow: '0 0 4px rgba(51,255,51,0.3)',
+  },
+  onlineIndicator: {
+    fontSize: '8px',
   },
 
   // Messages area
