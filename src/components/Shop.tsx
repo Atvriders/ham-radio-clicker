@@ -170,9 +170,9 @@ const Shop: React.FC = () => {
   const buyUpgrade = useGameStore((s) => s.buyUpgrade);
 
   const unlockedStations = stations.filter((st) => totalQsos >= st.unlockAt);
-  const availableUpgrades = upgrades.filter(
-    (up) => !purchasedUpgrades.includes(up.id)
-  );
+  const availableUpgrades = upgrades
+    .filter((up) => !purchasedUpgrades.includes(up.id))
+    .sort((a, b) => a.cost - b.cost);
 
   return (
     <div style={styles.container}>
