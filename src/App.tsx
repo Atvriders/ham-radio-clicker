@@ -55,6 +55,8 @@ const App: React.FC = () => {
       setShowLeaderboard={setShowLeaderboard}
       onLogout={() => {
         localStorage.removeItem(CALLSIGN_KEY);
+        localStorage.removeItem('ham-radio-clicker-save');
+        useGameStore.getState().reset();
         setLoggedIn(null);
         setLoginMessage('');
       }}

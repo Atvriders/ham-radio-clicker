@@ -561,12 +561,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     function loadFromLocalStorage() {
       try {
         const raw = localStorage.getItem(SAVE_KEY);
-        if (!raw) return;
+        if (!raw) {
+          // No save — reset to fresh state
+          set({ ...initialState, callsign: callsign || '', startTime: Date.now() });
+          return;
+        }
         const data = JSON.parse(raw) as Partial<GameState>;
         set({ ...initialState, ...data, callsign: callsign || '' });
         get().recalcQps();
       } catch {
-        // Corrupted save — ignore
+        // Corrupted save — reset to fresh state
+        set({ ...initialState, callsign: callsign || '', startTime: Date.now() });
       }
     }
   },
