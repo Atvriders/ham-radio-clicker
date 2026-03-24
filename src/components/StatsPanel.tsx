@@ -260,7 +260,7 @@ const StatsPanel: React.FC = () => {
           }}
         >
           {(transmitPower ?? 5)}W
-          {(transmitPower ?? 5) <= 5 ? ' QRP' : ''}
+          {(transmitPower ?? 5) <= 5 ? ' (QRP)' : (transmitPower ?? 5) <= 100 ? ' (LP)' : (transmitPower ?? 5) >= 1500 ? ' (HP MAX)' : ' (HP)'}
         </span>
       </div>
 

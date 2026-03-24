@@ -27,9 +27,9 @@ You start on **MURS** (Multi-Use Radio Service) — no license needed. Click the
 | License | Cost | Effect | Contacts | Unlocks |
 |---------|------|--------|----------|---------|
 | **None** | -- | -- | MURS (random names: Mike, Karen...) | Handheld, Mobile Rig |
-| **Technician** | 50 QSOs | QPS x1.2 | US local VHF/UHF callsigns (WB9ABC, N3QSO) | Repeater access, entry-level upgrades, power to 50W |
-| **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | HF privileges, Base Station, Linear Amp, Beam, POTA/SOTA, power to 1500W (FCC max) |
-| **Extra Class** | 50,000 QSOs | 3x click | Full worldwide DX (ZL, PY, HS, A6, ZS...) | All band segments, Tower, Remote, EME, Contest Station |
+| **Technician** | 50 QSOs | QPS x1.2 | US local VHF/UHF callsigns (WB9ABC, N3QSO) | 1500W on VHF/UHF, limited HF, repeater access, entry-level upgrades |
+| **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | 1500W all bands, HF privileges, Base Station, Linear Amp, Beam, POTA/SOTA |
+| **Extra Class** | 50,000 QSOs | 3x click | Full worldwide DX (ZL, PY, HS, A6, ZS...) | 1500W all band segments, Tower, Remote, EME, Contest Station |
 
 ---
 
@@ -66,7 +66,7 @@ Each station can be purchased multiple times. Costs increase by 15% per unit own
 
 **Operating Activities** -- Weekly Rag Chew Net, ARES/RACES Emergency Comms, POTA Activation, SOTA Activation, Field Day Station, DXpedition, IOTA Activation, Satellite Operations
 
-**Power Levels** -- 10W → 25W → 50W (Tech max) → 100W → 200W → 500W → 1000W → 1500W (sequential chain, 100W+ requires General per FCC rules)
+**Power Levels** -- 10W → 25W → 50W → 100W → 200W → 500W → 1000W → 1500W (sequential chain, any license class — power controls wattage, license controls bands)
 
 ---
 
@@ -224,10 +224,10 @@ Packed instrument panel design — no wasted space:
 ## QSO Log
 
 Real-time log with band and mode information matching your license:
-- **MURS:** `[MURS CH3] Contact with Mike (+1.0)`
-- **Technician:** `[2m FM] VHF QSO with WB9ABC (+1.0)`
-- **General:** `[20m FT8] QSO with DL5ABC (+1.0)`
-- **Extra:** `[17m CW] DX QSO with ZL2QSO (+1.0)`
+- **MURS:** `[MURS CH3 QRP] Contact with Mike (+1.0)`
+- **Technician:** `[2m FM QRP] VHF QSO with WB9ABC (+1.0)`
+- **General:** `[20m FT8 HP] QSO with DL5ABC (+1.0)`
+- **Extra:** `[17m CW HP] DX QSO with ZL2QSO (+1.0)`
 
 Flavor messages also match your license level (no HF references for Tech operators).
 

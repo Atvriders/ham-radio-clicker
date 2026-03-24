@@ -241,16 +241,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return options[0][0];
       };
 
+      // Power category tag
+      const pwr = s.transmitPower ?? 5;
+      const pwrTag = pwr <= 5 ? 'QRP' : pwr <= 100 ? 'LP' : 'HP';
+
       let contactLabel: string;
       if (!hasTech) {
         // MURS — no license
         const ch = pick(['CH1', 'CH2', 'CH3', 'CH4', 'CH5']);
-        contactLabel = `[MURS ${ch}] Contact with ${randomMursName()} (+${gained.toFixed(1)})`;
+        contactLabel = `[MURS ${ch} ${pwrTag}] Contact with ${randomMursName()} (+${gained.toFixed(1)})`;
       } else if (!hasGeneral) {
         // Technician — VHF only
         const band = pick(['2m', '70cm', '6m']);
         const mode = weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]]);
-        contactLabel = `[${band} ${mode}] VHF QSO with ${randomLocalCallsign()} (+${gained.toFixed(1)})`;
+        contactLabel = `[${band} ${mode} ${pwrTag}] VHF QSO with ${randomLocalCallsign()} (+${gained.toFixed(1)})`;
       } else if (!hasExtra) {
         // General — VHF + HF
         const band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m']);
@@ -259,7 +263,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           ? weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]])
           : weightedPick([['FT8', 60], ['SSB', 20], ['CW', 10], ['FT4', 10]]);
         const callFn = isVhf ? randomLocalCallsign : randomDomesticDxCallsign;
-        contactLabel = `[${band} ${mode}] QSO with ${callFn()} (+${gained.toFixed(1)})`;
+        contactLabel = `[${band} ${mode} ${pwrTag}] QSO with ${callFn()} (+${gained.toFixed(1)})`;
       } else {
         // Extra — all bands
         const band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m', '160m', '30m', '17m', '12m', '60m']);
@@ -268,7 +272,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           ? weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]])
           : weightedPick([['FT8', 60], ['SSB', 20], ['CW', 10], ['FT4', 10]]);
         const callFn = isVhf ? randomLocalCallsign : randomWorldwideCallsign;
-        contactLabel = `[${band} ${mode}] DX QSO with ${callFn()} (+${gained.toFixed(1)})`;
+        contactLabel = `[${band} ${mode} ${pwrTag}] DX QSO with ${callFn()} (+${gained.toFixed(1)})`;
       }
       const newLog = [
         makeLogEntry(contactLabel, 'milestone'),
@@ -405,10 +409,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Check prerequisite
     if (upgrade.requires && !s.upgrades.includes(upgrade.requires)) return;
 
-    // Power upgrades with additional license requirements
-    // General license needed at 100W (entering HF power territory)
-    // No extra_class needed for higher power — General can use up to 1500W per FCC rules
-    if (id === 'power_100w' && !s.upgrades.includes('general_license')) return;
+    // Power upgrades have NO license gate — Technicians can run 1500W on VHF/UHF per FCC rules.
+    // The LICENSE controls which BANDS you can use, not how much power you can run.
 
     let cost = upgrade.cost;
     if (s.discountActive) cost = Math.floor(cost * (1 - s.discountActive));

@@ -51,6 +51,10 @@ export const PTTButton: React.FC = () => {
     // Pick random item from array
     const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
+    // Power category tag
+    const pwr = transmitPower ?? 5;
+    const pwrTag = pwr <= 5 ? 'QRP' : pwr <= 100 ? 'LP' : 'HP';
+
     let band: string;
     let contactName: string;
     if (!hasTech) {
@@ -69,7 +73,7 @@ export const PTTButton: React.FC = () => {
 
     const id = ++floatId;
     const x = 40 + Math.random() * 60;
-    setFloats((prev) => [...prev, { id, text: `+${amount} [${band}] ${contactName}`, x, y: 0 }]);
+    setFloats((prev) => [...prev, { id, text: `+${amount} [${band} ${pwrTag}] ${contactName}`, x, y: 0 }]);
     setTimeout(() => {
       setFloats((prev) => prev.filter((f) => f.id !== id));
     }, 1200);
