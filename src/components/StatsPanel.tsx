@@ -39,7 +39,7 @@ function getBandFromUpgrades(upgrades: string[]): string {
   if (hasExtra) return '160m-70cm';
   if (hasGeneral) return '80m-2m';
   if (hasTech) return '6m/2m/70cm';
-  return 'MURS';
+  return 'MURS/FRS';
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -222,7 +222,7 @@ const StatsPanel: React.FC = () => {
               fontSize: 10,
             }}
           >
-            {hasLicense ? 'AMATEUR' : 'MURS'}
+            {hasLicense ? 'AMATEUR' : 'MURS/FRS'}
           </span>
         </div>
 

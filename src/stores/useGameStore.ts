@@ -13,7 +13,7 @@ import {
 } from '../types';
 import { stations, getStationCost } from '../data/stations';
 import { upgrades as UPGRADES } from '../data/upgrades';
-import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomMursName } from '../data/events';
+import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomUnlicensedName, randomUnlicensedService } from '../data/events';
 
 // ---- Constants ----
 
@@ -248,9 +248,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       let contactLabel: string;
       if (!hasTech) {
-        // MURS — no license
-        const ch = pick(['CH1', 'CH2', 'CH3', 'CH4', 'CH5']);
-        contactLabel = `[MURS ${ch} ${pwrTag}] Contact with ${randomMursName()} (+${gained.toFixed(1)})`;
+        // MURS/FRS — no license
+        const svc = randomUnlicensedService();
+        contactLabel = `[${svc.service} ${svc.channel} ${pwrTag}] Contact with ${randomUnlicensedName()} (+${gained.toFixed(1)})`;
       } else if (!hasGeneral) {
         // Technician — VHF only
         const band = pick(['2m', '70cm', '6m']);
@@ -442,7 +442,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // When getting licensed, clear old MURS entries from log
     if (id === 'technician_license') {
-      patch.eventLog = s.eventLog.filter(e => !e.message.includes('[MURS'));
+      patch.eventLog = s.eventLog.filter(e => !e.message.includes('[MURS') && !e.message.includes('[FRS'));
     }
 
     set(patch);

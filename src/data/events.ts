@@ -216,13 +216,27 @@ export const RANDOM_EVENTS: RandomEvent[] = [
   },
 ];
 
-// --- MURS name generator (no license needed) ---
+// --- Unlicensed name generator (MURS / FRS — no license needed) ---
 
 const FIRST_NAMES = ['Mike', 'Steve', 'Karen', 'Dave', 'Lisa', 'Bob', 'Sarah', 'Jim', 'Pam', 'Tony', 'Rick', 'Jenny', 'Mark', 'Sue', 'Dan', 'Amy', 'Chris', 'Pat', 'Joe', 'Liz', 'Tom', 'Beth', 'Ray', 'Kim', 'Pete'];
 
-export function randomMursName(): string {
+const MURS_CHANNELS = ['CH1', 'CH2', 'CH3', 'CH4', 'CH5'];
+const FRS_CHANNELS = Array.from({ length: 22 }, (_, i) => `CH${i + 1}`);
+
+export function randomUnlicensedName(): string {
   return FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
 }
+
+/** Pick a random unlicensed service (MURS or FRS) and channel */
+export function randomUnlicensedService(): { service: 'MURS' | 'FRS'; channel: string } {
+  if (Math.random() < 0.5) {
+    return { service: 'MURS', channel: MURS_CHANNELS[Math.floor(Math.random() * MURS_CHANNELS.length)] };
+  }
+  return { service: 'FRS', channel: FRS_CHANNELS[Math.floor(Math.random() * FRS_CHANNELS.length)] };
+}
+
+// Keep backward-compatible alias
+export const randomMursName = randomUnlicensedName;
 
 // --- Callsign generators by license tier ---
 

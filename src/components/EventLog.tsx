@@ -33,6 +33,9 @@ const MURS_FLAVOR = [
   'Charging batteries...',
   'Testing the antenna',
   'Listening on channel 3',
+  'Scanning FRS channels...',
+  'Kids on FRS channel 1 again',
+  'FRS range test with neighbor',
 ];
 
 const TECH_FLAVOR = [

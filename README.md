@@ -4,19 +4,19 @@
 
 **Click your way from a rubber duck antenna to a Deep Space Network.**
 
-An idle/clicker game for ham radio operators (and aspiring ones). Start as a MURS user talking to random people, earn your Technician License, then climb the ladder to Extra Class while managing your SWR, dodging solar flares, and trying not to blow your finals.
+An idle/clicker game for ham radio operators (and aspiring ones). Start on MURS/FRS talking to random people, earn your Technician License, then climb the ladder to Extra Class while managing your SWR, dodging solar flares, and trying not to blow your finals.
 
 ---
 
 ## How It Works
 
-You start on **MURS** (Multi-Use Radio Service) — no license needed. Click the PTT button to talk to random people (Mike, Steve, Karen...). Once you earn enough to buy your **Technician License**, you enter the world of amateur radio and start making real QSOs with callsigns.
+You start on **MURS/FRS** (Multi-Use Radio Service / Family Radio Service) — no license needed. Click the PTT button to talk to random people on MURS channels (CH1-CH5) and FRS channels (CH1-CH22). Once you earn enough to buy your **Technician License**, you enter the world of amateur radio and start making real QSOs with callsigns.
 
 **Click the PTT button** to make contacts manually. Buy stations to generate QSOs passively. Spend your QSOs as currency to buy upgrades, new equipment, and higher power levels. Progress through three license classes to unlock bigger and better gear.
 
 ### Core Mechanics
 
-- **MURS → Ham Radio** -- Start on MURS (no license). Buy a Technician License to start making ham radio QSOs with real callsigns.
+- **MURS/FRS → Ham Radio** -- Start on MURS/FRS (no license needed). Buy a Technician License to start making ham radio QSOs with real callsigns.
 - **PTT Button** -- Click to transmit and make contacts. Each click earns QSOs based on your click power and upgrades.
 - **Passive QSO Generation** -- Stations you own produce QSOs per second automatically.
 - **SWR Management** -- Your antenna's Standing Wave Ratio drifts over time. High SWR reduces your output. Let it climb above 10.0 and you blow your finals (ouch). Tune it manually, or buy an auto-tuner.
@@ -26,7 +26,7 @@ You start on **MURS** (Multi-Use Radio Service) — no license needed. Click the
 
 | License | Cost | Effect | Contacts | Unlocks |
 |---------|------|--------|----------|---------|
-| **None** | -- | -- | MURS (random names: Mike, Karen...) | Handheld, Mobile Rig |
+| **None** | -- | -- | MURS/FRS (random names: Mike, Karen...) | Handheld, Mobile Rig |
 | **Technician** | 50 QSOs | QPS x1.2 | US local VHF/UHF callsigns (WB9ABC, N3QSO) | 1500W on VHF/UHF, limited HF, repeater access, entry-level upgrades |
 | **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | 1500W all bands, HF privileges, Base Station, Linear Amp, Beam, POTA/SOTA |
 | **Extra Class** | 50,000 QSOs | 3x click | Full worldwide DX (ZL, PY, HS, A6, ZS...) | 1500W all band segments, Tower, Remote, EME, Contest Station |
@@ -224,7 +224,7 @@ Packed instrument panel design — no wasted space:
 ## QSO Log
 
 Real-time log with band and mode information matching your license:
-- **MURS:** `[MURS CH3 QRP] Contact with Mike (+1.0)`
+- **MURS/FRS:** `[MURS CH3 QRP] Contact with Mike (+1.0)` or `[FRS CH14 QRP] Contact with Steve (+1.0)`
 - **Technician:** `[2m FM QRP] VHF QSO with WB9ABC (+1.0)`
 - **General:** `[20m FT8 HP] QSO with DL5ABC (+1.0)`
 - **Extra:** `[17m CW HP] DX QSO with ZL2QSO (+1.0)`

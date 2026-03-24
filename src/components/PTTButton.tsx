@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useGameStore } from '../stores/useGameStore';
-import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomMursName } from '../data/events';
+import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomUnlicensedName } from '../data/events';
 
 interface FloatingText {
   id: number;
@@ -59,8 +59,8 @@ export const PTTButton: React.FC = () => {
     let band: string;
     let contactName: string;
     if (!hasTech) {
-      band = pick(['MURS']);
-      contactName = randomMursName();
+      band = pick(['MURS', 'FRS']);
+      contactName = randomUnlicensedName();
     } else if (!hasGeneral) {
       band = pick(['2m', '70cm', '6m']);
       contactName = randomLocalCallsign();
@@ -318,7 +318,7 @@ export const PTTButton: React.FC = () => {
               marginTop: '3px',
               letterSpacing: '2px',
             }}>
-              {hasTech ? 'HAM' : 'MURS'}
+              {hasTech ? 'HAM' : 'MURS/FRS'}
             </span>
           )}
         </div>
