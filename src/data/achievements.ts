@@ -53,10 +53,10 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'silent_key_memorial',
     name: 'Silent Key Memorial',
-    description: 'Honor the hobby — make 5,000 total QSOs.',
+    description: 'Honor the hobby — make 7,500 total QSOs.',
     flavor: 'In memory of all the silent keys who came before us. Their rigs may be cold, but their signals echo forever.',
     icon: '🕯️',
-    condition: { type: 'total_qsos', value: 5_000 },
+    condition: { type: 'total_qsos', value: 7_500 },
     hidden: false,
   },
   {
@@ -182,7 +182,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Own every type of station at least once.',
     flavor: 'From 160 meters to deep space, you\'ve covered every band. The FCC sends you a Christmas card.',
     icon: '🌈',
-    condition: { type: 'own_all_stations' },
+    condition: { type: 'total_stations', value: 12 },
     hidden: true,
   },
   {
@@ -207,10 +207,10 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'qrp_hero',
     name: 'QRP Hero',
-    description: 'Reach 1,000 QSOs running QRP power.',
+    description: 'Reach 2,000 QSOs running QRP power.',
     flavor: 'Five watts and a wire. You worked the world with less power than a nightlight. The QRP community salutes you.',
     icon: '🔋',
-    condition: { type: 'total_qsos', value: 1_000 },
+    condition: { type: 'total_qsos', value: 2_000 },
     hidden: false,
   },
   {
@@ -219,7 +219,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Unlock the 1000W power upgrade.',
     flavor: 'Welcome to the kilowatt club. Your electric meter spins like a top and your power company sends you a thank-you card every month.',
     icon: '⚡',
-    condition: { type: 'total_qsos', value: 150_000 },
+    condition: { type: 'total_qsos', value: 175_000 },
     hidden: false,
   },
   {
@@ -228,7 +228,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: 'Unlock the 1500W power upgrade — the FCC legal max.',
     flavor: 'Fifteen hundred watts. Your signal rattles fillings, opens garage doors, and makes your neighbor\'s baby monitor play classic rock.',
     icon: '💥',
-    condition: { type: 'total_qsos', value: 500_000 },
+    condition: { type: 'total_qsos', value: 750_000 },
     hidden: false,
   },
 ];

@@ -442,7 +442,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // When getting licensed, clear old MURS entries from log
     if (id === 'technician_license') {
-      patch.eventLog = s.eventLog.filter(e => !e.message.includes('MURS contact'));
+      patch.eventLog = s.eventLog.filter(e => !e.message.includes('[MURS'));
     }
 
     set(patch);
