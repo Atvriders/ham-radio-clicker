@@ -211,6 +211,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
           <span style={styles.statItem}>
             QSOs: <strong style={styles.statValue}>{formatNumber(qsos)}</strong>
           </span>
+          <span style={styles.statDivider} />
           <span style={styles.statItem}>
             QSO/s: <strong style={styles.statValue}>{qsoPerSecond.toFixed(1)}</strong>
           </span>
@@ -317,16 +318,17 @@ const styles: Record<string, React.CSSProperties> = {
     top: '60px',
     left: '50%',
     transform: 'translateX(-50%)',
-    background: '#0d1117',
+    background: 'linear-gradient(135deg, #0d1117 0%, #111822 100%)',
     border: '1px solid #33ff33',
     color: '#33ff33',
-    padding: '10px 24px',
+    padding: '10px 28px',
     fontSize: '13px',
     letterSpacing: '2px',
     zIndex: 6000,
     textShadow: '0 0 6px rgba(51,255,51,0.4)',
-    boxShadow: '0 0 20px rgba(51,255,51,0.15)',
+    boxShadow: '0 0 20px rgba(51,255,51,0.15), inset 0 0 30px rgba(51,255,51,0.03)',
     whiteSpace: 'nowrap',
+    borderRadius: '4px',
   },
 
   // Callsign display
@@ -336,14 +338,20 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     letterSpacing: '2px',
     textShadow: '0 0 6px rgba(255,204,0,0.4)',
+    padding: '2px 8px',
+    background: 'rgba(255,204,0,0.06)',
+    borderRadius: '3px',
+    border: '1px solid rgba(255,204,0,0.15)',
   },
 
   // Desktop top bar
   topBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '6px 16px', background: '#0d1117',
+    padding: '8px 20px',
+    background: 'linear-gradient(180deg, #111822 0%, #0d1117 100%)',
     borderBottom: '1px solid #1a3a1a', zIndex: 10, flexShrink: 0,
-    flexWrap: 'wrap', gap: '4px',
+    flexWrap: 'wrap', gap: '6px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
   },
   titleBlock: { display: 'flex', alignItems: 'center', gap: '8px' },
   title: {
@@ -351,54 +359,73 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#33ff33',
     textShadow: '0 0 8px rgba(51,255,51,0.6), 0 0 20px rgba(51,255,51,0.3)',
   },
-  statsBlock: { display: 'flex', gap: '24px', alignItems: 'center' },
+  statsBlock: { display: 'flex', gap: '20px', alignItems: 'center' },
   statItem: { fontSize: '12px', color: '#88aa88', letterSpacing: '1px' },
   statValue: { color: '#33ff33', fontSize: '14px', textShadow: '0 0 6px rgba(51,255,51,0.4)' },
+  statDivider: {
+    width: '1px',
+    height: '16px',
+    background: 'rgba(51,255,51,0.2)',
+  },
   actionBlock: { display: 'flex', gap: '6px', alignItems: 'center' },
   headerBtn: {
-    padding: '3px 12px', background: '#1a2a1a', border: '1px solid #33ff33',
+    padding: '4px 14px', background: 'linear-gradient(180deg, #1e2e1e 0%, #1a2a1a 100%)',
+    border: '1px solid #33ff33',
     color: '#33ff33', fontSize: '10px', fontFamily: 'inherit',
     letterSpacing: '2px', textTransform: 'uppercase' as const, cursor: 'pointer',
+    borderRadius: '3px',
+    transition: 'all 0.2s ease',
   },
-  resetBtn: { borderColor: '#cc4444', color: '#cc4444', background: '#2a1a1a' },
-  logoutBtn: { borderColor: '#aa8833', color: '#aa8833', background: '#2a2a1a' },
+  resetBtn: {
+    borderColor: '#cc4444', color: '#cc4444',
+    background: 'linear-gradient(180deg, #2a1a1a 0%, #221515 100%)',
+  },
+  logoutBtn: {
+    borderColor: '#aa8833', color: '#aa8833',
+    background: 'linear-gradient(180deg, #2a2a1a 0%, #222215 100%)',
+  },
 
   // Desktop columns
   main: { display: 'flex', flex: 1, overflow: 'hidden' },
   leftCol: {
-    width: '220px', flexShrink: 0, display: 'flex', flexDirection: 'column',
-    gap: '4px', padding: '4px', overflowY: 'auto', borderRight: '1px solid #1a2a1a',
+    width: '230px', flexShrink: 0, display: 'flex', flexDirection: 'column',
+    gap: '6px', padding: '6px', overflowY: 'auto',
+    borderRight: '1px solid rgba(51,255,51,0.12)',
+    background: 'rgba(0,0,0,0.15)',
   },
   centerCol: {
     flex: 1, display: 'flex', flexDirection: 'column',
-    gap: '4px', padding: '4px', overflow: 'hidden', minWidth: 0,
+    gap: '6px', padding: '6px', overflow: 'hidden', minWidth: 0,
   },
   centerInstrumentRow: {
     display: 'flex',
     alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: '6px',
+    justifyContent: 'space-evenly',
+    gap: '8px',
     flexShrink: 0,
     flexWrap: 'wrap',
-    padding: '2px 0',
+    padding: '4px 0',
   },
   centerLogArea: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    minHeight: 0,
+    minHeight: '150px',
   },
   rightCol: {
-    width: '300px', flexShrink: 0, display: 'flex', flexDirection: 'column',
-    padding: '4px', overflowY: 'auto', borderLeft: '1px solid #1a2a1a',
+    width: '310px', flexShrink: 0, display: 'flex', flexDirection: 'column',
+    padding: '6px', overflowY: 'auto',
+    borderLeft: '1px solid rgba(51,255,51,0.12)',
+    background: 'rgba(0,0,0,0.15)',
   },
 
   // Mobile top bar
   topBarMobile: {
     position: 'relative',
     display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center',
-    padding: '6px 10px', background: '#0d1117',
+    padding: '6px 10px',
+    background: 'linear-gradient(180deg, #111822 0%, #0d1117 100%)',
     borderBottom: '1px solid #1a3a1a', zIndex: 10, flexShrink: 0,
     gap: '2px',
   },

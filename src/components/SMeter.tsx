@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker -- S-Meter Component (Compact)
+// Ham Radio Clicker -- S-Meter Component (Polished)
 // ============================================================
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -52,7 +52,7 @@ export const SMeter: React.FC = () => {
   const displaySUnit = Math.max(0, Math.min(12, baseSUnit + jitter));
   const needleAngle = sUnitToAngle(displaySUnit);
 
-  // SVG geometry - compact
+  // SVG geometry
   const CX = 68;
   const CY = 72;
   const R = 56;
@@ -96,21 +96,25 @@ export const SMeter: React.FC = () => {
   };
 
   const gaugeContainer: React.CSSProperties = {
-    width: '200px',
+    width: '100%',
+    maxWidth: '200px',
     height: '112px',
     position: 'relative',
     overflow: 'hidden',
+    display: 'flex',
+    justifyContent: 'center',
   };
 
   const readoutStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '15px',
+    fontSize: '18px',
     fontWeight: 'bold',
     color: '#33ff33',
-    textShadow: '0 0 6px rgba(51,255,51,0.5)',
+    textShadow: '0 0 8px rgba(51,255,51,0.6), 0 0 16px rgba(51,255,51,0.2)',
     marginTop: '4px',
     textAlign: 'center',
-    letterSpacing: '1px',
+    letterSpacing: '2px',
+    padding: '2px 0',
   };
 
   return (
@@ -118,7 +122,7 @@ export const SMeter: React.FC = () => {
       <div style={titleStyle}>S METER</div>
 
       <div style={gaugeContainer}>
-        <svg width="200" height="112" viewBox="0 0 136 76">
+        <svg width="200" height="112" viewBox="0 0 136 76" style={{ display: 'block', margin: '0 auto' }}>
           {/* Background arc */}
           <path
             d={arcPath(-90, 90, R)}

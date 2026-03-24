@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker -- Shop (Right Sidebar - Compact)
+// Ham Radio Clicker -- Shop (Right Sidebar - Polished)
 // ============================================================
 
 import React, { useState } from 'react';
@@ -68,13 +68,13 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'rgba(51,255,51,0.4)',
     fontFamily: 'monospace',
     fontWeight: 'bold',
-    transition: 'all 0.15s',
+    transition: 'all 0.2s ease',
   },
   tabActive: {
     background: 'rgba(51,255,51,0.1)',
     color: COLORS.green,
     borderColor: COLORS.green,
-    boxShadow: `0 0 4px rgba(51,255,51,0.2)`,
+    boxShadow: `0 0 6px rgba(51,255,51,0.2)`,
   },
   tabLeft: {
     borderRadius: '3px 0 0 3px',
@@ -87,25 +87,36 @@ const styles: Record<string, React.CSSProperties> = {
     overflowY: 'auto' as const,
     display: 'flex',
     flexDirection: 'column',
-    gap: 4,
+    gap: 5,
     minHeight: 0,
   },
   card: {
     border: `1px solid ${COLORS.border}`,
-    borderRadius: 3,
-    padding: '6px 8px',
+    borderRadius: 4,
+    padding: '8px 10px',
     cursor: 'pointer',
-    transition: 'all 0.15s',
+    transition: 'all 0.2s ease',
+    position: 'relative' as const,
+  },
+  cardAffordable: {
+    borderColor: 'rgba(51,255,51,0.35)',
+    background: 'rgba(51,255,51,0.03)',
   },
   cardDisabled: {
-    opacity: 0.4,
+    opacity: 0.35,
     cursor: 'not-allowed',
+  },
+  cardLocked: {
+    opacity: 0.3,
+    cursor: 'not-allowed',
+    borderColor: 'rgba(255,68,68,0.2)',
+    background: 'rgba(255,68,68,0.02)',
   },
   cardHeader: {
     display: 'flex',
     alignItems: 'center',
     gap: 5,
-    marginBottom: 2,
+    marginBottom: 3,
   },
   cardIcon: {
     fontSize: 14,
@@ -126,7 +137,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: COLORS.amber,
     opacity: 0.6,
     lineHeight: 1.3,
-    marginBottom: 3,
+    marginBottom: 4,
   },
   cardFooter: {
     display: 'flex',
@@ -135,35 +146,49 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 4,
   },
   cardCost: {
-    fontSize: 10,
+    fontSize: 11,
     color: COLORS.amber,
+    fontWeight: 'bold',
+    textShadow: '0 0 4px rgba(255,170,0,0.2)',
+  },
+  cardCostUnaffordable: {
+    fontSize: 11,
+    color: '#885500',
     fontWeight: 'bold',
   },
   cardEffect: {
     fontSize: 10,
     color: COLORS.blue,
   },
+  cardEffectDetail: {
+    fontSize: 9,
+    color: 'rgba(0,204,255,0.6)',
+    marginTop: 2,
+  },
   cardPct: {
     fontSize: 9,
     color: 'rgba(51,255,51,0.5)',
   },
   buyBtn: {
-    background: 'rgba(51,255,51,0.1)',
+    background: 'rgba(51,255,51,0.12)',
     border: `1px solid ${COLORS.green}`,
     color: COLORS.green,
     fontFamily: 'monospace',
     fontSize: 9,
-    padding: '2px 8px',
-    borderRadius: 2,
+    padding: '3px 10px',
+    borderRadius: 3,
     cursor: 'pointer',
     fontWeight: 'bold',
     letterSpacing: 1,
+    transition: 'all 0.15s ease',
+    textShadow: '0 0 4px rgba(51,255,51,0.3)',
   },
   buyBtnDisabled: {
     background: 'transparent',
-    borderColor: 'rgba(51,255,51,0.2)',
-    color: 'rgba(51,255,51,0.3)',
+    borderColor: 'rgba(51,255,51,0.15)',
+    color: 'rgba(51,255,51,0.2)',
     cursor: 'not-allowed',
+    textShadow: 'none',
   },
   emptyMsg: {
     color: 'rgba(51,255,51,0.4)',
@@ -192,6 +217,21 @@ const Shop: React.FC = () => {
 
   return (
     <div style={styles.container}>
+      <style>{`
+        .shop-card:hover:not(.shop-card-disabled) {
+          box-shadow: 0 0 12px rgba(51,255,51,0.15), inset 0 0 20px rgba(51,255,51,0.03) !important;
+          border-color: rgba(51,255,51,0.5) !important;
+        }
+        .shop-card-locked:hover {
+          box-shadow: none !important;
+          border-color: rgba(255,68,68,0.2) !important;
+        }
+        .shop-buy-btn:hover:not(:disabled) {
+          background: rgba(51,255,51,0.2) !important;
+          box-shadow: 0 0 8px rgba(51,255,51,0.25);
+        }
+      `}</style>
+
       <div style={styles.title}>
         SHOP
         <span style={styles.titleLabel}>// EQUIPMENT RACK</span>
@@ -251,21 +291,25 @@ const Shop: React.FC = () => {
               const totalQps = owned > 0 ? +(st.baseQps * owned).toFixed(1) : 0;
               const pct = qsoPerSecond > 0 && totalQps > 0 ? ((totalQps / qsoPerSecond) * 100).toFixed(0) : null;
 
+              // Real effect numbers
+              const nextTotalQps = +((owned + 1) * st.baseQps).toFixed(1);
+
               return (
                 <div
                   key={st.id}
+                  className={`shop-card${!hasLicense ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
                   style={{
                     ...styles.card,
                     ...(!hasLicense
-                      ? { ...styles.cardDisabled, borderColor: 'rgba(255,68,68,0.2)' }
+                      ? styles.cardLocked
                       : canAfford
-                        ? { borderColor: 'rgba(51,255,51,0.3)' }
+                        ? styles.cardAffordable
                         : styles.cardDisabled),
                   }}
                   onClick={() => canAfford && buyStation(st.id)}
                 >
                   <div style={styles.cardHeader}>
-                    <span style={styles.cardIcon}>{hasLicense ? st.icon : '🔒'}</span>
+                    <span style={styles.cardIcon}>{hasLicense ? st.icon : '\u{1F512}'}</span>
                     <span style={styles.cardName}>{st.name}</span>
                     {owned > 0 && (
                       <span style={styles.cardCount}>x{owned}</span>
@@ -276,7 +320,7 @@ const Shop: React.FC = () => {
                   </div>
                   <div style={styles.cardFlavor}>{st.flavor}</div>
                   <div style={styles.cardFooter}>
-                    <span style={styles.cardCost}>
+                    <span style={canAfford ? styles.cardCost : styles.cardCostUnaffordable}>
                       {formatNumber(cost)} QSOs
                     </span>
                     <span style={styles.cardEffect}>
@@ -292,6 +336,7 @@ const Shop: React.FC = () => {
                       </span>
                     ) : (
                       <button
+                        className="shop-buy-btn"
                         style={{
                           ...styles.buyBtn,
                           ...(!canAfford ? styles.buyBtnDisabled : {}),
@@ -306,6 +351,12 @@ const Shop: React.FC = () => {
                       </button>
                     )}
                   </div>
+                  {/* Effect detail */}
+                  {owned > 0 && (
+                    <div style={styles.cardEffectDetail}>
+                      Currently: {totalQps} q/s total | Next: {nextTotalQps} q/s
+                    </div>
+                  )}
                 </div>
               );
             })
@@ -323,26 +374,35 @@ const Shop: React.FC = () => {
             return (
               <div
                 key={up.id}
+                className={`shop-card${!prereqMet ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
                 style={{
                   ...styles.card,
                   ...(!prereqMet
-                    ? { ...styles.cardDisabled, borderColor: 'rgba(255,68,68,0.2)' }
+                    ? styles.cardLocked
                     : canAfford
-                      ? { borderColor: 'rgba(51,255,51,0.3)' }
+                      ? styles.cardAffordable
                       : styles.cardDisabled),
                 }}
                 onClick={() => canAfford && buyUpgrade(up.id)}
               >
                 <div style={styles.cardHeader}>
-                  <span style={styles.cardIcon}>{prereqMet ? up.icon : '🔒'}</span>
+                  <span style={styles.cardIcon}>{prereqMet ? up.icon : '\u{1F512}'}</span>
                   <span style={styles.cardName}>{up.name}</span>
                 </div>
                 <div style={styles.cardFlavor}>{up.flavor}</div>
-                <div style={{ fontSize: 10, color: COLORS.blue, marginBottom: 3 }}>
+                <div style={{
+                  fontSize: 10,
+                  color: COLORS.blue,
+                  marginBottom: 4,
+                  padding: '2px 4px',
+                  background: 'rgba(0,204,255,0.05)',
+                  borderRadius: 2,
+                  borderLeft: '2px solid rgba(0,204,255,0.2)',
+                }}>
                   {up.description}
                 </div>
                 <div style={styles.cardFooter}>
-                  <span style={styles.cardCost}>
+                  <span style={canAfford ? styles.cardCost : styles.cardCostUnaffordable}>
                     {formatNumber(up.cost)} QSOs
                   </span>
                   {!prereqMet ? (
@@ -355,6 +415,7 @@ const Shop: React.FC = () => {
                     </span>
                   ) : (
                     <button
+                      className="shop-buy-btn"
                       style={{
                         ...styles.buyBtn,
                         ...(!canAfford ? styles.buyBtnDisabled : {}),

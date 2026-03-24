@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker -- PTT Button Component (Compact)
+// Ham Radio Clicker -- PTT Button Component (Polished)
 // ============================================================
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -30,6 +30,7 @@ export const PTTButton: React.FC = () => {
   const [floats, setFloats] = useState<FloatingText[]>([]);
   const [pressed, setPressed] = useState(false);
   const [tuneCooldown, setTuneCooldown] = useState(false);
+  const [lastBand, setLastBand] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Determine ring color from SWR
@@ -70,6 +71,8 @@ export const PTTButton: React.FC = () => {
       band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m', '160m', '30m', '17m', '12m', '60m']);
       contactName = ['2m', '70cm', '6m'].includes(band) ? randomLocalCallsign() : randomWorldwideCallsign();
     }
+
+    setLastBand(band);
 
     const id = ++floatId;
     const x = 40 + Math.random() * 60;
@@ -153,13 +156,19 @@ export const PTTButton: React.FC = () => {
     borderRadius: '50%',
     background: swr.equipmentDamaged
       ? 'radial-gradient(circle at 40% 35%, #662222 0%, #331111 60%, #220000 100%)'
-      : 'radial-gradient(circle at 40% 35%, #444 0%, #1a1a1a 70%, #0d0d0d 100%)',
+      : `radial-gradient(circle at 40% 35%, #4a4a4a 0%, #1a1a1a 70%, #0d0d0d 100%)`,
     border: '2px solid rgba(255,255,255,0.06)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.5), inset 0 -1px 4px rgba(255,255,255,0.04)',
+    // Radio static noise texture via CSS
+    backgroundImage: swr.equipmentDamaged ? undefined : `
+      radial-gradient(circle at 40% 35%, #4a4a4a 0%, #1a1a1a 70%, #0d0d0d 100%),
+      repeating-conic-gradient(rgba(255,255,255,0.01) 0% 25%, transparent 0% 50%)
+    `,
+    backgroundSize: '100% 100%, 4px 4px',
   };
 
   const pttText: React.CSSProperties = {
@@ -169,7 +178,7 @@ export const PTTButton: React.FC = () => {
     color: swr.equipmentDamaged ? '#ff4444' : '#cccccc',
     textShadow: swr.equipmentDamaged
       ? '0 0 10px #ff4444'
-      : '0 0 6px rgba(255,255,255,0.15)',
+      : '0 0 6px rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.5)',
     letterSpacing: '3px',
   };
 
@@ -206,18 +215,19 @@ export const PTTButton: React.FC = () => {
     fontFamily: 'monospace',
     fontSize: '13px',
     fontWeight: 'bold',
-    padding: '6px 20px',
+    padding: '7px 24px',
     background: tuneCooldown
       ? 'linear-gradient(180deg, #1a1a2a 0%, #0d0d1a 100%)'
-      : 'linear-gradient(180deg, #1a2a1a 0%, #0d1a0d 100%)',
+      : 'linear-gradient(180deg, #1a3a1a 0%, #0d220d 100%)',
     color: tuneCooldown ? '#555555' : '#33ff33',
-    border: `1px solid ${tuneCooldown ? '#333333' : '#33ff3344'}`,
-    borderRadius: '4px',
+    border: `2px solid ${tuneCooldown ? '#333333' : '#33ff3366'}`,
+    borderRadius: '6px',
     cursor: tuneCooldown ? 'not-allowed' : 'pointer',
-    textShadow: tuneCooldown ? 'none' : '0 0 8px #33ff3366',
-    boxShadow: tuneCooldown ? 'none' : '0 0 10px rgba(51,255,51,0.1)',
+    textShadow: tuneCooldown ? 'none' : '0 0 10px #33ff3388',
+    boxShadow: tuneCooldown ? 'none' : '0 0 12px rgba(51,255,51,0.15), inset 0 1px 0 rgba(51,255,51,0.1)',
     transition: 'all 0.3s ease',
-    letterSpacing: '2px',
+    letterSpacing: '3px',
+    textTransform: 'uppercase' as const,
   };
 
   const floatStyle = (f: FloatingText): React.CSSProperties => ({
@@ -226,9 +236,9 @@ export const PTTButton: React.FC = () => {
     top: '20px',
     fontFamily: 'monospace',
     fontWeight: 'bold',
-    fontSize: '13px',
+    fontSize: '14px',
     color: '#33ff33',
-    textShadow: '0 0 8px #33ff33, 0 0 16px #33ff3366',
+    textShadow: '0 0 10px #33ff33, 0 0 20px #33ff3388, 0 0 30px #33ff3344',
     pointerEvents: 'none',
     whiteSpace: 'nowrap',
     animation: 'floatUp 1.2s ease-out forwards',
@@ -258,6 +268,12 @@ export const PTTButton: React.FC = () => {
           0% { width: 100%; }
           100% { width: 0%; }
         }
+        .ptt-outer:hover {
+          transform: scale(1.03) !important;
+        }
+        .ptt-outer:active {
+          transform: scale(0.94) !important;
+        }
       `}</style>
 
       {/* Floating QSO text */}
@@ -276,6 +292,7 @@ export const PTTButton: React.FC = () => {
 
       {/* PTT Button */}
       <div
+        className="ptt-outer"
         style={buttonOuter}
         onMouseDown={() => {
           setPressed(true);
@@ -302,8 +319,8 @@ export const PTTButton: React.FC = () => {
         </div>
       </div>
 
-      {/* TX Power + Tune row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+      {/* TX Power + Band row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
         <span style={{
           fontFamily: 'monospace',
           fontSize: '13px',
@@ -313,6 +330,24 @@ export const PTTButton: React.FC = () => {
         }}>
           TX:{txPower}W{txPower <= 5 ? ' QRP' : ''}
         </span>
+        {lastBand && (
+          <>
+            <span style={{
+              width: '1px',
+              height: '12px',
+              background: 'rgba(51,255,51,0.2)',
+            }} />
+            <span style={{
+              fontFamily: 'monospace',
+              fontSize: '11px',
+              color: '#00ccff',
+              letterSpacing: '1px',
+              textShadow: '0 0 4px rgba(0,204,255,0.3)',
+            }}>
+              {lastBand}
+            </span>
+          </>
+        )}
       </div>
 
       {/* Repair button when damaged */}
@@ -342,11 +377,13 @@ export const PTTButton: React.FC = () => {
           onMouseEnter={(e) => {
             if (!tuneCooldown) {
               e.currentTarget.style.background = 'linear-gradient(180deg, #224422 0%, #112211 100%)';
+              e.currentTarget.style.borderColor = '#33ff3399';
             }
           }}
           onMouseLeave={(e) => {
             if (!tuneCooldown) {
-              e.currentTarget.style.background = 'linear-gradient(180deg, #1a2a1a 0%, #0d1a0d 100%)';
+              e.currentTarget.style.background = 'linear-gradient(180deg, #1a3a1a 0%, #0d220d 100%)';
+              e.currentTarget.style.borderColor = '#33ff3366';
             }
           }}
         >

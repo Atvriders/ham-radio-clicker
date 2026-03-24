@@ -1,8 +1,8 @@
 // ============================================================
-// Ham Radio Clicker -- Event Log (Fills center column)
+// Ham Radio Clicker -- Event Log (Fills center column - Polished)
 // ============================================================
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from '../stores/useGameStore';
 import { EventLogEntry } from '../types';
 
@@ -103,6 +103,11 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 4,
     flexShrink: 0,
   },
+  titleLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
   title: {
     fontSize: 10,
     letterSpacing: 2,
@@ -115,29 +120,53 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'rgba(51,255,51,0.4)',
     letterSpacing: 1,
   },
+  clearBtn: {
+    fontSize: 8,
+    fontFamily: 'monospace',
+    fontWeight: 'bold',
+    color: 'rgba(51,255,51,0.35)',
+    background: 'transparent',
+    border: '1px solid rgba(51,255,51,0.15)',
+    borderRadius: 2,
+    padding: '1px 6px',
+    cursor: 'pointer',
+    letterSpacing: 1,
+    textTransform: 'uppercase' as const,
+    transition: 'all 0.2s ease',
+  },
   logArea: {
     flex: 1,
     overflowY: 'auto' as const,
     display: 'flex',
     flexDirection: 'column',
-    gap: 1,
+    gap: 0,
     minHeight: 0,
   },
   entry: {
     fontSize: 12,
     lineHeight: 1.5,
     whiteSpace: 'pre-wrap' as const,
+    padding: '1px 4px',
+    borderRadius: 2,
+  },
+  entryEven: {
+    background: 'rgba(51,255,51,0.015)',
+  },
+  entryOdd: {
+    background: 'transparent',
   },
   timestamp: {
-    color: 'rgba(51,255,51,0.35)',
+    color: 'rgba(51,255,51,0.3)',
     marginRight: 4,
-    fontSize: 10,
+    fontSize: 9,
+    letterSpacing: 0.5,
   },
 };
 
 const EventLog: React.FC = () => {
   const eventLog = useGameStore((s) => s.eventLog);
   const addLogEntry = useGameStore((s) => s.addLogEntry);
+  const clearEventLog = useGameStore((s) => s.clearEventLog);
   const upgrades = useGameStore((s) => s.upgrades);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -173,24 +202,49 @@ const EventLog: React.FC = () => {
     return () => clearInterval(interval);
   }, [addLogEntry]);
 
+  const handleClear = useCallback(() => {
+    clearEventLog();
+  }, [clearEventLog]);
+
   const visible = eventLog.slice(0, 30).reverse();
 
   return (
     <div style={styles.container}>
       <div style={styles.titleRow}>
-        <span style={styles.title}>QSO LOG</span>
-        <span style={styles.entryCount}>{eventLog.length} entries</span>
+        <div style={styles.titleLeft}>
+          <span style={styles.title}>QSO LOG</span>
+          <span style={styles.entryCount}>{eventLog.length} entries</span>
+        </div>
+        <button
+          style={styles.clearBtn}
+          onClick={handleClear}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'rgba(51,255,51,0.7)';
+            e.currentTarget.style.borderColor = 'rgba(51,255,51,0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'rgba(51,255,51,0.35)';
+            e.currentTarget.style.borderColor = 'rgba(51,255,51,0.15)';
+          }}
+        >
+          CLR
+        </button>
       </div>
       <div style={styles.logArea} ref={scrollRef}>
         {visible.map((entry: EventLogEntry, i: number) => {
           const age = visible.length - i;
           const opacity = Math.max(0.4, 1 - age * 0.02);
           const typeColor = TYPE_COLORS[entry.type] ?? COLORS.green;
+          const isEven = i % 2 === 0;
 
           return (
-            <div key={entry.id} style={{ ...styles.entry, opacity }}>
+            <div key={entry.id} style={{
+              ...styles.entry,
+              ...(isEven ? styles.entryEven : styles.entryOdd),
+              opacity,
+            }}>
               <span style={styles.timestamp}>
-                [{formatTimestamp(entry.timestamp)}]
+                {formatTimestamp(entry.timestamp)}
               </span>
               <span style={{ color: typeColor }}>{entry.message}</span>
             </div>

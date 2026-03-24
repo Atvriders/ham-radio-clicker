@@ -73,6 +73,7 @@ interface GameActions {
   setEvent: (event: RandomEvent) => void;
   clearEvent: () => void;
   addLogEntry: (message: string, type: EventLogType) => void;
+  clearEventLog: () => void;
   recalcQps: () => void;
   save: () => void;
   load: () => void;
@@ -509,6 +510,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((s) => ({
       eventLog: [makeLogEntry(message, type), ...s.eventLog].slice(0, 200),
     }));
+  },
+
+  clearEventLog: () => {
+    set({ eventLog: [] });
   },
 
   // --- Recalc QPS ---

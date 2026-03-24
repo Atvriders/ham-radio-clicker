@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker -- Stats Panel (Left Sidebar - Compact)
+// Ham Radio Clicker -- Stats Panel (Left Sidebar - Polished)
 // ============================================================
 
 import React, { useEffect, useState } from 'react';
@@ -47,12 +47,12 @@ const styles: Record<string, React.CSSProperties> = {
     background: COLORS.panel,
     border: `1px solid ${COLORS.border}`,
     borderRadius: 6,
-    padding: '8px 10px',
+    padding: '10px 12px',
     fontFamily: 'monospace',
     color: COLORS.green,
     display: 'flex',
     flexDirection: 'column',
-    gap: 4,
+    gap: 0,
     boxSizing: 'border-box',
     overflow: 'auto',
   },
@@ -62,8 +62,8 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase' as const,
     color: COLORS.green,
     borderBottom: `1px solid ${COLORS.border}`,
-    paddingBottom: 4,
-    marginBottom: 2,
+    paddingBottom: 6,
+    marginBottom: 6,
     display: 'flex',
     alignItems: 'center',
     gap: 6,
@@ -74,12 +74,13 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: 1,
   },
   qsoCount: {
-    fontSize: 26,
+    fontSize: 32,
     fontWeight: 'bold',
     color: COLORS.green,
-    textShadow: `0 0 10px ${COLORS.green}, 0 0 20px rgba(51,255,51,0.3)`,
+    textShadow: `0 0 12px ${COLORS.green}, 0 0 24px rgba(51,255,51,0.3)`,
     textAlign: 'center' as const,
     lineHeight: 1.1,
+    padding: '4px 0 2px',
   },
   qsoLabel: {
     fontSize: 9,
@@ -88,13 +89,17 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase' as const,
     letterSpacing: 2,
     marginTop: 0,
+    marginBottom: 4,
+  },
+  section: {
+    padding: '6px 0',
   },
   statRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     fontSize: 11,
-    padding: '1px 0',
+    padding: '3px 0',
     lineHeight: 1.4,
   },
   statLabel: {
@@ -107,8 +112,31 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 11,
   },
   divider: {
-    borderTop: `1px solid ${COLORS.border}`,
-    margin: '2px 0',
+    borderTop: `1px solid rgba(51,255,51,0.1)`,
+    margin: '4px 0',
+  },
+  sessionTimer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    padding: '5px 0',
+    borderTop: `1px solid rgba(51,255,51,0.1)`,
+    marginTop: 4,
+  },
+  sessionLabel: {
+    fontSize: 9,
+    color: 'rgba(51,255,51,0.4)',
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
+  },
+  sessionValue: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: COLORS.blue,
+    textShadow: '0 0 6px rgba(0,204,255,0.3)',
+    letterSpacing: 1,
+    fontFamily: 'monospace',
   },
   eventBanner: {
     background: 'rgba(255,170,0,0.08)',
@@ -149,17 +177,20 @@ const StatsPanel: React.FC = () => {
   const currentBand = getBandFromUpgrades(upgrades);
 
   const [elapsed, setElapsed] = useState(0);
+  const [sessionElapsed, setSessionElapsed] = useState(0);
   const [eventRemaining, setEventRemaining] = useState(0);
+  const [sessionStart] = useState(() => Date.now());
 
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsed(Date.now() - startTime);
+      setSessionElapsed(Date.now() - sessionStart);
       if (activeEvent) {
         setEventRemaining(Math.max(0, activeEvent.endsAt - Date.now()));
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [startTime, activeEvent]);
+  }, [startTime, activeEvent, sessionStart]);
 
   const swrColor = getSWRColor(swr.current);
 
@@ -174,128 +205,136 @@ const StatsPanel: React.FC = () => {
         <span style={styles.titleLabel}>// PANEL A</span>
       </div>
 
-      {/* Mode */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>MODE</span>
-        <span
-          style={{
-            ...styles.statValue,
-            color: hasLicense ? COLORS.green : COLORS.amber,
-            fontSize: 10,
-          }}
-        >
-          {hasLicense ? 'AMATEUR' : 'MURS'}
-        </span>
-      </div>
-
-      {/* Band */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>BAND</span>
-        <span style={{ ...styles.statValue, color: COLORS.blue, fontSize: 10 }}>
-          {currentBand}
-        </span>
-      </div>
-
-      <div style={styles.divider} />
-
-      {/* QSO Count */}
+      {/* QSO Count - Prominent */}
       <div style={styles.qsoCount}>{formatNumber(qsos)}</div>
       <div style={styles.qsoLabel}>Total QSOs</div>
 
       <div style={styles.divider} />
 
-      {/* Rates */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>QSOs/sec</span>
-        <span style={styles.statValue}>{formatNumber(qsoPerSecond)}</span>
-      </div>
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>QSOs/click</span>
-        <span style={styles.statValue}>{formatNumber(qsoPerClick)}</span>
-      </div>
+      {/* Mode & Band section */}
+      <div style={styles.section}>
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>MODE</span>
+          <span
+            style={{
+              ...styles.statValue,
+              color: hasLicense ? COLORS.green : COLORS.amber,
+              fontSize: 10,
+            }}
+          >
+            {hasLicense ? 'AMATEUR' : 'MURS'}
+          </span>
+        </div>
 
-      <div style={styles.divider} />
-
-      {/* SWR */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>SWR</span>
-        <span
-          style={{
-            ...styles.statValue,
-            color: swrColor,
-            textShadow: swr.current > 3 ? `0 0 6px ${swrColor}` : 'none',
-          }}
-        >
-          {formatSWR(swr.current)}
-        </span>
-      </div>
-
-      {/* Equipment Status */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>EQUIP</span>
-        <span
-          style={{
-            ...styles.statValue,
-            color: swr.equipmentDamaged ? COLORS.red : COLORS.green,
-            animation: swr.equipmentDamaged ? 'blink 0.8s infinite' : 'none',
-            fontSize: 10,
-          }}
-        >
-          {swr.equipmentDamaged ? 'DAMAGED' : 'OK'}
-        </span>
-      </div>
-
-      {/* TX Power */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>TX PWR</span>
-        <span
-          style={{
-            ...styles.statValue,
-            color: (transmitPower ?? 5) <= 5
-              ? COLORS.green
-              : (transmitPower ?? 5) <= 100
-                ? COLORS.amber
-                : COLORS.red,
-            fontSize: 10,
-          }}
-        >
-          {(transmitPower ?? 5)}W
-          {(transmitPower ?? 5) <= 5 ? ' (QRP)' : (transmitPower ?? 5) <= 100 ? ' (LP)' : (transmitPower ?? 5) >= 1500 ? ' (HP MAX)' : ' (HP)'}
-        </span>
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>BAND</span>
+          <span style={{ ...styles.statValue, color: COLORS.blue, fontSize: 10 }}>
+            {currentBand}
+          </span>
+        </div>
       </div>
 
       <div style={styles.divider} />
 
-      {/* Last Contact */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>LAST QSO</span>
-        <span style={{ ...styles.statValue, color: COLORS.amber, fontSize: 9, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {lastContact}
-        </span>
+      {/* Rates section */}
+      <div style={styles.section}>
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>QSOs/sec</span>
+          <span style={styles.statValue}>{formatNumber(qsoPerSecond)}</span>
+        </div>
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>QSOs/click</span>
+          <span style={styles.statValue}>{formatNumber(qsoPerClick)}</span>
+        </div>
       </div>
 
-      {/* Clicks */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>CLICKS</span>
-        <span style={styles.statValue}>{formatNumber(totalClicks)}</span>
+      <div style={styles.divider} />
+
+      {/* Equipment section */}
+      <div style={styles.section}>
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>SWR</span>
+          <span
+            style={{
+              ...styles.statValue,
+              color: swrColor,
+              textShadow: swr.current > 3 ? `0 0 6px ${swrColor}` : 'none',
+            }}
+          >
+            {formatSWR(swr.current)}
+          </span>
+        </div>
+
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>EQUIP</span>
+          <span
+            style={{
+              ...styles.statValue,
+              color: swr.equipmentDamaged ? COLORS.red : COLORS.green,
+              animation: swr.equipmentDamaged ? 'blink 0.8s infinite' : 'none',
+              fontSize: 10,
+            }}
+          >
+            {swr.equipmentDamaged ? 'DAMAGED' : 'OK'}
+          </span>
+        </div>
+
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>TX PWR</span>
+          <span
+            style={{
+              ...styles.statValue,
+              color: (transmitPower ?? 5) <= 5
+                ? COLORS.green
+                : (transmitPower ?? 5) <= 100
+                  ? COLORS.amber
+                  : COLORS.red,
+              fontSize: 10,
+            }}
+          >
+            {(transmitPower ?? 5)}W
+            {(transmitPower ?? 5) <= 5 ? ' (QRP)' : (transmitPower ?? 5) <= 100 ? ' (LP)' : (transmitPower ?? 5) >= 1500 ? ' (HP MAX)' : ' (HP)'}
+          </span>
+        </div>
       </div>
 
-      {/* Time On Air */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>ON AIR</span>
-        <span style={{ ...styles.statValue, color: COLORS.blue }}>{formatTime(elapsed)}</span>
+      <div style={styles.divider} />
+
+      {/* Activity section */}
+      <div style={styles.section}>
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>LAST QSO</span>
+          <span style={{ ...styles.statValue, color: COLORS.amber, fontSize: 9, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {lastContact}
+          </span>
+        </div>
+
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>CLICKS</span>
+          <span style={styles.statValue}>{formatNumber(totalClicks)}</span>
+        </div>
+
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>ON AIR</span>
+          <span style={{ ...styles.statValue, color: COLORS.blue }}>{formatTime(elapsed)}</span>
+        </div>
+
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>AWARDS</span>
+          <span style={{
+            ...styles.statValue,
+            color: '#ffd700',
+            textShadow: achievements.length > 0 ? '0 0 6px rgba(255,215,0,0.4)' : 'none',
+          }}>
+            {achievements.length}
+          </span>
+        </div>
       </div>
 
-      {/* Achievements badge */}
-      <div style={styles.statRow}>
-        <span style={styles.statLabel}>AWARDS</span>
-        <span style={{
-          ...styles.statValue,
-          color: '#ffd700',
-          textShadow: achievements.length > 0 ? '0 0 6px rgba(255,215,0,0.4)' : 'none',
-        }}>
-          {achievements.length}
-        </span>
+      {/* Session Timer */}
+      <div style={styles.sessionTimer}>
+        <span style={styles.sessionLabel}>SHIFT</span>
+        <span style={styles.sessionValue}>{formatTime(sessionElapsed)}</span>
       </div>
 
       {/* Active Event */}

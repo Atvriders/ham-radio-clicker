@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker -- SWR Meter Component (Compact)
+// Ham Radio Clicker -- SWR Meter Component (Polished)
 // ============================================================
 
 import React from 'react';
@@ -54,37 +54,52 @@ export const SWRMeter: React.FC = () => {
   };
 
   const gaugeContainer: React.CSSProperties = {
-    width: '220px',
+    width: '100%',
+    maxWidth: '220px',
     height: '122px',
     position: 'relative',
     overflow: 'hidden',
+    display: 'flex',
+    justifyContent: 'center',
   };
 
   const readoutStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '16px',
+    fontSize: '18px',
     fontWeight: 'bold',
     color: hasAnalyzer
       ? (swrCurrent > 5 ? '#ff4444' : swrCurrent > 3 ? '#ffaa00' : '#33ff33')
       : '#555555',
     textShadow: hasAnalyzer
-      ? `0 0 6px ${swrCurrent > 5 ? '#ff444466' : swrCurrent > 3 ? '#ffaa0066' : '#33ff3366'}`
+      ? `0 0 8px ${swrCurrent > 5 ? '#ff444488' : swrCurrent > 3 ? '#ffaa0088' : '#33ff3388'}`
       : 'none',
-    marginTop: '2px',
+    marginTop: '4px',
     textAlign: 'center',
-    letterSpacing: '1px',
+    letterSpacing: '2px',
+    padding: '2px 0',
   };
 
   const warningStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '11px',
+    fontSize: '12px',
     fontWeight: 'bold',
     color: '#ff4444',
-    textShadow: '0 0 6px #ff4444',
     marginTop: '4px',
-    animation: 'swrWarningFlash 0.6s ease-in-out infinite',
+    animation: 'warningGlow 1.2s ease-in-out infinite',
+    textAlign: 'center',
+    letterSpacing: '2px',
+    textTransform: 'uppercase',
+  };
+
+  const noAnalyzerStyle: React.CSSProperties = {
+    fontFamily: 'monospace',
+    fontSize: '9px',
+    fontWeight: 'bold',
+    color: '#666',
+    marginTop: '2px',
     textAlign: 'center',
     letterSpacing: '1px',
+    textTransform: 'uppercase',
   };
 
   // Color zone arcs
@@ -121,7 +136,7 @@ export const SWRMeter: React.FC = () => {
       <div style={titleStyle}>SWR METER</div>
 
       <div style={gaugeContainer}>
-        <svg width="220" height="122" viewBox="0 0 148 82">
+        <svg width="220" height="122" viewBox="0 0 148 82" style={{ display: 'block', margin: '0 auto' }}>
           {/* Background arc */}
           <path
             d={arcPath(-90, 90, R, CX, CY)}
@@ -235,6 +250,13 @@ export const SWRMeter: React.FC = () => {
       <div style={readoutStyle}>
         {hasAnalyzer ? `SWR: ${swrCurrent.toFixed(1)}:1` : 'SWR: ???'}
       </div>
+
+      {/* No analyzer message */}
+      {!hasAnalyzer && (
+        <div style={noAnalyzerStyle}>
+          ANTENNA ANALYZER REQUIRED
+        </div>
+      )}
 
       {/* Warning text */}
       {isWarning && (

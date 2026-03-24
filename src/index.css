@@ -19,35 +19,64 @@ body {
   min-height: 100vh;
 }
 
+/* Vignette overlay on the body */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(0, 0, 0, 0.35) 85%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
 #root {
   min-height: 100vh;
 }
 
 /* --- Scrollbar --- */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d1117;
-  border-radius: 4px;
+  background: #080c14;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1a3a1a;
-  border-radius: 4px;
-  border: 1px solid #0d1117;
+  background: linear-gradient(180deg, #1a3a1a 0%, #0f2a0f 100%);
+  border-radius: 3px;
+  border: 1px solid #0a1a0a;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #33ff33;
+  background: linear-gradient(180deg, #2a5a2a 0%, #1a4a1a 100%);
+  box-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
 }
 
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #1a3a1a #0d1117;
+  scrollbar-color: #1a3a1a #080c14;
+}
+
+/* --- Smooth transitions on all interactive elements --- */
+button, a, input, select {
+  transition: all 0.2s ease;
+}
+
+button:focus-visible {
+  outline: 1px solid #33ff33;
+  outline-offset: 2px;
 }
 
 /* --- Selection --- */
@@ -139,6 +168,18 @@ button {
   }
   75% {
     background-color: rgba(255, 50, 50, 0.1);
+  }
+}
+
+/* Pulsing glow for warnings */
+@keyframes warningGlow {
+  0%, 100% {
+    text-shadow: 0 0 6px #ff4444, 0 0 12px rgba(255, 68, 68, 0.4);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 16px #ff4444, 0 0 30px rgba(255, 68, 68, 0.7), 0 0 50px rgba(255, 68, 68, 0.3);
+    opacity: 0.85;
   }
 }
 
