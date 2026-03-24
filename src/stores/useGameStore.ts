@@ -403,7 +403,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       patch.transmitPower = parseInt(powerMatch[1], 10);
     }
 
-    // Handle SWR drift reduction (already computed in tick, but store for reference)
+    // When getting licensed, clear old MURS entries from log
+    if (id === 'technician_license') {
+      patch.eventLog = s.eventLog.filter(e => !e.message.includes('MURS contact'));
+    }
 
     set(patch);
   },
