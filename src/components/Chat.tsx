@@ -37,6 +37,7 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastSeenIdRef = useRef<number>(0);
   const wasOpenRef = useRef(false);
+  const sessionStartRef = useRef<string>(new Date().toISOString());
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -44,7 +45,8 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
 
   const fetchMessages = useCallback(async () => {
     try {
-      const res = await fetch('/api/chat');
+      // Only fetch messages since this window opened
+      const res = await fetch(`/api/chat?since=${encodeURIComponent(sessionStartRef.current)}`);
       if (res.ok) {
         const data: ChatMessage[] = await res.json();
         setMessages(data);
@@ -52,7 +54,6 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
         if (data.length > 0) {
           const latestId = data[data.length - 1].id;
           if (!wasOpenRef.current && latestId > lastSeenIdRef.current) {
-            // Count new messages since last seen
             const newCount = data.filter((m) => m.id > lastSeenIdRef.current).length;
             setUnread(newCount);
           }
