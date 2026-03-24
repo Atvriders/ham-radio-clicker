@@ -64,6 +64,19 @@ export function useGameLoop(): void {
     const store = useGameStore.getState();
     store.load();
 
+    // Retroactively unlock achievements after load (delayed for async server fetch)
+    setTimeout(() => {
+      const current = useGameStore.getState();
+      for (const ach of ACHIEVEMENTS) {
+        if (current.achievements.includes(ach.id)) continue;
+        if (checkCondition(ach.condition, current)) {
+          useGameStore.setState((s) => ({
+            achievements: [...s.achievements, ach.id],
+          }));
+        }
+      }
+    }, 1500);
+
     const now = Date.now();
     lastFrameRef.current = now;
     lastAchievementCheckRef.current = now;
