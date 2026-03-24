@@ -123,6 +123,7 @@ export const PTTButton: React.FC = () => {
     userSelect: 'none',
     padding: '4px 8px',
     minWidth: '160px',
+    overflow: 'hidden',
   };
 
   const buttonOuter: React.CSSProperties = {

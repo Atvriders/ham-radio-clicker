@@ -54,11 +54,11 @@ const EventPopup: React.FC = () => {
   const styles: Record<string, React.CSSProperties> = {
     wrapper: {
       position: 'fixed',
-      top: 0,
+      bottom: 100,
       left: '50%',
-      transform: `translateX(-50%) translateY(${visible ? '0' : '-100%'})`,
+      transform: `translateX(-50%) translateY(${visible ? '0' : '100%'})`,
       transition: 'transform 0.4s ease-in-out',
-      zIndex: 1000,
+      zIndex: 1500,
       width: '90%',
       maxWidth: 500,
       pointerEvents: visible ? 'auto' : 'none',
@@ -66,11 +66,10 @@ const EventPopup: React.FC = () => {
     banner: {
       background: COLORS.panel,
       border: `2px solid ${borderColor}`,
-      borderTop: 'none',
-      borderRadius: '0 0 8px 8px',
+      borderRadius: '8px 8px 0 0',
       padding: 16,
       fontFamily: 'monospace',
-      boxShadow: `0 4px 20px rgba(0,0,0,0.5), 0 0 15px ${isPositive ? 'rgba(51,255,51,0.2)' : 'rgba(255,68,68,0.2)'}`,
+      boxShadow: `0 -4px 20px rgba(0,0,0,0.5), 0 0 15px ${isPositive ? 'rgba(51,255,51,0.2)' : 'rgba(255,68,68,0.2)'}`,
     },
     header: {
       display: 'flex',

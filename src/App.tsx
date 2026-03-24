@@ -264,16 +264,27 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
       <Chat callsign={callsign} />
 
       <style>{`
-        @media (max-width: 900px) and (min-width: 769px) {
+        @media (max-width: 1100px) and (min-width: 769px) {
           main {
             flex-direction: column !important;
+            overflow-y: auto !important;
           }
           main > aside,
           main > section {
             width: 100% !important;
+            max-height: none !important;
             border-left: none !important;
             border-right: none !important;
             border-bottom: 1px solid #1a2a1a;
+            flex-shrink: 0 !important;
+          }
+          main > aside:first-child {
+            max-height: 300px !important;
+            overflow-y: auto !important;
+          }
+          main > aside:last-child {
+            max-height: 400px !important;
+            overflow-y: auto !important;
           }
         }
       `}</style>
@@ -332,6 +343,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '6px 16px', background: '#0d1117',
     borderBottom: '1px solid #1a3a1a', zIndex: 10, flexShrink: 0,
+    flexWrap: 'wrap', gap: '4px',
   },
   titleBlock: { display: 'flex', alignItems: 'center', gap: '8px' },
   title: {
@@ -354,12 +366,12 @@ const styles: Record<string, React.CSSProperties> = {
   // Desktop columns
   main: { display: 'flex', flex: 1, overflow: 'hidden' },
   leftCol: {
-    width: '260px', flexShrink: 0, display: 'flex', flexDirection: 'column',
+    width: '220px', flexShrink: 0, display: 'flex', flexDirection: 'column',
     gap: '4px', padding: '4px', overflowY: 'auto', borderRight: '1px solid #1a2a1a',
   },
   centerCol: {
     flex: 1, display: 'flex', flexDirection: 'column',
-    gap: '4px', padding: '4px', overflow: 'hidden',
+    gap: '4px', padding: '4px', overflow: 'hidden', minWidth: 0,
   },
   centerInstrumentRow: {
     display: 'flex',
@@ -367,7 +379,9 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     gap: '6px',
     flexShrink: 0,
+    flexWrap: 'wrap',
     padding: '2px 0',
+    overflow: 'hidden',
   },
   centerLogArea: {
     flex: 1,
@@ -377,7 +391,7 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: 0,
   },
   rightCol: {
-    width: '340px', flexShrink: 0, display: 'flex', flexDirection: 'column',
+    width: '300px', flexShrink: 0, display: 'flex', flexDirection: 'column',
     padding: '4px', overflowY: 'auto', borderLeft: '1px solid #1a2a1a',
   },
 
