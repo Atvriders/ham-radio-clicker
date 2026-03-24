@@ -51,6 +51,15 @@ db.exec(`
     updated_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
+
+  CREATE TABLE IF NOT EXISTS chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    callsign TEXT NOT NULL,
+    message TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_chat_created_at ON chat_messages(created_at);
 `);
 
 // ---- Prepared statements ----
@@ -64,10 +73,22 @@ const stmts = {
   `),
   getSave: db.prepare('SELECT save_data FROM saves WHERE user_id = ?'),
   getLeaderboard: db.prepare(`
-    SELECT callsign, total_qsos, qso_per_second, stations_owned, achievements_count, license_class
+    SELECT callsign, total_qsos, qso_per_second, stations_owned, achievements_count, license_class,
+      CASE WHEN updated_at >= datetime('now', '-90 seconds') THEN 1 ELSE 0 END AS is_online
     FROM leaderboard
     ORDER BY total_qsos DESC
     LIMIT 50
+  `),
+  getChatRecent: db.prepare(`
+    SELECT id, callsign, message, created_at FROM chat_messages
+    ORDER BY created_at DESC LIMIT 50
+  `),
+  getChatSince: db.prepare(`
+    SELECT id, callsign, message, created_at FROM chat_messages
+    WHERE created_at > ? ORDER BY created_at ASC LIMIT 50
+  `),
+  insertChat: db.prepare(`
+    INSERT INTO chat_messages (callsign, message) VALUES (?, ?)
   `),
   upsertLeaderboard: db.prepare(`
     INSERT INTO leaderboard (user_id, callsign, total_qsos, qso_per_second, stations_owned, achievements_count, license_class, updated_at)
@@ -175,6 +196,37 @@ app.post('/api/leaderboard', (req, res) => {
     licenseClass ?? 'Unlicensed',
   );
 
+  res.json({ ok: true });
+});
+
+// ---- Chat endpoints ----
+
+app.get('/api/chat', (req, res) => {
+  const since = req.query.since;
+  if (since) {
+    const rows = stmts.getChatSince.all(String(since));
+    return res.json(rows);
+  }
+  const rows = stmts.getChatRecent.all().reverse();
+  res.json(rows);
+});
+
+app.post('/api/chat', (req, res) => {
+  const { callsign, message } = req.body;
+  if (!callsign || typeof callsign !== 'string' || callsign.trim().length === 0) {
+    return res.status(400).json({ error: 'callsign required' });
+  }
+  if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    return res.status(400).json({ error: 'message required' });
+  }
+
+  const trimmed = message.trim().slice(0, 200);
+  const normalized = callsign.trim().toUpperCase();
+
+  const user = stmts.findUser.get(normalized);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  stmts.insertChat.run(normalized, trimmed);
   res.json({ ok: true });
 });
 

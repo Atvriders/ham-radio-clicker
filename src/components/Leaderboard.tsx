@@ -11,6 +11,7 @@ interface LeaderboardEntry {
   stations_owned: number;
   achievements_count: number;
   license_class: string;
+  is_online: number;
 }
 
 interface LeaderboardProps {
@@ -48,6 +49,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ currentCallsign, onClose }) =
     return () => clearInterval(interval);
   }, [fetchLeaderboard]);
 
+  const onlineCount = entries.filter((e) => e.is_online === 1).length;
+
   return (
     <div style={styles.overlay} onClick={onClose}>
       <div style={styles.panel} onClick={(e) => e.stopPropagation()}>
@@ -55,7 +58,13 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ currentCallsign, onClose }) =
           <h2 style={styles.title}>GLOBAL LEADERBOARD</h2>
           <button style={styles.closeBtn} onClick={onClose}>X</button>
         </div>
-        <div style={styles.subtitle}>TOP OPERATORS WORLDWIDE</div>
+        <div style={styles.subtitleRow}>
+          <span style={styles.subtitle}>TOP OPERATORS WORLDWIDE</span>
+          <span style={styles.onlineCount}>
+            <span style={styles.onlineDotSmall} />
+            {onlineCount} operator{onlineCount !== 1 ? 's' : ''} online
+          </span>
+        </div>
 
         {loading ? (
           <div style={styles.loading}>LOADING...</div>
@@ -79,11 +88,18 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ currentCallsign, onClose }) =
                 {entries.map((entry, i) => {
                   const isMe = entry.callsign === currentCallsign;
                   const rowStyle = isMe ? styles.rowHighlight : styles.row;
+                  const online = entry.is_online === 1;
                   return (
                     <tr key={entry.callsign} style={rowStyle}>
                       <td style={styles.td}>{i + 1}</td>
                       <td style={{ ...styles.td, textAlign: 'left', fontWeight: isMe ? 700 : 400 }}>
-                        {entry.callsign}
+                        <span style={styles.callsignCell}>
+                          <span
+                            style={online ? styles.onlineDot : styles.offlineDot}
+                            title={online ? 'Online' : 'Offline'}
+                          />
+                          {entry.callsign}
+                        </span>
                       </td>
                       <td style={styles.td}>{formatNum(entry.total_qsos)}</td>
                       <td style={styles.td}>{entry.qso_per_second.toFixed(1)}</td>
@@ -99,6 +115,13 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ currentCallsign, onClose }) =
         )}
 
         <div style={styles.footer}>Refreshes every 30 seconds</div>
+
+        <style>{`
+          @keyframes pulse-online {
+            0%, 100% { opacity: 1; box-shadow: 0 0 4px #33ff33; }
+            50% { opacity: 0.5; box-shadow: 0 0 8px #33ff33; }
+          }
+        `}</style>
       </div>
     </div>
   );
@@ -149,12 +172,34 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '4px 10px',
     letterSpacing: '2px',
   },
+  subtitleRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px',
+    marginTop: '4px',
+  },
   subtitle: {
     fontSize: '10px',
     letterSpacing: '3px',
     color: '#556655',
-    marginBottom: '16px',
-    marginTop: '4px',
+  },
+  onlineCount: {
+    fontSize: '10px',
+    letterSpacing: '1px',
+    color: '#33ff33',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  onlineDotSmall: {
+    display: 'inline-block',
+    width: '6px',
+    height: '6px',
+    borderRadius: '50%',
+    background: '#33ff33',
+    boxShadow: '0 0 4px #33ff33',
+    animation: 'pulse-online 2s ease-in-out infinite',
   },
   loading: {
     color: '#33ff33',
@@ -201,6 +246,29 @@ const styles: Record<string, React.CSSProperties> = {
   rowHighlight: {
     background: 'rgba(51, 255, 51, 0.08)',
     boxShadow: 'inset 0 0 10px rgba(51,255,51,0.05)',
+  },
+  callsignCell: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  onlineDot: {
+    display: 'inline-block',
+    width: '7px',
+    height: '7px',
+    borderRadius: '50%',
+    background: '#33ff33',
+    boxShadow: '0 0 4px #33ff33',
+    animation: 'pulse-online 2s ease-in-out infinite',
+    flexShrink: 0,
+  },
+  offlineDot: {
+    display: 'inline-block',
+    width: '7px',
+    height: '7px',
+    borderRadius: '50%',
+    background: '#444',
+    flexShrink: 0,
   },
   footer: {
     marginTop: '12px',

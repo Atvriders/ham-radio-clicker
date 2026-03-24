@@ -11,6 +11,7 @@ import Shop from './components/Shop';
 import EventPopup from './components/EventPopup';
 import Login from './components/Login';
 import Leaderboard from './components/Leaderboard';
+import Chat from './components/Chat';
 import { formatNumber } from './utils/format';
 
 const MOBILE_BREAKPOINT = 768;
@@ -186,6 +187,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
         {showLeaderboard && (
           <Leaderboard currentCallsign={callsign} onClose={() => setShowLeaderboard(false)} />
         )}
+        <Chat callsign={callsign} isMobile={true} />
       </div>
     );
   }
@@ -251,6 +253,9 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
       {showLeaderboard && (
         <Leaderboard currentCallsign={callsign} onClose={() => setShowLeaderboard(false)} />
       )}
+
+      {/* Chat */}
+      <Chat callsign={callsign} />
 
       <style>{`
         @media (max-width: 900px) and (min-width: 769px) {
