@@ -36,14 +36,15 @@ export const SWRMeter: React.FC = () => {
     background: 'rgba(8, 16, 24, 0.95)',
     border: '1px solid rgba(51, 255, 51, 0.2)',
     borderRadius: '6px',
-    padding: '10px 12px 12px',
-    width: '240px',
+    padding: '8px',
+    width: '180px',
+    boxSizing: 'border-box',
     boxShadow: '0 2px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)',
   };
 
   const titleStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '11px',
+    fontSize: '9px',
     fontWeight: 'bold',
     color: '#33ff33',
     letterSpacing: '2px',
@@ -55,8 +56,7 @@ export const SWRMeter: React.FC = () => {
 
   const gaugeContainer: React.CSSProperties = {
     width: '100%',
-    maxWidth: '220px',
-    height: '122px',
+    height: 'auto',
     position: 'relative',
     overflow: 'hidden',
     display: 'flex',
@@ -65,7 +65,7 @@ export const SWRMeter: React.FC = () => {
 
   const readoutStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '18px',
+    fontSize: '14px',
     fontWeight: 'bold',
     color: hasAnalyzer
       ? (swrCurrent > 5 ? '#ff4444' : swrCurrent > 3 ? '#ffaa00' : '#33ff33')
@@ -136,7 +136,7 @@ export const SWRMeter: React.FC = () => {
       <div style={titleStyle}>SWR METER</div>
 
       <div style={gaugeContainer}>
-        <svg width="220" height="122" viewBox="0 0 148 82" style={{ display: 'block', margin: '0 auto' }}>
+        <svg width="100%" viewBox="0 0 148 82" style={{ display: 'block' }}>
           {/* Background arc */}
           <path
             d={arcPath(-90, 90, R, CX, CY)}

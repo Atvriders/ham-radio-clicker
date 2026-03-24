@@ -124,14 +124,19 @@ export const PTTButton: React.FC = () => {
     gap: '6px',
     position: 'relative',
     userSelect: 'none',
-    padding: '8px 12px',
-    minWidth: '220px',
+    padding: '8px',
+    width: '180px',
+    boxSizing: 'border-box',
     overflow: 'hidden',
+    background: 'rgba(8, 16, 24, 0.95)',
+    border: '1px solid rgba(51, 255, 51, 0.2)',
+    borderRadius: '6px',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)',
   };
 
   const buttonOuter: React.CSSProperties = {
-    width: '180px',
-    height: '180px',
+    width: '120px',
+    height: '120px',
     borderRadius: '50%',
     background: `radial-gradient(circle at 40% 35%, #555 0%, #222 60%, #111 100%)`,
     boxShadow: `
@@ -151,8 +156,8 @@ export const PTTButton: React.FC = () => {
   };
 
   const buttonInner: React.CSSProperties = {
-    width: '140px',
-    height: '140px',
+    width: '94px',
+    height: '94px',
     borderRadius: '50%',
     background: swr.equipmentDamaged
       ? 'radial-gradient(circle at 40% 35%, #662222 0%, #331111 60%, #220000 100%)'
@@ -174,7 +179,7 @@ export const PTTButton: React.FC = () => {
   const pttText: React.CSSProperties = {
     fontFamily: 'monospace',
     fontWeight: 'bold',
-    fontSize: '32px',
+    fontSize: '22px',
     color: swr.equipmentDamaged ? '#ff4444' : '#cccccc',
     textShadow: swr.equipmentDamaged
       ? '0 0 10px #ff4444'
@@ -189,7 +194,7 @@ export const PTTButton: React.FC = () => {
     transform: 'translateX(-50%)',
     fontFamily: 'monospace',
     fontWeight: 'bold',
-    fontSize: '15px',
+    fontSize: '12px',
     color: '#ff4444',
     textShadow: '0 0 8px #ff4444',
     whiteSpace: 'nowrap',
@@ -198,9 +203,9 @@ export const PTTButton: React.FC = () => {
 
   const repairBtn: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '12px',
+    fontSize: '9px',
     fontWeight: 'bold',
-    padding: '4px 12px',
+    padding: '3px 8px',
     background: 'linear-gradient(180deg, #442222 0%, #221111 100%)',
     color: '#ff6666',
     border: '1px solid #ff444488',
@@ -213,9 +218,9 @@ export const PTTButton: React.FC = () => {
 
   const tuneBtn: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '13px',
+    fontSize: '10px',
     fontWeight: 'bold',
-    padding: '7px 24px',
+    padding: '5px 16px',
     background: tuneCooldown
       ? 'linear-gradient(180deg, #1a1a2a 0%, #0d0d1a 100%)'
       : 'linear-gradient(180deg, #1a3a1a 0%, #0d220d 100%)',
@@ -236,7 +241,7 @@ export const PTTButton: React.FC = () => {
     top: '20px',
     fontFamily: 'monospace',
     fontWeight: 'bold',
-    fontSize: '14px',
+    fontSize: '10px',
     color: '#33ff33',
     textShadow: '0 0 10px #33ff33, 0 0 20px #33ff3388, 0 0 30px #33ff3344',
     pointerEvents: 'none',
@@ -308,7 +313,7 @@ export const PTTButton: React.FC = () => {
           {!swr.equipmentDamaged && (
             <span style={{
               fontFamily: 'monospace',
-              fontSize: '12px',
+              fontSize: '9px',
               color: hasTech ? '#666' : '#aa8800',
               marginTop: '3px',
               letterSpacing: '2px',
@@ -320,10 +325,10 @@ export const PTTButton: React.FC = () => {
       </div>
 
       {/* TX Power + Band row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
         <span style={{
           fontFamily: 'monospace',
-          fontSize: '13px',
+          fontSize: '10px',
           color: txPower <= 5 ? '#33ff33' : txPower <= 100 ? '#ffaa00' : '#ff4444',
           textShadow: txPower >= 500 ? '0 0 6px #ff4444' : 'none',
           letterSpacing: '1px',
@@ -339,7 +344,7 @@ export const PTTButton: React.FC = () => {
             }} />
             <span style={{
               fontFamily: 'monospace',
-              fontSize: '11px',
+              fontSize: '9px',
               color: '#00ccff',
               letterSpacing: '1px',
               textShadow: '0 0 4px rgba(0,204,255,0.3)',

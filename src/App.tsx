@@ -400,7 +400,7 @@ const styles: Record<string, React.CSSProperties> = {
   centerInstrumentRow: {
     display: 'flex',
     alignItems: 'flex-start',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     gap: '8px',
     flexShrink: 0,
     flexWrap: 'wrap',

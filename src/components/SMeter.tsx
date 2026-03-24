@@ -78,14 +78,15 @@ export const SMeter: React.FC = () => {
     background: 'rgba(8, 16, 24, 0.95)',
     border: '1px solid rgba(51, 255, 51, 0.2)',
     borderRadius: '6px',
-    padding: '10px 12px 12px',
-    width: '220px',
+    padding: '8px',
+    width: '180px',
+    boxSizing: 'border-box',
     boxShadow: '0 2px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)',
   };
 
   const titleStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '11px',
+    fontSize: '9px',
     fontWeight: 'bold',
     color: '#33ff33',
     letterSpacing: '2px',
@@ -97,8 +98,7 @@ export const SMeter: React.FC = () => {
 
   const gaugeContainer: React.CSSProperties = {
     width: '100%',
-    maxWidth: '200px',
-    height: '112px',
+    height: 'auto',
     position: 'relative',
     overflow: 'hidden',
     display: 'flex',
@@ -107,7 +107,7 @@ export const SMeter: React.FC = () => {
 
   const readoutStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '18px',
+    fontSize: '14px',
     fontWeight: 'bold',
     color: '#33ff33',
     textShadow: '0 0 8px rgba(51,255,51,0.6), 0 0 16px rgba(51,255,51,0.2)',
@@ -122,7 +122,7 @@ export const SMeter: React.FC = () => {
       <div style={titleStyle}>S METER</div>
 
       <div style={gaugeContainer}>
-        <svg width="200" height="112" viewBox="0 0 136 76" style={{ display: 'block', margin: '0 auto' }}>
+        <svg width="100%" viewBox="0 0 136 76" style={{ display: 'block' }}>
           {/* Background arc */}
           <path
             d={arcPath(-90, 90, R)}
