@@ -406,8 +406,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (upgrade.requires && !s.upgrades.includes(upgrade.requires)) return;
 
     // Power upgrades with additional license requirements
+    // General license needed at 100W (entering HF power territory)
+    // No extra_class needed for higher power — General can use up to 1500W per FCC rules
     if (id === 'power_100w' && !s.upgrades.includes('general_license')) return;
-    if (id === 'power_1000w' && !s.upgrades.includes('extra_class_license')) return;
 
     let cost = upgrade.cost;
     if (s.discountActive) cost = Math.floor(cost * (1 - s.discountActive));
