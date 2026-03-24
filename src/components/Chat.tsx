@@ -148,6 +148,7 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
       {/* Header */}
       <div style={styles.chatHeader}>
         <span style={styles.chatTitle}>RADIO CHAT</span>
+        <span style={{ fontSize: 8, color: '#665533', letterSpacing: 1 }}>TEMP — LOST ON RELOAD</span>
         <button style={styles.chatCloseBtn} onClick={() => setOpen(false)}>X</button>
       </div>
 
