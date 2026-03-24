@@ -132,7 +132,7 @@ const EventLog: React.FC = () => {
     return () => clearInterval(interval);
   }, [addLogEntry]);
 
-  const visible = eventLog.slice(-20);
+  const visible = eventLog.slice(0, 20);
 
   return (
     <div style={styles.container}>

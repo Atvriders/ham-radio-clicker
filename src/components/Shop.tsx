@@ -171,9 +171,7 @@ const Shop: React.FC = () => {
 
   const unlockedStations = stations.filter((st) => totalQsos >= st.unlockAt);
   const availableUpgrades = upgrades.filter(
-    (up) =>
-      !purchasedUpgrades.includes(up.id) &&
-      (!up.requires || purchasedUpgrades.includes(up.requires))
+    (up) => !purchasedUpgrades.includes(up.id)
   );
 
   return (
@@ -291,21 +289,27 @@ const Shop: React.FC = () => {
           <div style={styles.emptyMsg}>No upgrades available</div>
         ) : (
           availableUpgrades.map((up) => {
-            const canAfford = qsos >= up.cost;
+            const prereqMet = !up.requires || purchasedUpgrades.includes(up.requires);
+            const canAfford = qsos >= up.cost && prereqMet;
+            const requiresName = up.requires
+              ? UPGRADES.find((u) => u.id === up.requires)?.name ?? up.requires
+              : '';
 
             return (
               <div
                 key={up.id}
                 style={{
                   ...styles.card,
-                  ...(canAfford
-                    ? { borderColor: 'rgba(51,255,51,0.3)' }
-                    : styles.cardDisabled),
+                  ...(!prereqMet
+                    ? { ...styles.cardDisabled, borderColor: 'rgba(255,68,68,0.2)' }
+                    : canAfford
+                      ? { borderColor: 'rgba(51,255,51,0.3)' }
+                      : styles.cardDisabled),
                 }}
                 onClick={() => canAfford && buyUpgrade(up.id)}
               >
                 <div style={styles.cardHeader}>
-                  <span style={styles.cardIcon}>{up.icon}</span>
+                  <span style={styles.cardIcon}>{prereqMet ? up.icon : '🔒'}</span>
                   <span style={styles.cardName}>{up.name}</span>
                 </div>
                 <div style={styles.cardFlavor}>{up.flavor}</div>
@@ -316,19 +320,30 @@ const Shop: React.FC = () => {
                   <span style={styles.cardCost}>
                     {formatNumber(up.cost)} QSOs
                   </span>
-                  <button
-                    style={{
-                      ...styles.buyBtn,
-                      ...(!canAfford ? styles.buyBtnDisabled : {}),
-                    }}
-                    disabled={!canAfford}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (canAfford) buyUpgrade(up.id);
-                    }}
-                  >
-                    BUY
-                  </button>
+                  {!prereqMet ? (
+                    <span style={{
+                      fontSize: 10,
+                      color: COLORS.red,
+                      fontWeight: 'bold',
+                      letterSpacing: 0.5,
+                    }}>
+                      Requires {requiresName}
+                    </span>
+                  ) : (
+                    <button
+                      style={{
+                        ...styles.buyBtn,
+                        ...(!canAfford ? styles.buyBtnDisabled : {}),
+                      }}
+                      disabled={!canAfford}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (canAfford) buyUpgrade(up.id);
+                      }}
+                    >
+                      BUY
+                    </button>
+                  )}
                 </div>
               </div>
             );
