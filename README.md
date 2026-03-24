@@ -27,7 +27,7 @@ You start on **MURS** (Multi-Use Radio Service) — no license needed. Click the
 | License | Cost | Effect | Contacts | Unlocks |
 |---------|------|--------|----------|---------|
 | **None** | -- | -- | MURS (random names: Mike, Karen...) | Handheld, Mobile Rig |
-| **Technician** | 50 QSOs | QPS x1.2 | US local VHF/UHF callsigns (KE0VUM, WB9ABC) | Repeater access, entry-level upgrades, power to 50W |
+| **Technician** | 50 QSOs | QPS x1.2 | US local VHF/UHF callsigns (WB9ABC, N3QSO) | Repeater access, entry-level upgrades, power to 50W |
 | **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | HF privileges, Base Station, Linear Amp, Beam, POTA/SOTA, power to 500W |
 | **Extra Class** | 50,000 QSOs | 3x click | Full worldwide DX (ZL, PY, HS, A6, ZS...) | All bands, Tower, Remote, EME, Contest Station, power to 1500W |
 
