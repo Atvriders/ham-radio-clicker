@@ -1,23 +1,26 @@
 # Ham Radio Clicker
 
+**[https://clicker.hamclock-reborn.org](https://clicker.hamclock-reborn.org/)**
+
 **Click your way from a rubber duck antenna to a Deep Space Network.**
 
-An idle/clicker game for ham radio operators (and aspiring ones). Start with a 5-watt handheld, mash that PTT button, make contacts, upgrade your station, and climb the license ladder from Technician to Extra Class. Watch your QSO count climb while managing your SWR, dodging solar flares, and trying not to blow your finals.
+An idle/clicker game for ham radio operators (and aspiring ones). Start as a MURS user talking to random people, earn your Technician License, then climb the ladder to Extra Class while managing your SWR, dodging solar flares, and trying not to blow your finals.
 
 ---
 
 ## How It Works
 
-You are a ham radio operator. Your goal is simple: make as many QSOs (contacts) as possible.
+You start on **MURS** (Multi-Use Radio Service) — no license needed. Click the PTT button to talk to random people (Mike, Steve, Karen...). Once you earn enough to buy your **Technician License**, you enter the world of amateur radio and start making real QSOs with callsigns.
 
 **Click the PTT button** to make contacts manually. Buy stations to generate QSOs passively. Spend your QSOs as currency to buy upgrades, new equipment, and higher power levels. Progress through three license classes to unlock bigger and better gear.
 
 ### Core Mechanics
 
+- **MURS → Ham Radio** -- Start on MURS (no license). Buy a Technician License to start making ham radio QSOs with real callsigns.
 - **PTT Button** -- Click to transmit and make contacts. Each click earns QSOs based on your click power and upgrades.
 - **Passive QSO Generation** -- Stations you own produce QSOs per second automatically.
 - **SWR Management** -- Your antenna's Standing Wave Ratio drifts over time. High SWR reduces your output. Let it climb above 10.0 and you blow your finals (ouch). Tune it manually, or buy an auto-tuner.
-- **Transmit Power Progression** -- Start at 5W and work your way up through 10W, 25W, 50W, 100W, 200W, 500W, 1000W, and finally the FCC legal maximum of 1500W.
+- **Transmit Power Progression** -- Start at QRP 5W and work your way up to the FCC legal maximum of 1500W.
 
 ### License Progression
 
@@ -54,13 +57,15 @@ Each station can be purchased multiple times. Costs increase by 15% per unit own
 
 ## Upgrades
 
-Over 30 upgrades across several categories:
+36+ upgrades across several categories:
+
+**Licenses** -- Technician (unlocks ham radio), General (unlocks HF), Extra Class (unlocks all bands)
 
 **Equipment** -- Better Coax, Antenna Analyzer, Manual Tuner, Auto-Tuner (LDG), Remote Auto-Tuner, FT8 Mode, DX Cluster, QSL Card Printer, LoTW Account, Hardline Coax, Propagation Prediction Software, Contest Logger (N1MM+), SDR Panadapter, Dummy Load, CW Keyer, Repeater Access, Galactic Repeater
 
 **Operating Activities** -- Weekly Rag Chew Net, ARES/RACES Emergency Comms, POTA Activation, SOTA Activation, Field Day Station, DXpedition, IOTA Activation, Satellite Operations
 
-**Power Levels** -- 10W, 25W, 50W, 100W, 200W, 500W, 1000W, 1500W (sequential unlock chain)
+**Power Levels** -- 10W → 25W → 50W → 100W → 200W → 500W → 1000W → 1500W (sequential chain, 100W requires General, 1000W requires Extra)
 
 ---
 
@@ -96,9 +101,9 @@ Events fire every 30-90 seconds and can help or hurt your operation:
 
 ## Login & Identity
 
-Log in with your callsign. No password, no email -- just your ham radio identity. Your callsign is stored in localStorage and synced to the server for cloud saves and leaderboard tracking.
+Log in with your callsign or any username. No password, no email — just your identity. Your callsign is stored in localStorage and synced to the server for cloud saves and leaderboard tracking.
 
-New callsign? You're automatically registered. Returning operator? Your game state is restored from the server.
+No callsign? No problem — use any name or username. New player? You're automatically registered. Returning operator? Your game state is restored from the server.
 
 ## Global Leaderboard
 
