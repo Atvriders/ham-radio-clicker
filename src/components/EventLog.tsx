@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker — Event Log (Scrolling Terminal)
+// Ham Radio Clicker -- Event Log (Fills center column)
 // ============================================================
 
 import React, { useEffect, useRef } from 'react';
@@ -11,8 +11,8 @@ const COLORS = {
   amber: '#ffaa00',
   blue: '#00ccff',
   red: '#ff4444',
-  panel: 'rgba(10,20,30,0.95)',
-  border: 'rgba(51,255,51,0.15)',
+  panel: 'rgba(8,16,24,0.95)',
+  border: 'rgba(51,255,51,0.2)',
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -83,8 +83,8 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     background: COLORS.panel,
     border: `1px solid ${COLORS.border}`,
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 6,
+    padding: '6px 8px',
     fontFamily: 'monospace',
     color: COLORS.green,
     display: 'flex',
@@ -92,31 +92,46 @@ const styles: Record<string, React.CSSProperties> = {
     height: '100%',
     boxSizing: 'border-box',
     overflow: 'hidden',
+    minHeight: 0,
+  },
+  titleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottom: `1px solid ${COLORS.green}66`,
+    paddingBottom: 4,
+    marginBottom: 4,
+    flexShrink: 0,
   },
   title: {
-    fontSize: 14,
+    fontSize: 10,
     letterSpacing: 2,
     textTransform: 'uppercase' as const,
     color: COLORS.green,
-    borderBottom: `2px solid ${COLORS.green}`,
-    paddingBottom: 8,
-    marginBottom: 8,
+    textShadow: `0 0 6px rgba(51,255,51,0.3)`,
+  },
+  entryCount: {
+    fontSize: 9,
+    color: 'rgba(51,255,51,0.4)',
+    letterSpacing: 1,
   },
   logArea: {
     flex: 1,
     overflowY: 'auto' as const,
     display: 'flex',
     flexDirection: 'column',
-    gap: 2,
+    gap: 1,
+    minHeight: 0,
   },
   entry: {
-    fontSize: 11,
+    fontSize: 12,
     lineHeight: 1.5,
     whiteSpace: 'pre-wrap' as const,
   },
   timestamp: {
-    color: 'rgba(51,255,51,0.4)',
-    marginRight: 6,
+    color: 'rgba(51,255,51,0.35)',
+    marginRight: 4,
+    fontSize: 10,
   },
 };
 
@@ -158,15 +173,18 @@ const EventLog: React.FC = () => {
     return () => clearInterval(interval);
   }, [addLogEntry]);
 
-  const visible = eventLog.slice(0, 20).reverse();
+  const visible = eventLog.slice(0, 30).reverse();
 
   return (
     <div style={styles.container}>
-      <div style={styles.title}>QSO LOG</div>
+      <div style={styles.titleRow}>
+        <span style={styles.title}>QSO LOG</span>
+        <span style={styles.entryCount}>{eventLog.length} entries</span>
+      </div>
       <div style={styles.logArea} ref={scrollRef}>
         {visible.map((entry: EventLogEntry, i: number) => {
           const age = visible.length - i;
-          const opacity = Math.max(0.4, 1 - age * 0.03);
+          const opacity = Math.max(0.4, 1 - age * 0.02);
           const typeColor = TYPE_COLORS[entry.type] ?? COLORS.green;
 
           return (

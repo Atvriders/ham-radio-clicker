@@ -119,7 +119,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
           <div style={styles.welcomeBanner}>{loginMessage}</div>
         )}
 
-        {/* Top Bar — mobile stacked */}
+        {/* Top Bar -- mobile stacked */}
         <header style={styles.topBarMobile} className="mobile-topbar">
           <div style={styles.titleBlockMobile} className="title-block">
             <h1 style={styles.titleMobile}>HAM RADIO CLICKER</h1>
@@ -234,10 +234,16 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
 
         {/* Center Column */}
         <section style={styles.centerCol}>
-          <PTTButton />
-          <SWRMeter />
-          <SMeter />
-          <EventLog />
+          {/* Row 1: PTT + Meters side by side */}
+          <div style={styles.centerInstrumentRow}>
+            <PTTButton />
+            <SWRMeter />
+            <SMeter />
+          </div>
+          {/* Row 2: QSO Log fills remaining space */}
+          <div style={styles.centerLogArea}>
+            <EventLog />
+          </div>
         </section>
 
         {/* Right Column */}
@@ -324,22 +330,22 @@ const styles: Record<string, React.CSSProperties> = {
   // Desktop top bar
   topBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '8px 16px', background: '#0d1117',
+    padding: '6px 16px', background: '#0d1117',
     borderBottom: '1px solid #1a3a1a', zIndex: 10, flexShrink: 0,
   },
   titleBlock: { display: 'flex', alignItems: 'center', gap: '8px' },
   title: {
-    margin: 0, fontSize: '18px', fontWeight: 700, letterSpacing: '3px',
+    margin: 0, fontSize: '16px', fontWeight: 700, letterSpacing: '3px',
     color: '#33ff33',
     textShadow: '0 0 8px rgba(51,255,51,0.6), 0 0 20px rgba(51,255,51,0.3)',
   },
   statsBlock: { display: 'flex', gap: '24px', alignItems: 'center' },
-  statItem: { fontSize: '13px', color: '#88aa88', letterSpacing: '1px' },
-  statValue: { color: '#33ff33', fontSize: '15px', textShadow: '0 0 6px rgba(51,255,51,0.4)' },
-  actionBlock: { display: 'flex', gap: '8px', alignItems: 'center' },
+  statItem: { fontSize: '12px', color: '#88aa88', letterSpacing: '1px' },
+  statValue: { color: '#33ff33', fontSize: '14px', textShadow: '0 0 6px rgba(51,255,51,0.4)' },
+  actionBlock: { display: 'flex', gap: '6px', alignItems: 'center' },
   headerBtn: {
-    padding: '4px 14px', background: '#1a2a1a', border: '1px solid #33ff33',
-    color: '#33ff33', fontSize: '11px', fontFamily: 'inherit',
+    padding: '3px 12px', background: '#1a2a1a', border: '1px solid #33ff33',
+    color: '#33ff33', fontSize: '10px', fontFamily: 'inherit',
     letterSpacing: '2px', textTransform: 'uppercase' as const, cursor: 'pointer',
   },
   resetBtn: { borderColor: '#cc4444', color: '#cc4444', background: '#2a1a1a' },
@@ -348,16 +354,31 @@ const styles: Record<string, React.CSSProperties> = {
   // Desktop columns
   main: { display: 'flex', flex: 1, overflow: 'hidden' },
   leftCol: {
-    width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column',
-    gap: '8px', padding: '8px', overflowY: 'auto', borderRight: '1px solid #1a2a1a',
+    width: '260px', flexShrink: 0, display: 'flex', flexDirection: 'column',
+    gap: '4px', padding: '4px', overflowY: 'auto', borderRight: '1px solid #1a2a1a',
   },
   centerCol: {
-    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-    gap: '12px', padding: '12px', overflowY: 'auto',
+    flex: 1, display: 'flex', flexDirection: 'column',
+    gap: '4px', padding: '4px', overflow: 'hidden',
+  },
+  centerInstrumentRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    gap: '6px',
+    flexShrink: 0,
+    padding: '2px 0',
+  },
+  centerLogArea: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    minHeight: 0,
   },
   rightCol: {
-    width: '360px', flexShrink: 0, display: 'flex', flexDirection: 'column',
-    padding: '8px', overflowY: 'auto', borderLeft: '1px solid #1a2a1a',
+    width: '340px', flexShrink: 0, display: 'flex', flexDirection: 'column',
+    padding: '4px', overflowY: 'auto', borderLeft: '1px solid #1a2a1a',
   },
 
   // Mobile top bar

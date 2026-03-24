@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker — Shop (Right Sidebar)
+// Ham Radio Clicker -- Shop (Right Sidebar - Compact)
 // ============================================================
 
 import React, { useState } from 'react';
@@ -14,8 +14,8 @@ const COLORS = {
   amber: '#ffaa00',
   blue: '#00ccff',
   red: '#ff4444',
-  panel: 'rgba(10,20,30,0.95)',
-  border: 'rgba(51,255,51,0.15)',
+  panel: 'rgba(8,16,24,0.95)',
+  border: 'rgba(51,255,51,0.2)',
 };
 
 type ShopTab = 'STATIONS' | 'UPGRADES' | 'ACHIEVEMENTS';
@@ -24,8 +24,8 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     background: COLORS.panel,
     border: `1px solid ${COLORS.border}`,
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 6,
+    padding: '8px 8px',
     fontFamily: 'monospace',
     color: COLORS.green,
     display: 'flex',
@@ -35,23 +35,32 @@ const styles: Record<string, React.CSSProperties> = {
     overflow: 'hidden',
   },
   title: {
-    fontSize: 14,
+    fontSize: 10,
     letterSpacing: 2,
     textTransform: 'uppercase' as const,
     color: COLORS.green,
-    paddingBottom: 8,
-    marginBottom: 8,
+    paddingBottom: 4,
+    marginBottom: 4,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+  },
+  titleLabel: {
+    fontSize: 9,
+    color: 'rgba(51,255,51,0.4)',
+    letterSpacing: 1,
   },
   tabRow: {
     display: 'flex',
     gap: 0,
-    marginBottom: 12,
+    marginBottom: 6,
+    flexShrink: 0,
   },
   tab: {
     flex: 1,
-    padding: '8px 0',
+    padding: '5px 0',
     textAlign: 'center' as const,
-    fontSize: 12,
+    fontSize: 10,
     letterSpacing: 1,
     cursor: 'pointer',
     border: `1px solid ${COLORS.border}`,
@@ -65,25 +74,26 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'rgba(51,255,51,0.1)',
     color: COLORS.green,
     borderColor: COLORS.green,
-    boxShadow: `0 0 6px rgba(51,255,51,0.2)`,
+    boxShadow: `0 0 4px rgba(51,255,51,0.2)`,
   },
   tabLeft: {
-    borderRadius: '4px 0 0 4px',
+    borderRadius: '3px 0 0 3px',
   },
   tabRight: {
-    borderRadius: '0 4px 4px 0',
+    borderRadius: '0 3px 3px 0',
   },
   list: {
     flex: 1,
     overflowY: 'auto' as const,
     display: 'flex',
     flexDirection: 'column',
-    gap: 8,
+    gap: 4,
+    minHeight: 0,
   },
   card: {
     border: `1px solid ${COLORS.border}`,
-    borderRadius: 4,
-    padding: 10,
+    borderRadius: 3,
+    padding: '6px 8px',
     cursor: 'pointer',
     transition: 'all 0.15s',
   },
@@ -94,52 +104,57 @@ const styles: Record<string, React.CSSProperties> = {
   cardHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
+    gap: 5,
+    marginBottom: 2,
   },
   cardIcon: {
-    fontSize: 18,
+    fontSize: 14,
   },
   cardName: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: 'bold',
     color: COLORS.green,
   },
   cardCount: {
-    fontSize: 11,
+    fontSize: 10,
     color: COLORS.amber,
     fontWeight: 'bold',
   },
   cardFlavor: {
-    fontSize: 10,
+    fontSize: 9,
     color: COLORS.amber,
-    opacity: 0.7,
+    opacity: 0.6,
     lineHeight: 1.3,
-    marginBottom: 6,
+    marginBottom: 3,
   },
   cardFooter: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 4,
   },
   cardCost: {
-    fontSize: 12,
+    fontSize: 10,
     color: COLORS.amber,
     fontWeight: 'bold',
   },
   cardEffect: {
-    fontSize: 11,
+    fontSize: 10,
     color: COLORS.blue,
+  },
+  cardPct: {
+    fontSize: 9,
+    color: 'rgba(51,255,51,0.5)',
   },
   buyBtn: {
     background: 'rgba(51,255,51,0.1)',
     border: `1px solid ${COLORS.green}`,
     color: COLORS.green,
     fontFamily: 'monospace',
-    fontSize: 11,
-    padding: '4px 10px',
-    borderRadius: 3,
+    fontSize: 9,
+    padding: '2px 8px',
+    borderRadius: 2,
     cursor: 'pointer',
     fontWeight: 'bold',
     letterSpacing: 1,
@@ -152,10 +167,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   emptyMsg: {
     color: 'rgba(51,255,51,0.4)',
-    fontSize: 13,
+    fontSize: 11,
     fontStyle: 'italic',
     textAlign: 'center' as const,
-    padding: '24px 0',
+    padding: '16px 0',
   },
 };
 
@@ -166,6 +181,7 @@ const Shop: React.FC = () => {
   const totalQsos = useGameStore((s) => s.totalQsos);
   const ownedStations = useGameStore((s) => s.stations);
   const purchasedUpgrades = useGameStore((s) => s.upgrades);
+  const qsoPerSecond = useGameStore((s) => s.qsoPerSecond);
   const buyStation = useGameStore((s) => s.buyStation);
   const buyUpgrade = useGameStore((s) => s.buyUpgrade);
 
@@ -176,7 +192,10 @@ const Shop: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.title}>SHOP</div>
+      <div style={styles.title}>
+        SHOP
+        <span style={styles.titleLabel}>// EQUIPMENT RACK</span>
+      </div>
 
       {/* Tab Toggle */}
       <div style={styles.tabRow}>
@@ -207,7 +226,7 @@ const Shop: React.FC = () => {
           }}
           onClick={() => setTab('ACHIEVEMENTS')}
         >
-          🏆
+          AWARDS
         </button>
       </div>
 
@@ -228,6 +247,10 @@ const Shop: React.FC = () => {
                 ? UPGRADES.find((u) => u.id === st.requiredLicense)?.name ?? st.requiredLicense
                 : '';
 
+              // QPS percentage for owned stations
+              const totalQps = owned > 0 ? +(st.baseQps * owned).toFixed(1) : 0;
+              const pct = qsoPerSecond > 0 && totalQps > 0 ? ((totalQps / qsoPerSecond) * 100).toFixed(0) : null;
+
               return (
                 <div
                   key={st.id}
@@ -245,7 +268,10 @@ const Shop: React.FC = () => {
                     <span style={styles.cardIcon}>{hasLicense ? st.icon : '🔒'}</span>
                     <span style={styles.cardName}>{st.name}</span>
                     {owned > 0 && (
-                      <span style={styles.cardCount}>&times;{owned}</span>
+                      <span style={styles.cardCount}>x{owned}</span>
+                    )}
+                    {pct && (
+                      <span style={styles.cardPct}>{pct}%</span>
                     )}
                   </div>
                   <div style={styles.cardFlavor}>{st.flavor}</div>
@@ -254,16 +280,15 @@ const Shop: React.FC = () => {
                       {formatNumber(cost)} QSOs
                     </span>
                     <span style={styles.cardEffect}>
-                      +{st.baseQps} QSO/s
+                      +{st.baseQps} q/s
                     </span>
                     {!hasLicense ? (
                       <span style={{
-                        fontSize: 10,
+                        fontSize: 9,
                         color: COLORS.red,
                         fontWeight: 'bold',
-                        letterSpacing: 0.5,
                       }}>
-                        Requires {licenseName}
+                        Req: {licenseName}
                       </span>
                     ) : (
                       <button
@@ -313,7 +338,7 @@ const Shop: React.FC = () => {
                   <span style={styles.cardName}>{up.name}</span>
                 </div>
                 <div style={styles.cardFlavor}>{up.flavor}</div>
-                <div style={{ fontSize: 11, color: COLORS.blue, marginBottom: 6 }}>
+                <div style={{ fontSize: 10, color: COLORS.blue, marginBottom: 3 }}>
                   {up.description}
                 </div>
                 <div style={styles.cardFooter}>
@@ -322,12 +347,11 @@ const Shop: React.FC = () => {
                   </span>
                   {!prereqMet ? (
                     <span style={{
-                      fontSize: 10,
+                      fontSize: 9,
                       color: COLORS.red,
                       fontWeight: 'bold',
-                      letterSpacing: 0.5,
                     }}>
-                      Requires {requiresName}
+                      Req: {requiresName}
                     </span>
                   ) : (
                     <button

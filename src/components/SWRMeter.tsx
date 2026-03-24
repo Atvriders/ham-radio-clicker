@@ -1,26 +1,23 @@
 // ============================================================
-// Ham Radio Clicker — SWR Meter Component
+// Ham Radio Clicker -- SWR Meter Component (Compact)
 // ============================================================
 
 import React from 'react';
 import { useGameStore } from '../stores/useGameStore';
 
-// Map SWR value (1.0 – 10.0) to needle angle (-90° to +90°)
-// Using logarithmic scale for more realistic meter behavior
+// Map SWR value (1.0 - 10.0) to needle angle (-90 to +90)
 function swrToAngle(swr: number): number {
   const clamped = Math.max(1, Math.min(10, swr));
-  // log scale: 1.0 → -90, 10.0 → +90
-  const ratio = Math.log10(clamped) / Math.log10(10); // 0 at swr=1, 1 at swr=10
+  const ratio = Math.log10(clamped) / Math.log10(10);
   return -90 + ratio * 180;
 }
 
-// Scale mark positions
 const SCALE_MARKS: { value: number; label: string }[] = [
   { value: 1.0, label: '1.0' },
   { value: 1.5, label: '1.5' },
-  { value: 2.0, label: '2.0' },
-  { value: 3.0, label: '3.0' },
-  { value: 5.0, label: '5.0' },
+  { value: 2.0, label: '2' },
+  { value: 3.0, label: '3' },
+  { value: 5.0, label: '5' },
   { value: 10.0, label: '10' },
 ];
 
@@ -32,76 +29,73 @@ export const SWRMeter: React.FC = () => {
   const needleAngle = swrToAngle(swrCurrent);
   const isWarning = swrCurrent > 3.0;
 
-  // --- Styles ---
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    background: 'rgba(10, 20, 30, 0.95)',
-    border: '1px solid rgba(51, 255, 51, 0.15)',
-    borderRadius: '8px',
-    padding: '12px 16px 14px',
-    width: '220px',
-    boxShadow: '0 2px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
+    background: 'rgba(8, 16, 24, 0.95)',
+    border: '1px solid rgba(51, 255, 51, 0.2)',
+    borderRadius: '6px',
+    padding: '6px 8px 8px',
+    width: '160px',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)',
   };
 
   const titleStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '11px',
+    fontSize: '9px',
     fontWeight: 'bold',
     color: '#33ff33',
-    letterSpacing: '3px',
-    marginBottom: '8px',
+    letterSpacing: '2px',
+    marginBottom: '4px',
     textShadow: '0 0 6px rgba(51,255,51,0.4)',
     textAlign: 'center',
+    textTransform: 'uppercase',
   };
 
   const gaugeContainer: React.CSSProperties = {
-    width: '200px',
-    height: '120px',
+    width: '148px',
+    height: '82px',
     position: 'relative',
     overflow: 'hidden',
   };
 
   const readoutStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '16px',
+    fontSize: '12px',
     fontWeight: 'bold',
     color: hasAnalyzer
       ? (swrCurrent > 5 ? '#ff4444' : swrCurrent > 3 ? '#ffaa00' : '#33ff33')
       : '#555555',
     textShadow: hasAnalyzer
-      ? `0 0 8px ${swrCurrent > 5 ? '#ff444466' : swrCurrent > 3 ? '#ffaa0066' : '#33ff3366'}`
+      ? `0 0 6px ${swrCurrent > 5 ? '#ff444466' : swrCurrent > 3 ? '#ffaa0066' : '#33ff3366'}`
       : 'none',
-    marginTop: '6px',
+    marginTop: '2px',
     textAlign: 'center',
     letterSpacing: '1px',
   };
 
   const warningStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '10px',
+    fontSize: '8px',
     fontWeight: 'bold',
     color: '#ff4444',
     textShadow: '0 0 6px #ff4444',
-    marginTop: '4px',
+    marginTop: '2px',
     animation: 'swrWarningFlash 0.6s ease-in-out infinite',
     textAlign: 'center',
-    letterSpacing: '2px',
+    letterSpacing: '1px',
   };
 
-  // Color zone arc angles
-  // green: 1.0-1.5, yellow: 1.5-3.0, orange: 3.0-5.0, red: 5.0-10.0
+  // Color zone arcs
   const greenStart = swrToAngle(1.0);
   const greenEnd = swrToAngle(1.5);
   const yellowEnd = swrToAngle(3.0);
   const orangeEnd = swrToAngle(5.0);
   const redEnd = swrToAngle(10.0);
 
-  // Generate SVG arc path
   function arcPath(startAngle: number, endAngle: number, radius: number, cx: number, cy: number): string {
     const toRad = (deg: number) => ((deg - 90) * Math.PI) / 180;
-    // Half circle: -90 is left, +90 is right. We rotate so -90 = 9 o'clock
     const x1 = cx + radius * Math.cos(toRad(startAngle));
     const y1 = cy + radius * Math.sin(toRad(startAngle));
     const x2 = cx + radius * Math.cos(toRad(endAngle));
@@ -110,10 +104,10 @@ export const SWRMeter: React.FC = () => {
     return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`;
   }
 
-  const CX = 100;
-  const CY = 110;
-  const R = 85;
-  const R_INNER = 75;
+  const CX = 74;
+  const CY = 78;
+  const R = 62;
+  const R_INNER = 54;
 
   return (
     <div style={containerStyle}>
@@ -127,13 +121,13 @@ export const SWRMeter: React.FC = () => {
       <div style={titleStyle}>SWR METER</div>
 
       <div style={gaugeContainer}>
-        <svg width="200" height="120" viewBox="0 0 200 120">
+        <svg width="148" height="82" viewBox="0 0 148 82">
           {/* Background arc */}
           <path
             d={arcPath(-90, 90, R, CX, CY)}
             fill="none"
             stroke="#1a1a2a"
-            strokeWidth="12"
+            strokeWidth="9"
             strokeLinecap="butt"
           />
 
@@ -142,7 +136,7 @@ export const SWRMeter: React.FC = () => {
             d={arcPath(greenStart, greenEnd, R, CX, CY)}
             fill="none"
             stroke="#33ff33"
-            strokeWidth="10"
+            strokeWidth="8"
             strokeLinecap="butt"
             opacity="0.6"
           />
@@ -152,7 +146,7 @@ export const SWRMeter: React.FC = () => {
             d={arcPath(greenEnd, yellowEnd, R, CX, CY)}
             fill="none"
             stroke="#ffaa00"
-            strokeWidth="10"
+            strokeWidth="8"
             strokeLinecap="butt"
             opacity="0.6"
           />
@@ -162,7 +156,7 @@ export const SWRMeter: React.FC = () => {
             d={arcPath(yellowEnd, orangeEnd, R, CX, CY)}
             fill="none"
             stroke="#ff8800"
-            strokeWidth="10"
+            strokeWidth="8"
             strokeLinecap="butt"
             opacity="0.6"
           />
@@ -172,7 +166,7 @@ export const SWRMeter: React.FC = () => {
             d={arcPath(orangeEnd, redEnd, R, CX, CY)}
             fill="none"
             stroke="#ff4444"
-            strokeWidth="10"
+            strokeWidth="8"
             strokeLinecap="butt"
             opacity="0.6"
           />
@@ -181,9 +175,9 @@ export const SWRMeter: React.FC = () => {
           {SCALE_MARKS.map((mark) => {
             const angle = swrToAngle(mark.value);
             const toRad = (deg: number) => ((deg - 90) * Math.PI) / 180;
-            const tickOuter = R + 2;
-            const tickInner = R - 14;
-            const labelR = R - 24;
+            const tickOuter = R + 1;
+            const tickInner = R - 10;
+            const labelR = R - 18;
             const x1 = CX + tickOuter * Math.cos(toRad(angle));
             const y1 = CY + tickOuter * Math.sin(toRad(angle));
             const x2 = CX + tickInner * Math.cos(toRad(angle));
@@ -195,7 +189,7 @@ export const SWRMeter: React.FC = () => {
                 <line
                   x1={x1} y1={y1} x2={x2} y2={y2}
                   stroke="#33ff3388"
-                  strokeWidth="1.5"
+                  strokeWidth="1"
                 />
                 <text
                   x={lx}
@@ -203,7 +197,7 @@ export const SWRMeter: React.FC = () => {
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill="#33ff33"
-                  fontSize="9"
+                  fontSize="7"
                   fontFamily="monospace"
                   fontWeight="bold"
                   opacity="0.7"
@@ -215,7 +209,7 @@ export const SWRMeter: React.FC = () => {
           })}
 
           {/* Needle pivot */}
-          <circle cx={CX} cy={CY} r="6" fill="#333" stroke="#555" strokeWidth="1" />
+          <circle cx={CX} cy={CY} r="4" fill="#333" stroke="#555" strokeWidth="1" />
 
           {/* Needle */}
           <line
@@ -224,7 +218,7 @@ export const SWRMeter: React.FC = () => {
             x2={CX + R_INNER * Math.cos(((needleAngle - 90) * Math.PI) / 180)}
             y2={CY + R_INNER * Math.sin(((needleAngle - 90) * Math.PI) / 180)}
             stroke="#ff4444"
-            strokeWidth="2.5"
+            strokeWidth="2"
             strokeLinecap="round"
             style={{
               transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -233,7 +227,7 @@ export const SWRMeter: React.FC = () => {
           />
 
           {/* Center cap */}
-          <circle cx={CX} cy={CY} r="4" fill="#555" />
+          <circle cx={CX} cy={CY} r="3" fill="#555" />
         </svg>
       </div>
 
@@ -245,7 +239,7 @@ export const SWRMeter: React.FC = () => {
       {/* Warning text */}
       {isWarning && (
         <div style={warningStyle}>
-          HIGH SWR WARNING
+          HIGH SWR
         </div>
       )}
     </div>
