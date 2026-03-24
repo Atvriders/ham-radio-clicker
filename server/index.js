@@ -178,6 +178,30 @@ app.post('/api/leaderboard', (req, res) => {
   res.json({ ok: true });
 });
 
+// ---- Admin: fix stale leaderboard license classes from save data ----
+app.post('/api/admin/fix-licenses', (req, res) => {
+  try {
+    const rows = db.prepare('SELECT s.user_id, s.save_data, u.callsign FROM saves s JOIN users u ON s.user_id = u.id').all();
+    let fixed = 0;
+    for (const row of rows) {
+      try {
+        const data = JSON.parse(row.save_data);
+        const upgrades = data.upgrades || [];
+        let licenseClass = 'Unlicensed';
+        if (upgrades.includes('extra_class_license')) licenseClass = 'Extra';
+        else if (upgrades.includes('general_license')) licenseClass = 'General';
+        else if (upgrades.includes('technician_license')) licenseClass = 'Technician';
+
+        db.prepare('UPDATE leaderboard SET license_class = ? WHERE user_id = ?').run(licenseClass, row.user_id);
+        fixed++;
+      } catch { /* skip corrupted saves */ }
+    }
+    res.json({ ok: true, fixed });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ---- Production: serve static files ----
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(ROOT, 'dist');
