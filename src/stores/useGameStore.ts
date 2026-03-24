@@ -521,9 +521,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (callsign) {
       const stationsOwned = Object.values(s.stations).reduce((sum, n) => sum + n, 0);
       // Determine license class from upgrades
-      let licenseClass = 'Technician';
+      let licenseClass = 'Unlicensed';
       if (s.upgrades.includes('extra_class_license')) licenseClass = 'Extra';
       else if (s.upgrades.includes('general_license')) licenseClass = 'General';
+      else if (s.upgrades.includes('technician_license')) licenseClass = 'Technician';
 
       fetch('/api/save', {
         method: 'POST',

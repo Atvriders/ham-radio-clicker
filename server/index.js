@@ -47,7 +47,7 @@ db.exec(`
     qso_per_second REAL DEFAULT 0,
     stations_owned INTEGER DEFAULT 0,
     achievements_count INTEGER DEFAULT 0,
-    license_class TEXT DEFAULT 'Technician',
+    license_class TEXT DEFAULT 'Unlicensed',
     updated_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
@@ -172,7 +172,7 @@ app.post('/api/leaderboard', (req, res) => {
     qsoPerSecond ?? 0,
     stationsOwned ?? 0,
     achievementsCount ?? 0,
-    licenseClass ?? 'Technician',
+    licenseClass ?? 'Unlicensed',
   );
 
   res.json({ ok: true });
