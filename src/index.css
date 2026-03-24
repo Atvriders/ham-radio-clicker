@@ -174,28 +174,6 @@ button {
     top: 6px;
   }
 
-  /* --- PTT Button: shrink --- */
-  .ptt-button,
-  button[class*="ptt"] {
-    width: 140px !important;
-    height: 140px !important;
-    font-size: 14px !important;
-  }
-
-  /* --- Meters: narrower --- */
-  .meter-container,
-  div[class*="meter"] {
-    max-width: 280px !important;
-    width: 100% !important;
-  }
-
-  /* --- Shop cards: compact --- */
-  .shop-card,
-  div[class*="shop"] button {
-    padding: 6px 8px !important;
-    font-size: 11px !important;
-  }
-
   /* --- Bottom tab bar --- */
   .mobile-tab-bar {
     position: fixed;

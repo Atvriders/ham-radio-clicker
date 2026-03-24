@@ -264,7 +264,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
       <Chat callsign={callsign} />
 
       <style>{`
-        @media (max-width: 1100px) and (min-width: 769px) {
+        @media (max-width: 1250px) and (min-width: 769px) {
           main {
             flex-direction: column !important;
             overflow-y: auto !important;
@@ -381,7 +381,6 @@ const styles: Record<string, React.CSSProperties> = {
     flexShrink: 0,
     flexWrap: 'wrap',
     padding: '2px 0',
-    overflow: 'hidden',
   },
   centerLogArea: {
     flex: 1,

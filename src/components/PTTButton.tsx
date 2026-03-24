@@ -118,17 +118,17 @@ export const PTTButton: React.FC = () => {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '4px',
+    gap: '6px',
     position: 'relative',
     userSelect: 'none',
-    padding: '4px 8px',
-    minWidth: '160px',
+    padding: '8px 12px',
+    minWidth: '220px',
     overflow: 'hidden',
   };
 
   const buttonOuter: React.CSSProperties = {
-    width: '130px',
-    height: '130px',
+    width: '180px',
+    height: '180px',
     borderRadius: '50%',
     background: `radial-gradient(circle at 40% 35%, #555 0%, #222 60%, #111 100%)`,
     boxShadow: `
@@ -148,8 +148,8 @@ export const PTTButton: React.FC = () => {
   };
 
   const buttonInner: React.CSSProperties = {
-    width: '100px',
-    height: '100px',
+    width: '140px',
+    height: '140px',
     borderRadius: '50%',
     background: swr.equipmentDamaged
       ? 'radial-gradient(circle at 40% 35%, #662222 0%, #331111 60%, #220000 100%)'
@@ -165,7 +165,7 @@ export const PTTButton: React.FC = () => {
   const pttText: React.CSSProperties = {
     fontFamily: 'monospace',
     fontWeight: 'bold',
-    fontSize: '24px',
+    fontSize: '32px',
     color: swr.equipmentDamaged ? '#ff4444' : '#cccccc',
     textShadow: swr.equipmentDamaged
       ? '0 0 10px #ff4444'
@@ -175,12 +175,12 @@ export const PTTButton: React.FC = () => {
 
   const damagedOverlay: React.CSSProperties = {
     position: 'absolute',
-    top: '-20px',
+    top: '-24px',
     left: '50%',
     transform: 'translateX(-50%)',
     fontFamily: 'monospace',
     fontWeight: 'bold',
-    fontSize: '11px',
+    fontSize: '15px',
     color: '#ff4444',
     textShadow: '0 0 8px #ff4444',
     whiteSpace: 'nowrap',
@@ -189,7 +189,7 @@ export const PTTButton: React.FC = () => {
 
   const repairBtn: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '10px',
+    fontSize: '12px',
     fontWeight: 'bold',
     padding: '4px 12px',
     background: 'linear-gradient(180deg, #442222 0%, #221111 100%)',
@@ -204,9 +204,9 @@ export const PTTButton: React.FC = () => {
 
   const tuneBtn: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '11px',
+    fontSize: '13px',
     fontWeight: 'bold',
-    padding: '5px 16px',
+    padding: '6px 20px',
     background: tuneCooldown
       ? 'linear-gradient(180deg, #1a1a2a 0%, #0d0d1a 100%)'
       : 'linear-gradient(180deg, #1a2a1a 0%, #0d1a0d 100%)',
@@ -291,10 +291,10 @@ export const PTTButton: React.FC = () => {
           {!swr.equipmentDamaged && (
             <span style={{
               fontFamily: 'monospace',
-              fontSize: '8px',
+              fontSize: '12px',
               color: hasTech ? '#666' : '#aa8800',
-              marginTop: '2px',
-              letterSpacing: '1px',
+              marginTop: '3px',
+              letterSpacing: '2px',
             }}>
               {hasTech ? 'HAM' : 'MURS'}
             </span>
@@ -306,7 +306,7 @@ export const PTTButton: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
         <span style={{
           fontFamily: 'monospace',
-          fontSize: '10px',
+          fontSize: '13px',
           color: txPower <= 5 ? '#33ff33' : txPower <= 100 ? '#ffaa00' : '#ff4444',
           textShadow: txPower >= 500 ? '0 0 6px #ff4444' : 'none',
           letterSpacing: '1px',

@@ -36,14 +36,14 @@ export const SWRMeter: React.FC = () => {
     background: 'rgba(8, 16, 24, 0.95)',
     border: '1px solid rgba(51, 255, 51, 0.2)',
     borderRadius: '6px',
-    padding: '6px 8px 8px',
-    width: '160px',
+    padding: '10px 12px 12px',
+    width: '240px',
     boxShadow: '0 2px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)',
   };
 
   const titleStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '9px',
+    fontSize: '11px',
     fontWeight: 'bold',
     color: '#33ff33',
     letterSpacing: '2px',
@@ -54,15 +54,15 @@ export const SWRMeter: React.FC = () => {
   };
 
   const gaugeContainer: React.CSSProperties = {
-    width: '148px',
-    height: '82px',
+    width: '220px',
+    height: '122px',
     position: 'relative',
     overflow: 'hidden',
   };
 
   const readoutStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '12px',
+    fontSize: '16px',
     fontWeight: 'bold',
     color: hasAnalyzer
       ? (swrCurrent > 5 ? '#ff4444' : swrCurrent > 3 ? '#ffaa00' : '#33ff33')
@@ -77,11 +77,11 @@ export const SWRMeter: React.FC = () => {
 
   const warningStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '8px',
+    fontSize: '11px',
     fontWeight: 'bold',
     color: '#ff4444',
     textShadow: '0 0 6px #ff4444',
-    marginTop: '2px',
+    marginTop: '4px',
     animation: 'swrWarningFlash 0.6s ease-in-out infinite',
     textAlign: 'center',
     letterSpacing: '1px',
@@ -121,7 +121,7 @@ export const SWRMeter: React.FC = () => {
       <div style={titleStyle}>SWR METER</div>
 
       <div style={gaugeContainer}>
-        <svg width="148" height="82" viewBox="0 0 148 82">
+        <svg width="220" height="122" viewBox="0 0 148 82">
           {/* Background arc */}
           <path
             d={arcPath(-90, 90, R, CX, CY)}
