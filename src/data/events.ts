@@ -216,6 +216,14 @@ export const RANDOM_EVENTS: RandomEvent[] = [
   },
 ];
 
+// --- MURS name generator (no license needed) ---
+
+const FIRST_NAMES = ['Mike', 'Steve', 'Karen', 'Dave', 'Lisa', 'Bob', 'Sarah', 'Jim', 'Pam', 'Tony', 'Rick', 'Jenny', 'Mark', 'Sue', 'Dan', 'Amy', 'Chris', 'Pat', 'Joe', 'Liz', 'Tom', 'Beth', 'Ray', 'Kim', 'Pete'];
+
+export function randomMursName(): string {
+  return FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+}
+
 // --- Callsign generator (kept for UI flavor) ---
 
 export const CALLSIGN_PREFIXES = [

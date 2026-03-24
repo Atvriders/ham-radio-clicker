@@ -118,7 +118,10 @@ const StatsPanel: React.FC = () => {
     activeEvent,
     startTime,
     transmitPower,
+    upgrades,
   } = useGameStore();
+
+  const hasLicense = upgrades.includes('technician_license');
 
   const [elapsed, setElapsed] = useState(0);
   const [eventRemaining, setEventRemaining] = useState(0);
@@ -138,6 +141,22 @@ const StatsPanel: React.FC = () => {
   return (
     <div style={styles.container}>
       <div style={styles.title}>STATION STATUS</div>
+
+      {/* Mode */}
+      <div style={styles.statRow}>
+        <span style={styles.statLabel}>MODE</span>
+        <span
+          style={{
+            ...styles.statValue,
+            color: hasLicense ? COLORS.green : COLORS.amber,
+            textShadow: hasLicense ? `0 0 6px ${COLORS.green}` : `0 0 6px ${COLORS.amber}`,
+          }}
+        >
+          {hasLicense ? 'AMATEUR RADIO' : 'MURS (No License)'}
+        </span>
+      </div>
+
+      <div style={styles.divider} />
 
       {/* QSO Count */}
       <div style={styles.qsoCount}>{formatNumber(qsos)}</div>

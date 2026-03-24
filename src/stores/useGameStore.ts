@@ -13,7 +13,7 @@ import {
 } from '../types';
 import { stations, getStationCost } from '../data/stations';
 import { upgrades as UPGRADES } from '../data/upgrades';
-import { randomCallsign } from '../data/events';
+import { randomCallsign, randomMursName } from '../data/events';
 
 // ---- Constants ----
 
@@ -223,9 +223,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const eventMods = getEventModifiers(s.activeEvent);
       const gained =
         s.qsoPerClick * s.clickMultiplier * eventMods.clickMult * penalty;
-      const callsign = randomCallsign();
+      const hasLicense = s.upgrades.includes('technician_license');
+      const contactLabel = hasLicense
+        ? `QSO with ${randomCallsign()} (+${gained.toFixed(1)})`
+        : `MURS contact with ${randomMursName()} (+${gained.toFixed(1)})`;
       const newLog = [
-        makeLogEntry(`QSO with ${callsign} (+${gained.toFixed(1)})`, 'milestone'),
+        makeLogEntry(contactLabel, 'milestone'),
         ...s.eventLog,
       ].slice(0, 200);
 

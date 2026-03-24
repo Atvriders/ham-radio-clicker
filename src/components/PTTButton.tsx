@@ -24,6 +24,13 @@ function randomCallsign(): string {
   return `${p}${s}`;
 }
 
+// MURS names (no license needed)
+const MURS_NAMES = ['Mike', 'Steve', 'Karen', 'Dave', 'Lisa', 'Bob', 'Sarah', 'Jim', 'Pam', 'Tony', 'Rick', 'Jenny', 'Mark', 'Sue', 'Dan', 'Amy', 'Chris', 'Pat', 'Joe', 'Liz', 'Tom', 'Beth', 'Ray', 'Kim', 'Pete'];
+
+function randomMursName(): string {
+  return MURS_NAMES[Math.floor(Math.random() * MURS_NAMES.length)];
+}
+
 interface FloatingText {
   id: number;
   text: string;
@@ -40,6 +47,8 @@ export const PTTButton: React.FC = () => {
   const swr = useGameStore((s) => s.swr);
   const qsoPerClick = useGameStore((s) => s.qsoPerClick);
   const transmitPower = useGameStore((s) => s.transmitPower);
+  const upgrades = useGameStore((s) => s.upgrades);
+  const hasLicense = upgrades.includes('technician_license');
 
   const [floats, setFloats] = useState<FloatingText[]>([]);
   const [pressed, setPressed] = useState(false);
@@ -61,14 +70,14 @@ export const PTTButton: React.FC = () => {
     if (swr.equipmentDamaged) return;
     click();
     const amount = Math.max(1, Math.floor(qsoPerClick));
-    const callsign = randomCallsign();
+    const contactName = hasLicense ? randomCallsign() : randomMursName();
     const id = ++floatId;
     const x = 60 + Math.random() * 60; // random horizontal offset (px from center area)
-    setFloats((prev) => [...prev, { id, text: `+${amount} ${callsign}`, x, y: 0 }]);
+    setFloats((prev) => [...prev, { id, text: `+${amount} ${contactName}`, x, y: 0 }]);
     setTimeout(() => {
       setFloats((prev) => prev.filter((f) => f.id !== id));
     }, 1200);
-  }, [click, qsoPerClick, swr.equipmentDamaged]);
+  }, [click, qsoPerClick, swr.equipmentDamaged, hasLicense]);
 
   // Spacebar trigger
   useEffect(() => {
@@ -274,11 +283,11 @@ export const PTTButton: React.FC = () => {
             <span style={{
               fontFamily: 'monospace',
               fontSize: '10px',
-              color: '#666',
+              color: hasLicense ? '#666' : '#aa8800',
               marginTop: '4px',
               letterSpacing: '1px',
             }}>
-              PUSH TO TALK
+              {hasLicense ? 'HAM' : 'MURS'}
             </span>
           )}
         </div>
