@@ -205,6 +205,17 @@ app.post('/api/admin/fix-licenses', (req, res) => {
   }
 });
 
+app.post('/api/admin/reset-leaderboard', (_req, res) => {
+  try {
+    db.exec('DELETE FROM leaderboard');
+    db.exec('DELETE FROM saves');
+    db.exec('DELETE FROM users');
+    res.json({ ok: true, message: 'Leaderboard, saves, and users cleared' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ---- Production: serve static files ----
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(ROOT, 'dist');
