@@ -226,14 +226,15 @@ const Shop: React.FC = () => {
   const getPrestigeCost = useGameStore((s) => s.getPrestigeCost);
   const prestige = useGameStore((s) => s.prestige);
 
-  const unlockedStations = stations.filter((st) => totalQsos >= st.unlockAt);
-
-  // Filter upgrades by category for each tab
+  // Filter upgrades by category for each tab — show ALL items (locked ones appear grayed)
   const getUpgradesByCategory = (category: string) =>
     upgrades
       .filter((up) => up.category === category)
       .filter((up) => !purchasedUpgrades.includes(up.id))
       .sort((a, b) => a.cost - b.cost);
+
+  // Get ALL stations sorted by tier, for showing locked ones too
+  const allStationsSorted = [...stations].sort((a, b) => a.tier - b.tier);
 
   // Events are re-purchasable, don't filter out purchased
   const eventUpgrades = upgrades
@@ -243,11 +244,21 @@ const Shop: React.FC = () => {
   const renderStationCard = (st: typeof stations[0]) => {
     const owned = ownedStations[st.id] ?? 0;
     const cost = getStationCost(st, owned);
+    const isUnlocked = totalQsos >= st.unlockAt;
     const hasLicense = !st.requiredLicense || purchasedUpgrades.includes(st.requiredLicense);
-    const canAfford = qsos >= cost && hasLicense;
+    const isLocked = !isUnlocked || !hasLicense;
+    const canAfford = qsos >= cost && !isLocked;
     const licenseName = st.requiredLicense
       ? UPGRADES.find((u) => u.id === st.requiredLicense)?.name ?? st.requiredLicense
       : '';
+
+    // Build the lock reason text
+    let lockReason = '';
+    if (!isUnlocked) {
+      lockReason = `Req: ${formatNumber(st.unlockAt)} total QSOs`;
+    } else if (!hasLicense) {
+      lockReason = `Req: ${licenseName}`;
+    }
 
     const totalQps = owned > 0 ? +(st.baseQps * owned).toFixed(1) : 0;
     const pct = qsoPerSecond > 0 && totalQps > 0 ? ((totalQps / qsoPerSecond) * 100).toFixed(0) : null;
@@ -256,10 +267,10 @@ const Shop: React.FC = () => {
     return (
       <div
         key={st.id}
-        className={`shop-card${!hasLicense ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
+        className={`shop-card${isLocked ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
         style={{
           ...styles.card,
-          ...(!hasLicense
+          ...(isLocked
             ? styles.cardLocked
             : canAfford
               ? styles.cardAffordable
@@ -268,7 +279,7 @@ const Shop: React.FC = () => {
         onClick={() => canAfford && buyStation(st.id)}
       >
         <div style={styles.cardHeader}>
-          <span style={styles.cardIcon}>{hasLicense ? st.icon : '\u{1F512}'}</span>
+          <span style={styles.cardIcon}>{isLocked ? '\u{1F512}' : st.icon}</span>
           <span style={styles.cardName}>{st.name}</span>
           {owned > 0 && (
             <span style={styles.cardCount}>x{owned}</span>
@@ -285,13 +296,13 @@ const Shop: React.FC = () => {
           <span style={styles.cardEffect}>
             +{st.baseQps} q/s
           </span>
-          {!hasLicense ? (
+          {isLocked ? (
             <span style={{
               fontSize: 9,
               color: COLORS.red,
               fontWeight: 'bold',
             }}>
-              Req: {licenseName}
+              {lockReason}
             </span>
           ) : (
             <button
@@ -405,13 +416,10 @@ const Shop: React.FC = () => {
     switch (tab) {
       case 'RADIOS': {
         const licenseItems = getUpgradesByCategory('license');
-        const hasStationsOrLicenses = unlockedStations.length > 0 || licenseItems.length > 0;
-        return !hasStationsOrLicenses ? (
-          <div style={styles.emptyMsg}>No stations unlocked yet</div>
-        ) : (
+        return (
           <>
             {licenseItems.map((up) => renderUpgradeCard(up))}
-            {unlockedStations.map(renderStationCard)}
+            {allStationsSorted.map(renderStationCard)}
           </>
         );
       }
