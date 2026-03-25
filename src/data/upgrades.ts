@@ -761,6 +761,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.1,
     icon: '📶',
     tier: 1,
+    requires: 'technician_license',
     category: 'band',
   },
   {
@@ -773,6 +774,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.1,
     icon: '📶',
     tier: 1,
+    requires: 'technician_license',
     category: 'band',
   },
   {
@@ -785,6 +787,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.2,
     icon: '✨',
     tier: 2,
+    requires: 'technician_license',
     category: 'band',
   },
   {
@@ -797,7 +800,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.3,
     icon: '📡',
     tier: 2,
-    requires: 'general_license',
+    requires: 'technician_license',
     category: 'band',
   },
   {
@@ -862,7 +865,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.5,
     icon: '🏔️',
     tier: 5,
-    requires: 'extra_class_license',
+    requires: 'general_license',
     category: 'band',
   },
   {
@@ -875,7 +878,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.4,
     icon: '🔇',
     tier: 5,
-    requires: 'extra_class_license',
+    requires: 'general_license',
     category: 'band',
   },
   {
@@ -888,7 +891,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.3,
     icon: '🧘',
     tier: 5,
-    requires: 'extra_class_license',
+    requires: 'general_license',
     category: 'band',
   },
   {
@@ -901,7 +904,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.3,
     icon: '☀️',
     tier: 5,
-    requires: 'extra_class_license',
+    requires: 'general_license',
     category: 'band',
   },
   {
@@ -914,7 +917,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.2,
     icon: '🕵️',
     tier: 5,
-    requires: 'extra_class_license',
+    requires: 'general_license',
     category: 'band',
   },
   {
@@ -940,7 +943,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.5,
     icon: '📡',
     tier: 6,
-    requires: 'extra_class_license',
+    requires: 'technician_license',
     category: 'band',
   },
   {
@@ -953,7 +956,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.6,
     icon: '📡',
     tier: 6,
-    requires: 'extra_class_license',
+    requires: 'technician_license',
     category: 'band',
   },
   {
@@ -966,7 +969,7 @@ export const UPGRADES: Upgrade[] = [
     value: 1.8,
     icon: '📡',
     tier: 7,
-    requires: 'extra_class_license',
+    requires: 'technician_license',
     category: 'band',
   },
   {
@@ -979,7 +982,7 @@ export const UPGRADES: Upgrade[] = [
     value: 2.0,
     icon: '🛰️',
     tier: 7,
-    requires: 'extra_class_license',
+    requires: 'technician_license',
     category: 'band',
   },
 
