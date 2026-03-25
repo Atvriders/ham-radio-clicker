@@ -9,6 +9,7 @@ import SMeter from './components/SMeter';
 import EventLog from './components/EventLog';
 import Shop from './components/Shop';
 import EventPopup from './components/EventPopup';
+import QuizStrip from './components/QuizStrip';
 import Login from './components/Login';
 import Leaderboard from './components/Leaderboard';
 import Chat from './components/Chat';
@@ -85,9 +86,14 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
 
   const qsos = useGameStore((s) => s.qsos);
   const qsoPerSecond = useGameStore((s) => s.qsoPerSecond);
+  const ownedUpgrades = useGameStore((s) => s.upgrades);
   const save = useGameStore((s) => s.save);
   const reset = useGameStore((s) => s.reset);
   const isMobile = useIsMobile();
+
+  const licenseLevel: 'technician' | 'general' | 'extra' =
+    ownedUpgrades.includes('extra_class_license') ? 'extra' :
+    ownedUpgrades.includes('general_license') ? 'general' : 'technician';
   const [activeTab, setActiveTab] = useState<MobileTab>('play');
   const [showWelcome, setShowWelcome] = useState(!!loginMessage);
 
@@ -241,6 +247,8 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
             <SWRMeter />
             <SMeter />
           </div>
+          {/* Quiz Strip */}
+          <QuizStrip licenseLevel={licenseLevel} />
           {/* Inline EventPopup (when active) */}
           <EventPopup inline />
           {/* EventLog fills remaining space */}
@@ -320,10 +328,12 @@ const styles: Record<string, React.CSSProperties> = {
   // Desktop top bar
   topBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '8px 20px',
+    padding: '4px 12px',
+    height: '36px',
+    boxSizing: 'border-box',
     background: 'linear-gradient(180deg, #111822 0%, #0d1117 100%)',
     borderBottom: '1px solid #1a3a1a', zIndex: 10, flexShrink: 0,
-    flexWrap: 'wrap', gap: '6px',
+    flexWrap: 'wrap', gap: '4px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
   },
   titleBlock: { display: 'flex', alignItems: 'center', gap: '8px' },
@@ -369,8 +379,8 @@ const styles: Record<string, React.CSSProperties> = {
     flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px',
-    padding: '6px',
+    gap: '2px',
+    padding: '2px',
     overflowY: 'auto',
     borderRight: '1px solid rgba(51,255,51,0.1)',
     background: 'rgba(0,0,0,0.15)',
@@ -379,8 +389,8 @@ const styles: Record<string, React.CSSProperties> = {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px',
-    padding: '6px',
+    gap: '2px',
+    padding: '2px',
     overflow: 'hidden',
     minWidth: 0,
   },
@@ -388,10 +398,10 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    gap: '8px',
+    gap: '4px',
     flexShrink: 0,
     flexWrap: 'wrap',
-    padding: '4px 0',
+    padding: '2px 0',
   },
   centerLogArea: {
     flex: 1,
@@ -405,7 +415,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',
-    padding: '6px',
+    padding: '2px',
     overflowY: 'auto',
     borderLeft: '1px solid rgba(51,255,51,0.1)',
     background: 'rgba(0,0,0,0.15)',

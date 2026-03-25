@@ -21,16 +21,16 @@ const COLORS = {
 type ShopTab = 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'GEAR' | 'ACTIVITIES' | 'EVENTS' | 'AWARDS' | 'PRESTIGE';
 
 const TAB_DEFS: { key: ShopTab; label: string }[] = [
-  { key: 'RADIOS', label: '📻 RADIOS' },
-  { key: 'ANTENNAS', label: '📡 ANTENNAS' },
-  { key: 'AMPS', label: '🔊 AMPS' },
-  { key: 'MODES', label: '📟 MODES' },
-  { key: 'BANDS', label: '📻 BANDS' },
-  { key: 'GEAR', label: '🔧 GEAR' },
-  { key: 'ACTIVITIES', label: '🏕️ ACTIVITIES' },
-  { key: 'EVENTS', label: '⚡ EVENTS' },
-  { key: 'AWARDS', label: '🏆 AWARDS' },
-  { key: 'PRESTIGE', label: '⭐ PRESTIGE' },
+  { key: 'RADIOS', label: 'RADIO' },
+  { key: 'ANTENNAS', label: 'ANT' },
+  { key: 'AMPS', label: 'AMP' },
+  { key: 'MODES', label: 'MODE' },
+  { key: 'BANDS', label: 'BAND' },
+  { key: 'GEAR', label: 'GEAR' },
+  { key: 'ACTIVITIES', label: 'ACT' },
+  { key: 'EVENTS', label: 'EVT' },
+  { key: 'AWARDS', label: 'AWD' },
+  { key: 'PRESTIGE', label: 'PRST' },
 ];
 
 const styles: Record<string, React.CSSProperties> = {
@@ -65,34 +65,33 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: 1,
   },
   tabRow: {
-    display: 'flex',
-    gap: 0,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(5, 1fr)',
+    gap: 2,
     marginBottom: 6,
     flexShrink: 0,
-    overflowX: 'auto' as const,
-    flexWrap: 'nowrap' as const,
-    scrollbarWidth: 'thin' as const,
   },
   tab: {
-    flex: '0 0 auto',
-    padding: '5px 8px',
+    padding: '4px 2px',
     textAlign: 'center' as const,
-    fontSize: 9,
+    fontSize: 8,
     letterSpacing: 0.5,
     cursor: 'pointer',
     border: `1px solid ${COLORS.border}`,
-    background: 'transparent',
+    background: 'rgba(8,16,24,0.9)',
     color: 'rgba(51,255,51,0.4)',
     fontFamily: 'monospace',
     fontWeight: 'bold',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.15s ease',
     whiteSpace: 'nowrap' as const,
+    borderRadius: '2px',
+    lineHeight: 1.2,
   },
   tabActive: {
-    background: 'rgba(51,255,51,0.1)',
-    color: COLORS.green,
-    borderColor: COLORS.green,
-    boxShadow: `0 0 6px rgba(51,255,51,0.2)`,
+    background: '#33ff33',
+    color: '#0a0e1a',
+    borderColor: '#33ff33',
+    boxShadow: 'none',
   },
   list: {
     flex: 1,
@@ -611,16 +610,6 @@ const Shop: React.FC = () => {
           background: rgba(51,255,51,0.2) !important;
           box-shadow: 0 0 8px rgba(51,255,51,0.25);
         }
-        .shop-tab-row::-webkit-scrollbar {
-          height: 3px;
-        }
-        .shop-tab-row::-webkit-scrollbar-thumb {
-          background: rgba(51,255,51,0.3);
-          border-radius: 2px;
-        }
-        .shop-tab-row::-webkit-scrollbar-track {
-          background: transparent;
-        }
       `}</style>
 
       <div style={styles.title}>
@@ -636,13 +625,11 @@ const Shop: React.FC = () => {
             style={{
               ...styles.tab,
               ...(tab === t.key ? styles.tabActive : {}),
-              ...(i === 0 ? { borderRadius: '3px 0 0 3px' } : {}),
-              ...(i === TAB_DEFS.length - 1 ? { borderRadius: '0 3px 3px 0' } : {}),
               ...(t.key === 'PRESTIGE' ? {
-                color: tab === 'PRESTIGE' ? '#ffd700' : 'rgba(255,215,0,0.4)',
+                color: tab === 'PRESTIGE' ? '#0a0e1a' : 'rgba(255,215,0,0.4)',
                 borderColor: tab === 'PRESTIGE' ? '#ffd700' : 'rgba(255,215,0,0.2)',
-                background: tab === 'PRESTIGE' ? 'rgba(255,215,0,0.1)' : 'transparent',
-                boxShadow: tab === 'PRESTIGE' ? '0 0 6px rgba(255,215,0,0.2)' : 'none',
+                background: tab === 'PRESTIGE' ? '#ffd700' : 'rgba(8,16,24,0.9)',
+                boxShadow: 'none',
               } : {}),
             }}
             onClick={() => setTab(t.key)}

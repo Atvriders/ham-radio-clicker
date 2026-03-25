@@ -81,6 +81,7 @@ interface GameActions {
   recalcQps: () => void;
   getPrestigeCost: () => number;
   prestige: () => void;
+  addQuizBonus: (amount: number) => void;
   save: () => void;
   load: () => void;
   reset: () => void;
@@ -628,6 +629,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
         makeLogEntry(`⭐ PRESTIGE LEVEL ${newLevel}! All QSO earnings now ${newMultiplier}x!`, 'milestone'),
       ],
     });
+  },
+
+  // --- Quiz Bonus ---
+  addQuizBonus: (amount: number) => {
+    set((s) => ({
+      qsos: s.qsos + amount,
+      totalQsos: s.totalQsos + amount,
+      eventLog: [
+        makeLogEntry(`📝 Quiz bonus! +${amount} QSOs`, 'milestone'),
+        ...s.eventLog,
+      ].slice(0, 200),
+    }));
   },
 
   // --- Save / Load / Reset ---
