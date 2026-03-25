@@ -44,7 +44,7 @@ const UNLICENSED_GEAR_IDS = new Set([
 
 // IDs of antennas that can be used receive-only (no license needed)
 const UNLICENSED_ANTENNA_IDS = new Set([
-  'wire_random', 'rubber_duck_antenna',
+  'rubber_duck_antenna',
 ]);
 
 // Event items that don't require transmitting
