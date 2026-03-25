@@ -80,6 +80,7 @@ const initialState: GameState = {
   transmitPower: 5,
   prestigeLevel: 0,
   prestigeMultiplier: 1,
+  qsoQuality: 1,
 };
 
 // ---- Store actions interface ----
@@ -97,6 +98,7 @@ interface GameActions {
   addLogEntry: (message: string, type: EventLogType) => void;
   clearEventLog: () => void;
   recalcQps: () => void;
+  recalcQuality: () => void;
   getPrestigeCost: () => number;
   prestige: () => void;
   addQuizBonus: (amount: number) => void;
@@ -237,6 +239,21 @@ function calcQsoPerClick(ownedUpgrades: string[]): {
   return { flat, mult };
 }
 
+// ---- QSO Quality calculator ----
+
+function calcQsoQuality(ownedUpgrades: string[]): number {
+  const uniqueBands = ownedUpgrades.filter(id => id.startsWith('band_')).length;
+  const uniqueModes = ownedUpgrades.filter(id => {
+    const upg = UPGRADES.find(u => u.id === id);
+    return upg?.category === 'mode';
+  }).length;
+  const uniqueAntennas = ownedUpgrades.filter(id => {
+    const upg = UPGRADES.find(u => u.id === id);
+    return upg?.category === 'antenna';
+  }).length;
+  return 1 + (uniqueBands * 0.1) + (uniqueModes * 0.05) + (uniqueAntennas * 0.08);
+}
+
 // ---- The Store ----
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -248,7 +265,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const penalty = getSwrPenalty(s.swr.current, s.swr.equipmentDamaged);
       const eventMods = getEventModifiers(s.activeEvent);
       const gained =
-        s.qsoPerClick * s.clickMultiplier * eventMods.clickMult * penalty * s.prestigeMultiplier;
+        s.qsoPerClick * s.clickMultiplier * eventMods.clickMult * penalty * s.prestigeMultiplier * s.qsoQuality;
       const hasTech = s.upgrades.includes('technician_license');
       const hasGeneral = s.upgrades.includes('general_license');
       const hasExtra = s.upgrades.includes('extra_class_license');
@@ -389,7 +406,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const eventMods = getEventModifiers(activeEvent);
       if (!eventMods.noPassive && s.qsoPerSecond > 0) {
         const penalty = getSwrPenalty(swr.current, swr.equipmentDamaged);
-        const gained = s.qsoPerSecond * deltaSec * eventMods.qpsMult * penalty * s.prestigeMultiplier;
+        const gained = s.qsoPerSecond * deltaSec * eventMods.qpsMult * penalty * s.prestigeMultiplier * s.qsoQuality;
         patch.qsos = (patch.qsos ?? s.qsos) + gained;
         patch.totalQsos = (patch.totalQsos ?? s.totalQsos) + gained;
       }
@@ -408,7 +425,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (station.requiredLicense && !s.upgrades.includes(station.requiredLicense)) return;
 
     const owned = s.stations[id] ?? 0;
-    let cost = getStationCost(station, owned);
+    let cost = getStationCost(station, owned, s.totalQsos);
     if (s.discountActive) cost = Math.floor(cost * (1 - s.discountActive));
     if (s.qsos < cost) return;
 
@@ -467,6 +484,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (id === 'technician_license') {
       patch.eventLog = s.eventLog.filter(e => !e.message.includes('MURS') && !e.message.includes('FRS'));
     }
+
+    // Recalculate QSO quality after buying upgrade
+    patch.qsoQuality = calcQsoQuality(newUpgrades);
 
     set(patch);
   },
@@ -594,6 +614,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
+  // --- Recalc Quality ---
+  recalcQuality: () => {
+    const s = get();
+    set({ qsoQuality: calcQsoQuality(s.upgrades) });
+  },
+
   // --- Prestige ---
   getPrestigeCost: () => {
     const s = get();
@@ -641,6 +667,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       transmitPower: 5,
       prestigeLevel: newLevel,
       prestigeMultiplier: newMultiplier,
+      qsoQuality: calcQsoQuality(keptUpgrades),
       eventLog: [
         makeLogEntry(`⭐ PRESTIGE LEVEL ${newLevel}! All QSO earnings now ${newMultiplier}x!`, 'milestone'),
       ],
@@ -684,6 +711,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       transmitPower: s.transmitPower,
       prestigeLevel: s.prestigeLevel,
       prestigeMultiplier: s.prestigeMultiplier,
+      qsoQuality: s.qsoQuality,
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
@@ -733,6 +761,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             const data = result.saveData as Partial<GameState>;
             set({ ...initialState, ...data, callsign });
             get().recalcQps();
+            get().recalcQuality();
             return;
           }
           // No server save — fall back to localStorage
@@ -757,6 +786,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const data = JSON.parse(raw) as Partial<GameState>;
         set({ ...initialState, ...data, callsign: callsign || '' });
         get().recalcQps();
+        get().recalcQuality();
       } catch {
         // Corrupted save — reset to fresh state
         set({ ...initialState, callsign: callsign || '', startTime: Date.now() });

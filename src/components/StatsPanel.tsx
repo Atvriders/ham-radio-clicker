@@ -129,6 +129,7 @@ const StatsPanel: React.FC = () => {
     upgrades,
     achievements,
     eventLog,
+    qsoQuality,
   } = useGameStore();
 
   const hasLicense = upgrades.includes('technician_license');
@@ -196,6 +197,16 @@ const StatsPanel: React.FC = () => {
         <div style={styles.statRow}>
           <span style={styles.statLabel}>QSOs/click</span>
           <span style={styles.statValue}>{formatNumber(qsoPerClick)}</span>
+        </div>
+        <div style={styles.statRow}>
+          <span style={styles.statLabel}>QUALITY</span>
+          <span style={{
+            ...styles.statValue,
+            color: qsoQuality > 1 ? '#00ccff' : COLORS.green,
+            textShadow: qsoQuality > 2 ? '0 0 6px rgba(0,204,255,0.4)' : 'none',
+          }}>
+            {qsoQuality.toFixed(1)}x
+          </span>
         </div>
       </div>
 

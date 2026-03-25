@@ -14,6 +14,8 @@ interface ChatMessage {
 interface ChatProps {
   callsign: string;
   isMobile?: boolean;
+  externalOpen?: boolean;
+  onExternalToggle?: (open: boolean) => void;
 }
 
 let msgIdCounter = 0;
@@ -29,8 +31,13 @@ function formatTime(isoStr: string): string {
   }
 }
 
-const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
-  const [open, setOpen] = useState(false);
+const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false, externalOpen, onExternalToggle }) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = (val: boolean) => {
+    if (onExternalToggle) onExternalToggle(val);
+    else setInternalOpen(val);
+  };
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [input, setInput] = useState('');
@@ -157,8 +164,9 @@ const Chat: React.FC<ChatProps> = ({ callsign, isMobile = false }) => {
     }
   };
 
-  // Collapsed button
+  // Collapsed — if externally controlled, render nothing (header button handles toggle)
   if (!open) {
+    if (externalOpen !== undefined) return null;
     return (
       <button
         style={{

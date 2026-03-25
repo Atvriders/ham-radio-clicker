@@ -163,7 +163,9 @@ export const stations: Station[] = [
 
 /**
  * Calculate the cost of the next station given how many are already owned.
+ * Includes inflation factor based on total lifetime QSOs to keep purchases meaningful at high counts.
  */
-export function getStationCost(station: Station, owned: number): number {
-  return Math.floor(station.baseCost * Math.pow(station.costMultiplier, owned));
+export function getStationCost(station: Station, owned: number, totalQsos: number = 0): number {
+  const inflation = 1 + totalQsos / 1_000_000;
+  return Math.floor(station.baseCost * Math.pow(station.costMultiplier, owned) * inflation);
 }

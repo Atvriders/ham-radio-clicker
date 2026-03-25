@@ -144,4 +144,5 @@ export interface GameState {
   transmitPower: number;
   prestigeLevel: number;
   prestigeMultiplier: number;
+  qsoQuality: number;
 }

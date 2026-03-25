@@ -47,6 +47,7 @@ const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState<string | null>(() => localStorage.getItem(CALLSIGN_KEY));
   const [loginMessage, setLoginMessage] = useState('');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   // Only run game loop when logged in
   if (loggedIn) {
@@ -55,6 +56,8 @@ const App: React.FC = () => {
       loginMessage={loginMessage}
       showLeaderboard={showLeaderboard}
       setShowLeaderboard={setShowLeaderboard}
+      showChat={showChat}
+      setShowChat={setShowChat}
       onLogout={() => {
         localStorage.removeItem(CALLSIGN_KEY);
         localStorage.removeItem('ham-radio-clicker-save');
@@ -78,10 +81,12 @@ interface GameAppProps {
   loginMessage: string;
   showLeaderboard: boolean;
   setShowLeaderboard: (show: boolean) => void;
+  showChat: boolean;
+  setShowChat: (show: boolean) => void;
   onLogout: () => void;
 }
 
-const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboard, setShowLeaderboard, onLogout }) => {
+const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboard, setShowLeaderboard, showChat, setShowChat, onLogout }) => {
   useGameLoop();
 
   const qsos = useGameStore((s) => s.qsos);
@@ -141,6 +146,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
           <div style={styles.actionBlockMobile} className="action-block">
             <button style={styles.headerBtn} onClick={handleSave}>SAVE</button>
             <button style={styles.headerBtn} onClick={() => setShowLeaderboard(true)}>LB</button>
+            <button style={styles.headerBtn} onClick={() => setShowChat(!showChat)}>CH</button>
             <button style={{ ...styles.headerBtn, ...styles.logoutBtn }} onClick={onLogout}>OUT</button>
           </div>
         </header>
@@ -190,7 +196,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
         {showLeaderboard && (
           <Leaderboard currentCallsign={callsign} onClose={() => setShowLeaderboard(false)} />
         )}
-        <Chat callsign={callsign} isMobile={true} />
+        <Chat callsign={callsign} isMobile={true} externalOpen={showChat} onExternalToggle={setShowChat} />
       </div>
     );
   }
@@ -223,6 +229,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
           <span style={styles.callsignLabel}>{callsign}</span>
           <button style={styles.headerBtn} onClick={handleSave}>SAVE</button>
           <button style={styles.headerBtn} onClick={() => setShowLeaderboard(true)}>LEADERBOARD</button>
+          <button style={styles.headerBtn} onClick={() => setShowChat(!showChat)}>CHAT</button>
           <button style={{ ...styles.headerBtn, ...styles.logoutBtn }} onClick={onLogout}>LOG OUT</button>
           <button style={{ ...styles.headerBtn, ...styles.resetBtn }} onClick={handleReset}>RESET</button>
         </div>
@@ -266,7 +273,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
       )}
 
       {/* Chat */}
-      <Chat callsign={callsign} />
+      <Chat callsign={callsign} externalOpen={showChat} onExternalToggle={setShowChat} />
     </div>
   );
 };

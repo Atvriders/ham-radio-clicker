@@ -243,7 +243,7 @@ const Shop: React.FC = () => {
 
   const renderStationCard = (st: typeof stations[0]) => {
     const owned = ownedStations[st.id] ?? 0;
-    const cost = getStationCost(st, owned);
+    const cost = getStationCost(st, owned, totalQsos);
     const isUnlocked = totalQsos >= st.unlockAt;
     const hasLicense = !st.requiredLicense || purchasedUpgrades.includes(st.requiredLicense);
     const isLocked = !isUnlocked || !hasLicense;
