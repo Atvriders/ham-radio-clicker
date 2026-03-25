@@ -18,7 +18,7 @@ const COLORS = {
   border: 'rgba(51,255,51,0.2)',
 };
 
-type ShopTab = 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'EVENTS' | 'AWARDS' | 'PRESTIGE';
+type ShopTab = 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'GEAR' | 'ACTIVITIES' | 'EVENTS' | 'AWARDS' | 'PRESTIGE';
 
 const TAB_DEFS: { key: ShopTab; label: string }[] = [
   { key: 'RADIOS', label: '📻 RADIOS' },
@@ -26,6 +26,8 @@ const TAB_DEFS: { key: ShopTab; label: string }[] = [
   { key: 'AMPS', label: '🔊 AMPS' },
   { key: 'MODES', label: '📟 MODES' },
   { key: 'BANDS', label: '📻 BANDS' },
+  { key: 'GEAR', label: '🔧 GEAR' },
+  { key: 'ACTIVITIES', label: '🏕️ ACTIVITIES' },
   { key: 'EVENTS', label: '⚡ EVENTS' },
   { key: 'AWARDS', label: '🏆 AWARDS' },
   { key: 'PRESTIGE', label: '⭐ PRESTIGE' },
@@ -402,12 +404,18 @@ const Shop: React.FC = () => {
 
   const renderTabContent = () => {
     switch (tab) {
-      case 'RADIOS':
-        return unlockedStations.length === 0 ? (
+      case 'RADIOS': {
+        const licenseItems = getUpgradesByCategory('license');
+        const hasStationsOrLicenses = unlockedStations.length > 0 || licenseItems.length > 0;
+        return !hasStationsOrLicenses ? (
           <div style={styles.emptyMsg}>No stations unlocked yet</div>
         ) : (
-          unlockedStations.map(renderStationCard)
+          <>
+            {licenseItems.map((up) => renderUpgradeCard(up))}
+            {unlockedStations.map(renderStationCard)}
+          </>
         );
+      }
 
       case 'ANTENNAS': {
         const items = getUpgradesByCategory('antenna');
@@ -440,6 +448,24 @@ const Shop: React.FC = () => {
         const items = getUpgradesByCategory('band');
         return items.length === 0 ? (
           <div style={styles.emptyMsg}>No bands available</div>
+        ) : (
+          items.map((up) => renderUpgradeCard(up))
+        );
+      }
+
+      case 'GEAR': {
+        const items = getUpgradesByCategory('equipment');
+        return items.length === 0 ? (
+          <div style={styles.emptyMsg}>No gear available</div>
+        ) : (
+          items.map((up) => renderUpgradeCard(up))
+        );
+      }
+
+      case 'ACTIVITIES': {
+        const items = getUpgradesByCategory('activity');
+        return items.length === 0 ? (
+          <div style={styles.emptyMsg}>No activities available</div>
         ) : (
           items.map((up) => renderUpgradeCard(up))
         );
@@ -612,6 +638,12 @@ const Shop: React.FC = () => {
               ...(tab === t.key ? styles.tabActive : {}),
               ...(i === 0 ? { borderRadius: '3px 0 0 3px' } : {}),
               ...(i === TAB_DEFS.length - 1 ? { borderRadius: '0 3px 3px 0' } : {}),
+              ...(t.key === 'PRESTIGE' ? {
+                color: tab === 'PRESTIGE' ? '#ffd700' : 'rgba(255,215,0,0.4)',
+                borderColor: tab === 'PRESTIGE' ? '#ffd700' : 'rgba(255,215,0,0.2)',
+                background: tab === 'PRESTIGE' ? 'rgba(255,215,0,0.1)' : 'transparent',
+                boxShadow: tab === 'PRESTIGE' ? '0 0 6px rgba(255,215,0,0.2)' : 'none',
+              } : {}),
             }}
             onClick={() => setTab(t.key)}
           >
