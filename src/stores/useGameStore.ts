@@ -581,12 +581,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // --- Prestige ---
   getPrestigeCost: () => {
     const s = get();
-    return 100 * Math.pow(2, s.prestigeLevel);
+    return 100_000 * Math.pow(3, s.prestigeLevel);
   },
 
   prestige: () => {
     const s = get();
-    const cost = 100 * Math.pow(2, s.prestigeLevel);
+    const cost = 100_000 * Math.pow(3, s.prestigeLevel);
     if (s.totalQsos < cost) return;
 
     const newLevel = s.prestigeLevel + 1;
