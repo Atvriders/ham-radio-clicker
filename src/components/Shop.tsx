@@ -22,7 +22,7 @@ const COLORS = {
 type ShopTab = 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'GEAR' | 'ACTIVITIES' | 'EVENTS' | 'AWARDS' | 'RESEARCH' | 'PRESTIGE';
 
 const TAB_DEFS: { key: ShopTab; label: string }[] = [
-  { key: 'RADIOS', label: 'RADIO' },
+  { key: 'RADIOS', label: 'RIGS' },
   { key: 'ANTENNAS', label: 'ANT' },
   { key: 'AMPS', label: 'AMP' },
   { key: 'MODES', label: 'MODE' },
