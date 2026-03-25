@@ -86,14 +86,11 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
 
   const qsos = useGameStore((s) => s.qsos);
   const qsoPerSecond = useGameStore((s) => s.qsoPerSecond);
-  const ownedUpgrades = useGameStore((s) => s.upgrades);
+
   const save = useGameStore((s) => s.save);
   const reset = useGameStore((s) => s.reset);
   const isMobile = useIsMobile();
 
-  const licenseLevel: 'technician' | 'general' | 'extra' =
-    ownedUpgrades.includes('extra_class_license') ? 'extra' :
-    ownedUpgrades.includes('general_license') ? 'general' : 'technician';
   const [activeTab, setActiveTab] = useState<MobileTab>('play');
   const [showWelcome, setShowWelcome] = useState(!!loginMessage);
 
@@ -248,7 +245,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
             <SMeter />
           </div>
           {/* Quiz Strip */}
-          <QuizStrip licenseLevel={licenseLevel} />
+          <QuizStrip />
           {/* Inline EventPopup (when active) */}
           <EventPopup inline />
           {/* EventLog fills remaining space */}
