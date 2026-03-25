@@ -1,8 +1,8 @@
 // ============================================================
-// Ham Radio Clicker -- Shop (Right Sidebar - 7-Tab Layout)
+// Ham Radio Clicker -- Shop (Right Sidebar - License-Gated Tabs)
 // ============================================================
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGameStore } from '../stores/useGameStore';
 import { stations, getStationCost } from '../data/stations';
 import { upgrades, UPGRADES } from '../data/upgrades';
@@ -19,9 +19,10 @@ const COLORS = {
   border: 'rgba(51,255,51,0.2)',
 };
 
-type ShopTab = 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'GEAR' | 'ACTIVITIES' | 'EVENTS' | 'AWARDS' | 'RESEARCH' | 'PRESTIGE';
+type ShopTab = 'LICENSE' | 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'GEAR' | 'ACTIVITIES' | 'EVENTS' | 'AWARDS' | 'RESEARCH' | 'PRESTIGE';
 
-const TAB_DEFS: { key: ShopTab; label: string }[] = [
+const ALL_TAB_DEFS: { key: ShopTab; label: string }[] = [
+  { key: 'LICENSE', label: '\u{1F4DC} LIC' },
   { key: 'RADIOS', label: 'RIGS' },
   { key: 'ANTENNAS', label: 'ANT' },
   { key: 'AMPS', label: 'AMP' },
@@ -34,6 +35,20 @@ const TAB_DEFS: { key: ShopTab; label: string }[] = [
   { key: 'RESEARCH', label: 'RSCH' },
   { key: 'PRESTIGE', label: 'PRST' },
 ];
+
+// IDs of gear items that make sense without a license (receive-only / no-transmit)
+const UNLICENSED_GEAR_IDS = new Set([
+  'matchbox_radio', 'tin_can_antenna', 'homebrew_dipole', 'diy_dummy_load',
+  'better_coax', 'antenna_analyzer', 'manual_tuner', 'auto_tuner_ldg', 'dummy_load',
+]);
+
+// IDs of antennas that can be used receive-only (no license needed)
+const UNLICENSED_ANTENNA_IDS = new Set([
+  'wire_random', 'rubber_duck_antenna', 'end_fed_halfwave', 'homebrew_dipole',
+]);
+
+// Event items that don't require transmitting
+const UNLICENSED_EVENT_IDS = new Set(['coffee_boost']);
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
@@ -68,7 +83,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tabRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(6, 1fr)',
     gap: 2,
     marginBottom: 6,
     flexShrink: 0,
@@ -213,7 +227,7 @@ const styles: Record<string, React.CSSProperties> = {
 };
 
 const Shop: React.FC = () => {
-  const [tab, setTab] = useState<ShopTab>('RADIOS');
+  const [tab, setTab] = useState<ShopTab>('LICENSE');
 
   const qsos = useGameStore((s) => s.qsos);
   const totalQsos = useGameStore((s) => s.totalQsos);
@@ -228,20 +242,133 @@ const Shop: React.FC = () => {
   const getPrestigeCost = useGameStore((s) => s.getPrestigeCost);
   const prestige = useGameStore((s) => s.prestige);
 
-  // Filter upgrades by category for each tab — show ALL items (locked ones appear grayed)
+  // License status helpers
+  const hasTech = purchasedUpgrades.includes('technician_license');
+  const hasGeneral = purchasedUpgrades.includes('general_license');
+  const hasExtra = purchasedUpgrades.includes('extra_class_license');
+
+  // Determine which license level the player has (0=none, 1=tech, 2=general, 3=extra)
+  const licenseLevel = hasExtra ? 3 : hasGeneral ? 2 : hasTech ? 1 : 0;
+
+  // Helper: does the player meet a given requires field?
+  const meetsRequirement = (requires?: string): boolean => {
+    if (!requires) return true;
+    return purchasedUpgrades.includes(requires);
+  };
+
+  // Helper: should this upgrade be VISIBLE based on license gating?
+  const isVisibleByLicense = (up: typeof upgrades[0]): boolean => {
+    if (!up.requires) return true;
+    // Check if the requires field is a license
+    if (up.requires === 'technician_license') return licenseLevel >= 1;
+    if (up.requires === 'general_license') return licenseLevel >= 2;
+    if (up.requires === 'extra_class_license') return licenseLevel >= 3;
+    // Non-license requires: show if they have the prerequisite OR if they have enough license
+    // For chained items (e.g., power_10w -> power_25w), show if prereq is met
+    return true; // always show non-license-gated items
+  };
+
+  // Determine visible tabs based on license level
+  const visibleTabs = useMemo(() => {
+    if (licenseLevel === 0) {
+      // Unlicensed: hide BAND, MODE, AMP, ACT
+      return ALL_TAB_DEFS.filter(t =>
+        !['BANDS', 'MODES', 'AMPS', 'ACTIVITIES'].includes(t.key)
+      );
+    }
+    // Licensed: show all tabs
+    return ALL_TAB_DEFS;
+  }, [licenseLevel]);
+
+  // If current tab is now hidden, reset to LICENSE
+  const effectiveTab = visibleTabs.some(t => t.key === tab) ? tab : 'LICENSE';
+
+  // Compute grid columns based on visible tab count
+  const tabColumns = Math.min(visibleTabs.length, 6);
+
+  // Filter upgrades by category, excluding already purchased, with license visibility
   const getUpgradesByCategory = (category: string) =>
     upgrades
       .filter((up) => up.category === category)
       .filter((up) => !purchasedUpgrades.includes(up.id))
+      .filter(isVisibleByLicense)
       .sort((a, b) => a.cost - b.cost);
 
-  // Get ALL stations sorted by tier, for showing locked ones too
+  // Get ALL stations sorted by tier
   const allStationsSorted = [...stations].sort((a, b) => a.tier - b.tier);
 
+  // Filter stations by license visibility
+  const getVisibleStations = () => {
+    if (licenseLevel === 0) {
+      // Unlicensed: only handheld and mobile_rig
+      return allStationsSorted.filter(st => !st.requiredLicense);
+    }
+    // Licensed: filter by license gating
+    return allStationsSorted.filter(st => {
+      if (!st.requiredLicense) return true;
+      if (st.requiredLicense === 'general_license') return licenseLevel >= 2;
+      if (st.requiredLicense === 'extra_class_license') return licenseLevel >= 3;
+      if (st.requiredLicense === 'technician_license') return licenseLevel >= 1;
+      return true;
+    });
+  };
+
   // Events are re-purchasable, don't filter out purchased
-  const eventUpgrades = upgrades
-    .filter((up) => up.category === 'event')
-    .sort((a, b) => a.cost - b.cost);
+  const getVisibleEvents = () => {
+    const allEvents = upgrades
+      .filter((up) => up.category === 'event')
+      .sort((a, b) => a.cost - b.cost);
+
+    if (licenseLevel === 0) {
+      return allEvents.filter(up => UNLICENSED_EVENT_IDS.has(up.id));
+    }
+    return allEvents.filter(isVisibleByLicense);
+  };
+
+  // Get gear items filtered by license
+  const getVisibleGear = () => {
+    const allGear = upgrades
+      .filter((up) => up.category === 'equipment')
+      .filter((up) => !purchasedUpgrades.includes(up.id))
+      .sort((a, b) => a.cost - b.cost);
+
+    if (licenseLevel === 0) {
+      return allGear.filter(up => UNLICENSED_GEAR_IDS.has(up.id));
+    }
+    return allGear.filter(isVisibleByLicense);
+  };
+
+  // Get antenna items filtered by license
+  const getVisibleAntennas = () => {
+    const allAntennas = upgrades
+      .filter((up) => up.category === 'antenna')
+      .filter((up) => !purchasedUpgrades.includes(up.id))
+      .sort((a, b) => a.cost - b.cost);
+
+    if (licenseLevel === 0) {
+      return allAntennas.filter(up => UNLICENSED_ANTENNA_IDS.has(up.id));
+    }
+    return allAntennas.filter(isVisibleByLicense);
+  };
+
+  // License tab data
+  const LICENSE_ITEMS = [
+    {
+      id: 'technician_license',
+      level: 0,
+      unlocks: 'VHF/UHF bands, 2m/70cm/6m/10m, repeater access, basic modes',
+    },
+    {
+      id: 'general_license',
+      level: 1,
+      unlocks: 'Most HF bands (20m, 40m, 80m, 15m, etc.), POTA/SOTA activities',
+    },
+    {
+      id: 'extra_class_license',
+      level: 2,
+      unlocks: 'Full band privileges, DXpeditions, remote stations, moonbounce',
+    },
+  ];
 
   const renderStationCard = (st: typeof stations[0]) => {
     const owned = ownedStations[st.id] ?? 0;
@@ -414,20 +541,183 @@ const Shop: React.FC = () => {
     );
   };
 
+  const renderLicenseCard = (licenseInfo: typeof LICENSE_ITEMS[0]) => {
+    const upDef = UPGRADES.find(u => u.id === licenseInfo.id)!;
+    const isPurchased = purchasedUpgrades.includes(licenseInfo.id);
+    const prereqMet = !upDef.requires || purchasedUpgrades.includes(upDef.requires);
+    const canAfford = qsos >= upDef.cost && prereqMet && !isPurchased;
+
+    // Determine lock state for display
+    const isLocked = !prereqMet && !isPurchased;
+    const requiresName = upDef.requires
+      ? UPGRADES.find((u) => u.id === upDef.requires)?.name ?? upDef.requires
+      : '';
+
+    return (
+      <div
+        key={upDef.id}
+        className={`shop-card${isPurchased ? '' : isLocked ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
+        style={{
+          ...styles.card,
+          ...(isPurchased
+            ? {
+                borderColor: 'rgba(51,255,51,0.5)',
+                background: 'rgba(51,255,51,0.08)',
+              }
+            : isLocked
+              ? styles.cardLocked
+              : canAfford
+                ? styles.cardAffordable
+                : styles.cardDisabled),
+        }}
+        onClick={() => {
+          if (canAfford) buyUpgrade(upDef.id);
+        }}
+      >
+        <div style={styles.cardHeader}>
+          <span style={styles.cardIcon}>
+            {isPurchased ? '\u2705' : isLocked ? '\u{1F512}' : upDef.icon}
+          </span>
+          <span style={{
+            ...styles.cardName,
+            color: isPurchased ? COLORS.green : isLocked ? COLORS.red : COLORS.green,
+          }}>
+            {upDef.name}
+          </span>
+          {isPurchased && (
+            <span style={{
+              fontSize: 9,
+              color: COLORS.green,
+              fontWeight: 'bold',
+              background: 'rgba(51,255,51,0.15)',
+              padding: '1px 6px',
+              borderRadius: 3,
+            }}>
+              ACTIVE
+            </span>
+          )}
+        </div>
+
+        <div style={styles.cardFlavor}>{upDef.flavor}</div>
+
+        {/* Effect description */}
+        <div style={{
+          fontSize: 10,
+          color: COLORS.blue,
+          marginBottom: 4,
+          padding: '2px 4px',
+          background: 'rgba(0,204,255,0.05)',
+          borderRadius: 2,
+          borderLeft: '2px solid rgba(0,204,255,0.2)',
+        }}>
+          {upDef.description}
+        </div>
+
+        {/* What this license unlocks */}
+        <div style={{
+          fontSize: 9,
+          color: COLORS.amber,
+          marginBottom: 4,
+          padding: '3px 6px',
+          background: 'rgba(255,170,0,0.05)',
+          borderRadius: 2,
+          borderLeft: '2px solid rgba(255,170,0,0.2)',
+          lineHeight: 1.4,
+        }}>
+          Unlocks: {licenseInfo.unlocks}
+        </div>
+
+        <div style={styles.cardFooter}>
+          {isPurchased ? (
+            <span style={{
+              fontSize: 11,
+              color: COLORS.green,
+              fontWeight: 'bold',
+            }}>
+              PURCHASED
+            </span>
+          ) : (
+            <span style={canAfford ? styles.cardCost : styles.cardCostUnaffordable}>
+              {formatNumber(upDef.cost)} QSOs
+            </span>
+          )}
+          {!isPurchased && isLocked ? (
+            <span style={{
+              fontSize: 9,
+              color: COLORS.red,
+              fontWeight: 'bold',
+            }}>
+              Req: {requiresName}
+            </span>
+          ) : !isPurchased ? (
+            <button
+              className="shop-buy-btn"
+              style={{
+                ...styles.buyBtn,
+                ...(!canAfford ? styles.buyBtnDisabled : {}),
+              }}
+              disabled={!canAfford}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canAfford) buyUpgrade(upDef.id);
+              }}
+            >
+              BUY
+            </button>
+          ) : null}
+        </div>
+      </div>
+    );
+  };
+
   const renderTabContent = () => {
-    switch (tab) {
-      case 'RADIOS': {
-        const licenseItems = getUpgradesByCategory('license');
+    switch (effectiveTab) {
+      case 'LICENSE': {
         return (
           <>
-            {licenseItems.map((up) => renderUpgradeCard(up))}
-            {allStationsSorted.map(renderStationCard)}
+            {/* License status header */}
+            <div style={{
+              padding: '8px 10px',
+              marginBottom: 6,
+              border: '1px solid rgba(255,170,0,0.2)',
+              borderRadius: 4,
+              background: 'rgba(255,170,0,0.03)',
+              textAlign: 'center',
+            }}>
+              <div style={{
+                fontSize: 11,
+                color: COLORS.amber,
+                fontWeight: 'bold',
+                marginBottom: 2,
+              }}>
+                LICENSE STATUS
+              </div>
+              <div style={{
+                fontSize: 10,
+                color: licenseLevel === 0 ? COLORS.red : COLORS.green,
+              }}>
+                {licenseLevel === 0 && 'UNLICENSED — Get your Technician License to start transmitting!'}
+                {licenseLevel === 1 && 'TECHNICIAN — VHF/UHF privileges active'}
+                {licenseLevel === 2 && 'GENERAL — HF privileges active'}
+                {licenseLevel === 3 && 'EXTRA CLASS — Full privileges active'}
+              </div>
+            </div>
+            {LICENSE_ITEMS.map(li => renderLicenseCard(li))}
+          </>
+        );
+      }
+
+      case 'RADIOS': {
+        const visStations = getVisibleStations();
+        return (
+          <>
+            {visStations.map(renderStationCard)}
           </>
         );
       }
 
       case 'ANTENNAS': {
-        const items = getUpgradesByCategory('antenna');
+        const items = getVisibleAntennas();
         return items.length === 0 ? (
           <div style={styles.emptyMsg}>No antennas available</div>
         ) : (
@@ -463,7 +753,7 @@ const Shop: React.FC = () => {
       }
 
       case 'GEAR': {
-        const items = getUpgradesByCategory('equipment');
+        const items = getVisibleGear();
         return items.length === 0 ? (
           <div style={styles.emptyMsg}>No gear available</div>
         ) : (
@@ -480,12 +770,14 @@ const Shop: React.FC = () => {
         );
       }
 
-      case 'EVENTS':
-        return eventUpgrades.length === 0 ? (
+      case 'EVENTS': {
+        const items = getVisibleEvents();
+        return items.length === 0 ? (
           <div style={styles.emptyMsg}>No events available</div>
         ) : (
-          eventUpgrades.map((up) => renderUpgradeCard(up, true))
+          items.map((up) => renderUpgradeCard(up, true))
         );
+      }
 
       case 'AWARDS':
         return <Achievements />;
@@ -630,24 +922,36 @@ const Shop: React.FC = () => {
         <span style={styles.titleLabel}>// EQUIPMENT RACK</span>
       </div>
 
-      {/* Tab Toggle — horizontally scrollable */}
-      <div className="shop-tab-row" style={styles.tabRow}>
-        {TAB_DEFS.map((t, i) => (
+      {/* Tab Toggle — dynamically sized grid */}
+      <div className="shop-tab-row" style={{
+        ...styles.tabRow,
+        gridTemplateColumns: `repeat(${tabColumns}, 1fr)`,
+      }}>
+        {visibleTabs.map((t) => (
           <button
             key={t.key}
             style={{
               ...styles.tab,
-              ...(tab === t.key ? styles.tabActive : {}),
+              ...(effectiveTab === t.key ? styles.tabActive : {}),
+              ...(t.key === 'LICENSE' && effectiveTab !== 'LICENSE' ? {
+                color: 'rgba(255,170,0,0.5)',
+                borderColor: 'rgba(255,170,0,0.3)',
+              } : {}),
+              ...(t.key === 'LICENSE' && effectiveTab === 'LICENSE' ? {
+                background: COLORS.amber,
+                color: '#0a0e1a',
+                border: `1px solid ${COLORS.amber}`,
+              } : {}),
               ...(t.key === 'RESEARCH' ? {
-                color: tab === 'RESEARCH' ? '#0a0e1a' : 'rgba(0,204,255,0.4)',
-                borderColor: tab === 'RESEARCH' ? '#00ccff' : 'rgba(0,204,255,0.2)',
-                background: tab === 'RESEARCH' ? '#00ccff' : 'rgba(8,16,24,0.9)',
+                color: effectiveTab === 'RESEARCH' ? '#0a0e1a' : 'rgba(0,204,255,0.4)',
+                borderColor: effectiveTab === 'RESEARCH' ? '#00ccff' : 'rgba(0,204,255,0.2)',
+                background: effectiveTab === 'RESEARCH' ? '#00ccff' : 'rgba(8,16,24,0.9)',
                 boxShadow: 'none',
               } : {}),
               ...(t.key === 'PRESTIGE' ? {
-                color: tab === 'PRESTIGE' ? '#0a0e1a' : 'rgba(255,215,0,0.4)',
-                borderColor: tab === 'PRESTIGE' ? '#ffd700' : 'rgba(255,215,0,0.2)',
-                background: tab === 'PRESTIGE' ? '#ffd700' : 'rgba(8,16,24,0.9)',
+                color: effectiveTab === 'PRESTIGE' ? '#0a0e1a' : 'rgba(255,215,0,0.4)',
+                borderColor: effectiveTab === 'PRESTIGE' ? '#ffd700' : 'rgba(255,215,0,0.2)',
+                background: effectiveTab === 'PRESTIGE' ? '#ffd700' : 'rgba(8,16,24,0.9)',
                 boxShadow: 'none',
               } : {}),
             }}
