@@ -43,6 +43,7 @@ export interface Upgrade {
   icon: string;
   requires?: string;
   tier: number;
+  category?: 'radio' | 'antenna' | 'amp' | 'mode' | 'band' | 'event' | 'license' | 'activity' | 'equipment';
 }
 
 // --- Achievements ---
@@ -141,4 +142,6 @@ export interface GameState {
   finalsBlownCount: number;
   callsign: string;
   transmitPower: number;
+  prestigeLevel: number;
+  prestigeMultiplier: number;
 }

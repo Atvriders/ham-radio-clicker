@@ -14,7 +14,7 @@ import Leaderboard from './components/Leaderboard';
 import Chat from './components/Chat';
 import { formatNumber } from './utils/format';
 
-const MOBILE_BREAKPOINT = 768;
+const MOBILE_BREAKPOINT = 900;
 const CALLSIGN_KEY = 'ham-radio-clicker-callsign';
 
 function useIsMobile() {
@@ -192,7 +192,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
     );
   }
 
-  // Desktop layout
+  // Desktop layout — 3 columns
   return (
     <div style={styles.wrapper}>
       {/* CRT Scanline Overlay */}
@@ -202,7 +202,7 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
         <div style={styles.welcomeBanner}>{loginMessage}</div>
       )}
 
-      {/* Top Bar */}
+      {/* Top Bar — full width */}
       <header style={styles.topBar}>
         <div style={styles.titleBlock}>
           <h1 style={styles.title}>HAM RADIO CLICKER</h1>
@@ -227,13 +227,13 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
 
       {/* Main Three-Column Layout */}
       <main style={styles.main}>
-        {/* Left Column */}
+        {/* LEFT column: StatsPanel + StationList */}
         <aside style={styles.leftCol}>
           <StatsPanel />
           <StationList />
         </aside>
 
-        {/* Center Column */}
+        {/* CENTER column: Instruments + EventPopup + EventLog */}
         <section style={styles.centerCol}>
           {/* Row 1: PTT + Meters side by side */}
           <div style={styles.centerInstrumentRow}>
@@ -241,20 +241,19 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
             <SWRMeter />
             <SMeter />
           </div>
-          {/* Row 2: QSO Log fills remaining space */}
+          {/* Inline EventPopup (when active) */}
+          <EventPopup inline />
+          {/* EventLog fills remaining space */}
           <div style={styles.centerLogArea}>
             <EventLog />
           </div>
         </section>
 
-        {/* Right Column */}
+        {/* RIGHT column: Shop */}
         <aside style={styles.rightCol}>
           <Shop />
         </aside>
       </main>
-
-      {/* Event Popup Overlay */}
-      <EventPopup />
 
       {/* Leaderboard Modal */}
       {showLeaderboard && (
@@ -263,32 +262,6 @@ const GameApp: React.FC<GameAppProps> = ({ callsign, loginMessage, showLeaderboa
 
       {/* Chat */}
       <Chat callsign={callsign} />
-
-      <style>{`
-        @media (max-width: 1250px) and (min-width: 769px) {
-          main {
-            flex-direction: column !important;
-            overflow-y: auto !important;
-          }
-          main > aside,
-          main > section {
-            width: 100% !important;
-            max-height: none !important;
-            border-left: none !important;
-            border-right: none !important;
-            border-bottom: 1px solid #1a2a1a;
-            flex-shrink: 0 !important;
-          }
-          main > aside:first-child {
-            max-height: 300px !important;
-            overflow-y: auto !important;
-          }
-          main > aside:last-child {
-            max-height: 400px !important;
-            overflow-y: auto !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
@@ -385,17 +358,31 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'linear-gradient(180deg, #2a2a1a 0%, #222215 100%)',
   },
 
-  // Desktop columns
-  main: { display: 'flex', flex: 1, overflow: 'hidden' },
+  // Desktop 3-column layout
+  main: {
+    display: 'flex',
+    flex: 1,
+    overflow: 'hidden',
+  },
   leftCol: {
-    width: '230px', flexShrink: 0, display: 'flex', flexDirection: 'column',
-    gap: '6px', padding: '6px', overflowY: 'auto',
-    borderRight: '1px solid rgba(51,255,51,0.12)',
+    width: '260px',
+    flexShrink: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    padding: '6px',
+    overflowY: 'auto',
+    borderRight: '1px solid rgba(51,255,51,0.1)',
     background: 'rgba(0,0,0,0.15)',
   },
   centerCol: {
-    flex: 1, display: 'flex', flexDirection: 'column',
-    gap: '6px', padding: '6px', overflow: 'hidden', minWidth: 0,
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    padding: '6px',
+    overflow: 'hidden',
+    minWidth: 0,
   },
   centerInstrumentRow: {
     display: 'flex',
@@ -414,9 +401,13 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: '150px',
   },
   rightCol: {
-    width: '310px', flexShrink: 0, display: 'flex', flexDirection: 'column',
-    padding: '6px', overflowY: 'auto',
-    borderLeft: '1px solid rgba(51,255,51,0.12)',
+    width: '340px',
+    flexShrink: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '6px',
+    overflowY: 'auto',
+    borderLeft: '1px solid rgba(51,255,51,0.1)',
     background: 'rgba(0,0,0,0.15)',
   },
 

@@ -1,5 +1,5 @@
 // ============================================================
-// Ham Radio Clicker -- Shop (Right Sidebar - Polished)
+// Ham Radio Clicker -- Shop (Right Sidebar - 7-Tab Layout)
 // ============================================================
 
 import React, { useState } from 'react';
@@ -18,7 +18,18 @@ const COLORS = {
   border: 'rgba(51,255,51,0.2)',
 };
 
-type ShopTab = 'STATIONS' | 'UPGRADES' | 'ACHIEVEMENTS';
+type ShopTab = 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'EVENTS' | 'AWARDS' | 'PRESTIGE';
+
+const TAB_DEFS: { key: ShopTab; label: string }[] = [
+  { key: 'RADIOS', label: '📻 RADIOS' },
+  { key: 'ANTENNAS', label: '📡 ANTENNAS' },
+  { key: 'AMPS', label: '🔊 AMPS' },
+  { key: 'MODES', label: '📟 MODES' },
+  { key: 'BANDS', label: '📻 BANDS' },
+  { key: 'EVENTS', label: '⚡ EVENTS' },
+  { key: 'AWARDS', label: '🏆 AWARDS' },
+  { key: 'PRESTIGE', label: '⭐ PRESTIGE' },
+];
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
@@ -56,13 +67,16 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 0,
     marginBottom: 6,
     flexShrink: 0,
+    overflowX: 'auto' as const,
+    flexWrap: 'nowrap' as const,
+    scrollbarWidth: 'thin' as const,
   },
   tab: {
-    flex: 1,
-    padding: '5px 0',
+    flex: '0 0 auto',
+    padding: '5px 8px',
     textAlign: 'center' as const,
-    fontSize: 10,
-    letterSpacing: 1,
+    fontSize: 9,
+    letterSpacing: 0.5,
     cursor: 'pointer',
     border: `1px solid ${COLORS.border}`,
     background: 'transparent',
@@ -70,18 +84,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'monospace',
     fontWeight: 'bold',
     transition: 'all 0.2s ease',
+    whiteSpace: 'nowrap' as const,
   },
   tabActive: {
     background: 'rgba(51,255,51,0.1)',
     color: COLORS.green,
     borderColor: COLORS.green,
     boxShadow: `0 0 6px rgba(51,255,51,0.2)`,
-  },
-  tabLeft: {
-    borderRadius: '3px 0 0 3px',
-  },
-  tabRight: {
-    borderRadius: '0 3px 3px 0',
   },
   list: {
     flex: 1,
@@ -201,7 +210,7 @@ const styles: Record<string, React.CSSProperties> = {
 };
 
 const Shop: React.FC = () => {
-  const [tab, setTab] = useState<ShopTab>('STATIONS');
+  const [tab, setTab] = useState<ShopTab>('RADIOS');
 
   const qsos = useGameStore((s) => s.qsos);
   const totalQsos = useGameStore((s) => s.totalQsos);
@@ -210,11 +219,356 @@ const Shop: React.FC = () => {
   const qsoPerSecond = useGameStore((s) => s.qsoPerSecond);
   const buyStation = useGameStore((s) => s.buyStation);
   const buyUpgrade = useGameStore((s) => s.buyUpgrade);
+  const useEventBooster = useGameStore((s) => s.useEventBooster);
+  const prestigeLevel = useGameStore((s) => s.prestigeLevel);
+  const prestigeMultiplier = useGameStore((s) => s.prestigeMultiplier);
+  const getPrestigeCost = useGameStore((s) => s.getPrestigeCost);
+  const prestige = useGameStore((s) => s.prestige);
 
   const unlockedStations = stations.filter((st) => totalQsos >= st.unlockAt);
-  const availableUpgrades = upgrades
-    .filter((up) => !purchasedUpgrades.includes(up.id))
+
+  // Filter upgrades by category for each tab
+  const getUpgradesByCategory = (category: string) =>
+    upgrades
+      .filter((up) => up.category === category)
+      .filter((up) => !purchasedUpgrades.includes(up.id))
+      .sort((a, b) => a.cost - b.cost);
+
+  // Events are re-purchasable, don't filter out purchased
+  const eventUpgrades = upgrades
+    .filter((up) => up.category === 'event')
     .sort((a, b) => a.cost - b.cost);
+
+  const renderStationCard = (st: typeof stations[0]) => {
+    const owned = ownedStations[st.id] ?? 0;
+    const cost = getStationCost(st, owned);
+    const hasLicense = !st.requiredLicense || purchasedUpgrades.includes(st.requiredLicense);
+    const canAfford = qsos >= cost && hasLicense;
+    const licenseName = st.requiredLicense
+      ? UPGRADES.find((u) => u.id === st.requiredLicense)?.name ?? st.requiredLicense
+      : '';
+
+    const totalQps = owned > 0 ? +(st.baseQps * owned).toFixed(1) : 0;
+    const pct = qsoPerSecond > 0 && totalQps > 0 ? ((totalQps / qsoPerSecond) * 100).toFixed(0) : null;
+    const nextTotalQps = +((owned + 1) * st.baseQps).toFixed(1);
+
+    return (
+      <div
+        key={st.id}
+        className={`shop-card${!hasLicense ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
+        style={{
+          ...styles.card,
+          ...(!hasLicense
+            ? styles.cardLocked
+            : canAfford
+              ? styles.cardAffordable
+              : styles.cardDisabled),
+        }}
+        onClick={() => canAfford && buyStation(st.id)}
+      >
+        <div style={styles.cardHeader}>
+          <span style={styles.cardIcon}>{hasLicense ? st.icon : '\u{1F512}'}</span>
+          <span style={styles.cardName}>{st.name}</span>
+          {owned > 0 && (
+            <span style={styles.cardCount}>x{owned}</span>
+          )}
+          {pct && (
+            <span style={styles.cardPct}>{pct}%</span>
+          )}
+        </div>
+        <div style={styles.cardFlavor}>{st.flavor}</div>
+        <div style={styles.cardFooter}>
+          <span style={canAfford ? styles.cardCost : styles.cardCostUnaffordable}>
+            {formatNumber(cost)} QSOs
+          </span>
+          <span style={styles.cardEffect}>
+            +{st.baseQps} q/s
+          </span>
+          {!hasLicense ? (
+            <span style={{
+              fontSize: 9,
+              color: COLORS.red,
+              fontWeight: 'bold',
+            }}>
+              Req: {licenseName}
+            </span>
+          ) : (
+            <button
+              className="shop-buy-btn"
+              style={{
+                ...styles.buyBtn,
+                ...(!canAfford ? styles.buyBtnDisabled : {}),
+              }}
+              disabled={!canAfford}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canAfford) buyStation(st.id);
+              }}
+            >
+              BUY
+            </button>
+          )}
+        </div>
+        {owned > 0 && (
+          <div style={styles.cardEffectDetail}>
+            Currently: {totalQps} q/s total | Next: {nextTotalQps} q/s
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderUpgradeCard = (up: typeof upgrades[0], isEvent = false) => {
+    const prereqMet = !up.requires || purchasedUpgrades.includes(up.requires);
+    const canAfford = qsos >= up.cost && prereqMet;
+    const requiresName = up.requires
+      ? UPGRADES.find((u) => u.id === up.requires)?.name ?? up.requires
+      : '';
+
+    return (
+      <div
+        key={up.id + (isEvent ? '-event' : '')}
+        className={`shop-card${!prereqMet ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
+        style={{
+          ...styles.card,
+          ...(!prereqMet
+            ? styles.cardLocked
+            : canAfford
+              ? styles.cardAffordable
+              : styles.cardDisabled),
+        }}
+        onClick={() => {
+          if (!canAfford) return;
+          if (isEvent) {
+            useEventBooster(up.id);
+          } else {
+            buyUpgrade(up.id);
+          }
+        }}
+      >
+        <div style={styles.cardHeader}>
+          <span style={styles.cardIcon}>{prereqMet ? up.icon : '\u{1F512}'}</span>
+          <span style={styles.cardName}>{up.name}</span>
+        </div>
+        <div style={styles.cardFlavor}>{up.flavor}</div>
+        <div style={{
+          fontSize: 10,
+          color: COLORS.blue,
+          marginBottom: 4,
+          padding: '2px 4px',
+          background: 'rgba(0,204,255,0.05)',
+          borderRadius: 2,
+          borderLeft: '2px solid rgba(0,204,255,0.2)',
+        }}>
+          {up.description}
+        </div>
+        <div style={styles.cardFooter}>
+          <span style={canAfford ? styles.cardCost : styles.cardCostUnaffordable}>
+            {formatNumber(up.cost)} QSOs
+          </span>
+          {!prereqMet ? (
+            <span style={{
+              fontSize: 9,
+              color: COLORS.red,
+              fontWeight: 'bold',
+            }}>
+              Req: {requiresName}
+            </span>
+          ) : (
+            <button
+              className="shop-buy-btn"
+              style={{
+                ...styles.buyBtn,
+                ...(!canAfford ? styles.buyBtnDisabled : {}),
+              }}
+              disabled={!canAfford}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!canAfford) return;
+                if (isEvent) {
+                  useEventBooster(up.id);
+                } else {
+                  buyUpgrade(up.id);
+                }
+              }}
+            >
+              {isEvent ? 'USE' : 'BUY'}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderTabContent = () => {
+    switch (tab) {
+      case 'RADIOS':
+        return unlockedStations.length === 0 ? (
+          <div style={styles.emptyMsg}>No stations unlocked yet</div>
+        ) : (
+          unlockedStations.map(renderStationCard)
+        );
+
+      case 'ANTENNAS': {
+        const items = getUpgradesByCategory('antenna');
+        return items.length === 0 ? (
+          <div style={styles.emptyMsg}>No antennas available</div>
+        ) : (
+          items.map((up) => renderUpgradeCard(up))
+        );
+      }
+
+      case 'AMPS': {
+        const items = getUpgradesByCategory('amp');
+        return items.length === 0 ? (
+          <div style={styles.emptyMsg}>No amps available</div>
+        ) : (
+          items.map((up) => renderUpgradeCard(up))
+        );
+      }
+
+      case 'MODES': {
+        const items = getUpgradesByCategory('mode');
+        return items.length === 0 ? (
+          <div style={styles.emptyMsg}>No modes available</div>
+        ) : (
+          items.map((up) => renderUpgradeCard(up))
+        );
+      }
+
+      case 'BANDS': {
+        const items = getUpgradesByCategory('band');
+        return items.length === 0 ? (
+          <div style={styles.emptyMsg}>No bands available</div>
+        ) : (
+          items.map((up) => renderUpgradeCard(up))
+        );
+      }
+
+      case 'EVENTS':
+        return eventUpgrades.length === 0 ? (
+          <div style={styles.emptyMsg}>No events available</div>
+        ) : (
+          eventUpgrades.map((up) => renderUpgradeCard(up, true))
+        );
+
+      case 'AWARDS':
+        return <Achievements />;
+
+      case 'PRESTIGE': {
+        const cost = getPrestigeCost();
+        const canPrestige = totalQsos >= cost;
+        const nextMultiplier = 1 + ((prestigeLevel + 1) * 0.5);
+
+        return (
+          <div style={{ padding: '12px 4px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Current Level */}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: 28,
+                fontWeight: 'bold',
+                color: '#ffd700',
+                textShadow: '0 0 12px rgba(255,215,0,0.5)',
+                fontFamily: 'monospace',
+              }}>
+                PRESTIGE {prestigeLevel}
+              </div>
+              <div style={{
+                fontSize: 14,
+                color: COLORS.amber,
+                marginTop: 4,
+                fontFamily: 'monospace',
+              }}>
+                Current Multiplier: {prestigeMultiplier.toFixed(1)}x
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div style={{ borderTop: '1px solid rgba(255,215,0,0.2)', margin: '0 8px' }} />
+
+            {/* Next Prestige Info */}
+            <div style={{
+              border: '1px solid rgba(255,215,0,0.3)',
+              borderRadius: 4,
+              padding: '10px 12px',
+              background: 'rgba(255,215,0,0.03)',
+            }}>
+              <div style={{ fontSize: 11, color: '#ffd700', fontWeight: 'bold', marginBottom: 6 }}>
+                NEXT PRESTIGE: Level {prestigeLevel + 1}
+              </div>
+              <div style={{ fontSize: 10, color: COLORS.amber, marginBottom: 4 }}>
+                Cost: {formatNumber(cost)} total QSOs
+              </div>
+              <div style={{ fontSize: 10, color: COLORS.amber, marginBottom: 4 }}>
+                You have: {formatNumber(totalQsos)} total QSOs
+              </div>
+              <div style={{ fontSize: 10, color: COLORS.blue }}>
+                New multiplier: {nextMultiplier.toFixed(1)}x (currently {prestigeMultiplier.toFixed(1)}x)
+              </div>
+            </div>
+
+            {/* Warning */}
+            <div style={{
+              border: '1px solid rgba(255,68,68,0.3)',
+              borderRadius: 4,
+              padding: '8px 10px',
+              background: 'rgba(255,68,68,0.03)',
+              fontSize: 9,
+              lineHeight: 1.5,
+            }}>
+              <div style={{ color: COLORS.red, fontWeight: 'bold', marginBottom: 4, fontSize: 10 }}>
+                WARNING — PRESTIGE WILL RESET:
+              </div>
+              <div style={{ color: 'rgba(255,68,68,0.7)' }}>
+                Current QSOs, all stations, non-license upgrades, SWR state, power level, active events
+              </div>
+              <div style={{ color: COLORS.green, fontWeight: 'bold', marginTop: 6, fontSize: 10 }}>
+                YOU KEEP:
+              </div>
+              <div style={{ color: 'rgba(51,255,51,0.7)' }}>
+                Prestige level + multiplier, total QSOs, achievements, licenses (Tech/General/Extra)
+              </div>
+            </div>
+
+            {/* Prestige Button */}
+            <button
+              disabled={!canPrestige}
+              style={{
+                padding: '12px 20px',
+                fontSize: 14,
+                fontWeight: 'bold',
+                fontFamily: 'monospace',
+                letterSpacing: 2,
+                border: `2px solid ${canPrestige ? '#ffd700' : 'rgba(255,215,0,0.2)'}`,
+                borderRadius: 6,
+                background: canPrestige ? 'rgba(255,215,0,0.15)' : 'transparent',
+                color: canPrestige ? '#ffd700' : 'rgba(255,215,0,0.25)',
+                cursor: canPrestige ? 'pointer' : 'not-allowed',
+                textShadow: canPrestige ? '0 0 8px rgba(255,215,0,0.4)' : 'none',
+                boxShadow: canPrestige ? '0 0 16px rgba(255,215,0,0.15)' : 'none',
+                transition: 'all 0.2s ease',
+              }}
+              onClick={() => {
+                if (!canPrestige) return;
+                const confirmed = window.confirm(
+                  `PRESTIGE to Level ${prestigeLevel + 1}?\n\n` +
+                  `This will reset your current QSOs, stations, and most upgrades.\n\n` +
+                  `You KEEP: licenses, achievements, total QSOs, and your new ${nextMultiplier.toFixed(1)}x multiplier.\n\n` +
+                  `This cannot be undone!`
+                );
+                if (confirmed) prestige();
+              }}
+            >
+              PRESTIGE NOW
+            </button>
+          </div>
+        );
+      }
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -231,6 +585,16 @@ const Shop: React.FC = () => {
           background: rgba(51,255,51,0.2) !important;
           box-shadow: 0 0 8px rgba(51,255,51,0.25);
         }
+        .shop-tab-row::-webkit-scrollbar {
+          height: 3px;
+        }
+        .shop-tab-row::-webkit-scrollbar-thumb {
+          background: rgba(51,255,51,0.3);
+          border-radius: 2px;
+        }
+        .shop-tab-row::-webkit-scrollbar-track {
+          background: transparent;
+        }
       `}</style>
 
       <div style={styles.title}>
@@ -238,203 +602,27 @@ const Shop: React.FC = () => {
         <span style={styles.titleLabel}>// EQUIPMENT RACK</span>
       </div>
 
-      {/* Tab Toggle */}
-      <div style={styles.tabRow}>
-        <button
-          style={{
-            ...styles.tab,
-            ...styles.tabLeft,
-            ...(tab === 'STATIONS' ? styles.tabActive : {}),
-          }}
-          onClick={() => setTab('STATIONS')}
-        >
-          STATIONS
-        </button>
-        <button
-          style={{
-            ...styles.tab,
-            ...(tab === 'UPGRADES' ? styles.tabActive : {}),
-          }}
-          onClick={() => setTab('UPGRADES')}
-        >
-          UPGRADES
-        </button>
-        <button
-          style={{
-            ...styles.tab,
-            ...styles.tabRight,
-            ...(tab === 'ACHIEVEMENTS' ? styles.tabActive : {}),
-          }}
-          onClick={() => setTab('ACHIEVEMENTS')}
-        >
-          AWARDS
-        </button>
+      {/* Tab Toggle — horizontally scrollable */}
+      <div className="shop-tab-row" style={styles.tabRow}>
+        {TAB_DEFS.map((t, i) => (
+          <button
+            key={t.key}
+            style={{
+              ...styles.tab,
+              ...(tab === t.key ? styles.tabActive : {}),
+              ...(i === 0 ? { borderRadius: '3px 0 0 3px' } : {}),
+              ...(i === TAB_DEFS.length - 1 ? { borderRadius: '0 3px 3px 0' } : {}),
+            }}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {/* List */}
       <div style={styles.list}>
-        {tab === 'ACHIEVEMENTS' ? (
-          <Achievements />
-        ) : tab === 'STATIONS' ? (
-          unlockedStations.length === 0 ? (
-            <div style={styles.emptyMsg}>No stations unlocked yet</div>
-          ) : (
-            unlockedStations.map((st) => {
-              const owned = ownedStations[st.id] ?? 0;
-              const cost = getStationCost(st, owned);
-              const hasLicense = !st.requiredLicense || purchasedUpgrades.includes(st.requiredLicense);
-              const canAfford = qsos >= cost && hasLicense;
-              const licenseName = st.requiredLicense
-                ? UPGRADES.find((u) => u.id === st.requiredLicense)?.name ?? st.requiredLicense
-                : '';
-
-              // QPS percentage for owned stations
-              const totalQps = owned > 0 ? +(st.baseQps * owned).toFixed(1) : 0;
-              const pct = qsoPerSecond > 0 && totalQps > 0 ? ((totalQps / qsoPerSecond) * 100).toFixed(0) : null;
-
-              // Real effect numbers
-              const nextTotalQps = +((owned + 1) * st.baseQps).toFixed(1);
-
-              return (
-                <div
-                  key={st.id}
-                  className={`shop-card${!hasLicense ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
-                  style={{
-                    ...styles.card,
-                    ...(!hasLicense
-                      ? styles.cardLocked
-                      : canAfford
-                        ? styles.cardAffordable
-                        : styles.cardDisabled),
-                  }}
-                  onClick={() => canAfford && buyStation(st.id)}
-                >
-                  <div style={styles.cardHeader}>
-                    <span style={styles.cardIcon}>{hasLicense ? st.icon : '\u{1F512}'}</span>
-                    <span style={styles.cardName}>{st.name}</span>
-                    {owned > 0 && (
-                      <span style={styles.cardCount}>x{owned}</span>
-                    )}
-                    {pct && (
-                      <span style={styles.cardPct}>{pct}%</span>
-                    )}
-                  </div>
-                  <div style={styles.cardFlavor}>{st.flavor}</div>
-                  <div style={styles.cardFooter}>
-                    <span style={canAfford ? styles.cardCost : styles.cardCostUnaffordable}>
-                      {formatNumber(cost)} QSOs
-                    </span>
-                    <span style={styles.cardEffect}>
-                      +{st.baseQps} q/s
-                    </span>
-                    {!hasLicense ? (
-                      <span style={{
-                        fontSize: 9,
-                        color: COLORS.red,
-                        fontWeight: 'bold',
-                      }}>
-                        Req: {licenseName}
-                      </span>
-                    ) : (
-                      <button
-                        className="shop-buy-btn"
-                        style={{
-                          ...styles.buyBtn,
-                          ...(!canAfford ? styles.buyBtnDisabled : {}),
-                        }}
-                        disabled={!canAfford}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (canAfford) buyStation(st.id);
-                        }}
-                      >
-                        BUY
-                      </button>
-                    )}
-                  </div>
-                  {/* Effect detail */}
-                  {owned > 0 && (
-                    <div style={styles.cardEffectDetail}>
-                      Currently: {totalQps} q/s total | Next: {nextTotalQps} q/s
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          )
-        ) : availableUpgrades.length === 0 ? (
-          <div style={styles.emptyMsg}>No upgrades available</div>
-        ) : (
-          availableUpgrades.map((up) => {
-            const prereqMet = !up.requires || purchasedUpgrades.includes(up.requires);
-            const canAfford = qsos >= up.cost && prereqMet;
-            const requiresName = up.requires
-              ? UPGRADES.find((u) => u.id === up.requires)?.name ?? up.requires
-              : '';
-
-            return (
-              <div
-                key={up.id}
-                className={`shop-card${!prereqMet ? ' shop-card-locked shop-card-disabled' : !canAfford ? ' shop-card-disabled' : ''}`}
-                style={{
-                  ...styles.card,
-                  ...(!prereqMet
-                    ? styles.cardLocked
-                    : canAfford
-                      ? styles.cardAffordable
-                      : styles.cardDisabled),
-                }}
-                onClick={() => canAfford && buyUpgrade(up.id)}
-              >
-                <div style={styles.cardHeader}>
-                  <span style={styles.cardIcon}>{prereqMet ? up.icon : '\u{1F512}'}</span>
-                  <span style={styles.cardName}>{up.name}</span>
-                </div>
-                <div style={styles.cardFlavor}>{up.flavor}</div>
-                <div style={{
-                  fontSize: 10,
-                  color: COLORS.blue,
-                  marginBottom: 4,
-                  padding: '2px 4px',
-                  background: 'rgba(0,204,255,0.05)',
-                  borderRadius: 2,
-                  borderLeft: '2px solid rgba(0,204,255,0.2)',
-                }}>
-                  {up.description}
-                </div>
-                <div style={styles.cardFooter}>
-                  <span style={canAfford ? styles.cardCost : styles.cardCostUnaffordable}>
-                    {formatNumber(up.cost)} QSOs
-                  </span>
-                  {!prereqMet ? (
-                    <span style={{
-                      fontSize: 9,
-                      color: COLORS.red,
-                      fontWeight: 'bold',
-                    }}>
-                      Req: {requiresName}
-                    </span>
-                  ) : (
-                    <button
-                      className="shop-buy-btn"
-                      style={{
-                        ...styles.buyBtn,
-                        ...(!canAfford ? styles.buyBtnDisabled : {}),
-                      }}
-                      disabled={!canAfford}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (canAfford) buyUpgrade(up.id);
-                      }}
-                    >
-                      BUY
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
+        {renderTabContent()}
       </div>
     </div>
   );

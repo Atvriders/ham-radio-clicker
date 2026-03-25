@@ -14,7 +14,11 @@ const COLORS = {
   border: 'rgba(51,255,51,0.15)',
 };
 
-const EventPopup: React.FC = () => {
+interface EventPopupProps {
+  inline?: boolean;
+}
+
+const EventPopup: React.FC<EventPopupProps> = ({ inline = false }) => {
   const activeEvent = useGameStore((s) => s.activeEvent);
   const [visible, setVisible] = useState(false);
   const [remaining, setRemaining] = useState(0);
@@ -52,17 +56,28 @@ const EventPopup: React.FC = () => {
   const progress = totalDuration > 0 ? remaining / totalDuration : 0;
 
   const styles: Record<string, React.CSSProperties> = {
-    wrapper: {
-      position: 'fixed',
-      bottom: 100,
-      left: '50%',
-      transform: `translateX(-50%) translateY(${visible ? '0' : '100%'})`,
-      transition: 'transform 0.4s ease-in-out',
-      zIndex: 1500,
-      width: '90%',
-      maxWidth: 500,
-      pointerEvents: visible ? 'auto' : 'none',
-    },
+    wrapper: inline
+      ? {
+          width: '100%',
+          maxWidth: 500,
+          alignSelf: 'center',
+          flexShrink: 0,
+          opacity: visible ? 1 : 0,
+          maxHeight: visible ? '200px' : '0px',
+          overflow: 'hidden',
+          transition: 'opacity 0.4s ease-in-out, max-height 0.4s ease-in-out',
+        }
+      : {
+          position: 'fixed',
+          bottom: 100,
+          left: '50%',
+          transform: `translateX(-50%) translateY(${visible ? '0' : '100%'})`,
+          transition: 'transform 0.4s ease-in-out',
+          zIndex: 1500,
+          width: '90%',
+          maxWidth: 500,
+          pointerEvents: visible ? 'auto' : 'none',
+        },
     banner: {
       background: COLORS.panel,
       border: `2px solid ${borderColor}`,

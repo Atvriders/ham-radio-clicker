@@ -14,6 +14,7 @@ import {
 import { stations, getStationCost } from '../data/stations';
 import { upgrades as UPGRADES } from '../data/upgrades';
 import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomUnlicensedName, randomUnlicensedService } from '../data/events';
+import { formatNumber } from '../utils/format';
 
 // ---- Constants ----
 
@@ -59,6 +60,8 @@ const initialState: GameState = {
   finalsBlownCount: 0,
   callsign: '',
   transmitPower: 5,
+  prestigeLevel: 0,
+  prestigeMultiplier: 1,
 };
 
 // ---- Store actions interface ----
@@ -70,11 +73,14 @@ interface GameActions {
   buyUpgrade: (id: string) => void;
   tuneSwr: () => void;
   repairEquipment: () => void;
+  useEventBooster: (id: string) => void;
   setEvent: (event: RandomEvent) => void;
   clearEvent: () => void;
   addLogEntry: (message: string, type: EventLogType) => void;
   clearEventLog: () => void;
   recalcQps: () => void;
+  getPrestigeCost: () => number;
+  prestige: () => void;
   save: () => void;
   load: () => void;
   reset: () => void;
@@ -223,7 +229,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const penalty = getSwrPenalty(s.swr.current, s.swr.equipmentDamaged);
       const eventMods = getEventModifiers(s.activeEvent);
       const gained =
-        s.qsoPerClick * s.clickMultiplier * eventMods.clickMult * penalty;
+        s.qsoPerClick * s.clickMultiplier * eventMods.clickMult * penalty * s.prestigeMultiplier;
       const hasTech = s.upgrades.includes('technician_license');
       const hasGeneral = s.upgrades.includes('general_license');
       const hasExtra = s.upgrades.includes('extra_class_license');
@@ -366,7 +372,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const eventMods = getEventModifiers(activeEvent);
       if (!eventMods.noPassive && s.qsoPerSecond > 0) {
         const penalty = getSwrPenalty(swr.current, swr.equipmentDamaged);
-        const gained = s.qsoPerSecond * deltaSec * eventMods.qpsMult * penalty;
+        const gained = s.qsoPerSecond * deltaSec * eventMods.qpsMult * penalty * s.prestigeMultiplier;
         patch.qsos = (patch.qsos ?? s.qsos) + gained;
         patch.totalQsos = (patch.totalQsos ?? s.totalQsos) + gained;
       }
@@ -475,6 +481,49 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
+  // --- Event Booster (re-purchasable shop items) ---
+  useEventBooster: (id: string) => {
+    const s = get();
+    const upgrade = UPGRADES.find((u) => u.id === id);
+    if (!upgrade || upgrade.type !== 'temporary_boost') return;
+    if (s.qsos < upgrade.cost) return;
+
+    const patch: Partial<GameState> = {
+      qsos: s.qsos - upgrade.cost,
+    };
+
+    if (upgrade.duration && upgrade.duration > 0) {
+      // Timed boost — create an ActiveEvent with qps_multiplier
+      const now = Date.now();
+      const endsAt = now + upgrade.duration * 1000;
+      patch.activeEvent = {
+        id: upgrade.id,
+        endsAt,
+        effect: { type: 'qps_multiplier', value: upgrade.value },
+      };
+      patch.eventLog = [
+        makeLogEntry(
+          `${upgrade.icon} ${upgrade.name} activated! x${upgrade.value} QPS for ${upgrade.duration}s`,
+          'event',
+        ),
+        ...s.eventLog,
+      ].slice(0, 200);
+    } else {
+      // Instant boost — add QSOs directly
+      patch.qsos = (patch.qsos ?? s.qsos) + upgrade.value;
+      patch.totalQsos = s.totalQsos + upgrade.value;
+      patch.eventLog = [
+        makeLogEntry(
+          `${upgrade.icon} ${upgrade.name} used! +${formatNumber(upgrade.value)} QSOs`,
+          'event',
+        ),
+        ...s.eventLog,
+      ].slice(0, 200);
+    }
+
+    set(patch);
+  },
+
   // --- Events ---
   setEvent: (event: RandomEvent) => {
     const s = get();
@@ -528,6 +577,59 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
+  // --- Prestige ---
+  getPrestigeCost: () => {
+    const s = get();
+    return 100 * Math.pow(2, s.prestigeLevel);
+  },
+
+  prestige: () => {
+    const s = get();
+    const cost = 100 * Math.pow(2, s.prestigeLevel);
+    if (s.totalQsos < cost) return;
+
+    const newLevel = s.prestigeLevel + 1;
+    const newMultiplier = 1 + (newLevel * 0.5);
+
+    // Keep: licenses, achievements, totalQsos, prestige stats, callsign
+    const keptUpgrades = s.upgrades.filter((id) =>
+      id === 'technician_license' ||
+      id === 'general_license' ||
+      id === 'extra_class_license'
+    );
+
+    // Recalc click stats from kept upgrades only
+    const clickCalc = calcQsoPerClick(keptUpgrades);
+    const newQps = calcQps({}, keptUpgrades);
+
+    set({
+      qsos: 0,
+      stations: {},
+      upgrades: keptUpgrades,
+      qsoPerSecond: newQps,
+      qsoPerClick: clickCalc.flat,
+      clickMultiplier: clickCalc.mult,
+      swr: {
+        current: 1.0,
+        baseDrift: 0.05,
+        lastTuneTime: 0,
+        autoTunerInterval: 0,
+        equipmentDamaged: false,
+        damageRepairCost: 100,
+      },
+      activeEvent: null,
+      discountActive: 0,
+      maxSwrReached: 1.0,
+      finalsBlownCount: 0,
+      transmitPower: 5,
+      prestigeLevel: newLevel,
+      prestigeMultiplier: newMultiplier,
+      eventLog: [
+        makeLogEntry(`⭐ PRESTIGE LEVEL ${newLevel}! All QSO earnings now ${newMultiplier}x!`, 'milestone'),
+      ],
+    });
+  },
+
   // --- Save / Load / Reset ---
   save: () => {
     const s = get();
@@ -551,6 +653,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       finalsBlownCount: s.finalsBlownCount,
       callsign: callsign,
       transmitPower: s.transmitPower,
+      prestigeLevel: s.prestigeLevel,
+      prestigeMultiplier: s.prestigeMultiplier,
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
