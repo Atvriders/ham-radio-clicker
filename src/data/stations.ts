@@ -74,7 +74,7 @@ export const stations: Station[] = [
     description: 'A remotely operated station on a mountaintop with zero RFI. Requires Extra Class License.',
     flavor: 'You operate from your recliner in your underwear. This is peak ham radio.',
     baseCost: 12_000,
-    baseQps: 75,
+    baseQps: 52,
     costMultiplier: 1.18,
     icon: '🏔️',
     tier: 6,
@@ -87,7 +87,7 @@ export const stations: Station[] = [
     description: 'A 70-foot tower with a SteppIR antenna that covers every band. Requires Extra Class License.',
     flavor: 'HOA? What HOA? You filed the paperwork under PRB-1 and now your tower is taller than the water tower. Legally.',
     baseCost: 30_000,
-    baseQps: 220,
+    baseQps: 154,
     costMultiplier: 1.18,
     icon: '🗼',
     tier: 7,
@@ -100,7 +100,7 @@ export const stations: Station[] = [
     description: 'Bounce signals off the Moon. Yes, the actual Moon. Requires Extra Class License.',
     flavor: 'You spent $50K to have a 2-second QSO with a guy in Finland via the lunar surface. Worth every penny.',
     baseCost: 100_000,
-    baseQps: 850,
+    baseQps: 425,
     costMultiplier: 1.18,
     icon: '🌙',
     tier: 8,
@@ -113,7 +113,7 @@ export const stations: Station[] = [
     description: 'A multi-multi contest station with six operating positions. Requires Extra Class License.',
     flavor: 'CQ CONTEST CQ CONTEST. You haven\'t slept in 48 hours. Your voice is gone. You\'re winning.',
     baseCost: 350_000,
-    baseQps: 3_500,
+    baseQps: 1_750,
     costMultiplier: 1.18,
     icon: '🏆',
     tier: 9,
@@ -126,7 +126,7 @@ export const stations: Station[] = [
     description: 'An elite station that\'s worked every DXCC entity. Twice.',
     flavor: 'You\'ve contacted North Korea, Bouvet Island, and that one guy who activated a sandbar during low tide. You are a god among hams.',
     baseCost: 1_500_000,
-    baseQps: 18_000,
+    baseQps: 9_000,
     costMultiplier: 1.18,
     icon: '🎖️',
     tier: 10,
@@ -139,7 +139,7 @@ export const stations: Station[] = [
     description: 'Your own satellite uplink/downlink station with automated tracking.',
     flavor: 'You tell people you work in "aerospace communications." Technically not a lie.',
     baseCost: 10_000_000,
-    baseQps: 150_000,
+    baseQps: 75_000,
     costMultiplier: 1.18,
     icon: '🛰️',
     tier: 11,
@@ -152,7 +152,7 @@ export const stations: Station[] = [
     description: 'A planetary-scale antenna array for contacting civilizations beyond our solar system.',
     flavor: 'The aliens finally responded. They said "QSL via bureau." You\'re still waiting for the card.',
     baseCost: 1_000_000_000,
-    baseQps: 20_000_000,
+    baseQps: 10_000_000,
     costMultiplier: 1.18,
     icon: '🌌',
     tier: 12,
@@ -166,6 +166,6 @@ export const stations: Station[] = [
  * Includes inflation factor based on total lifetime QSOs to keep purchases meaningful at high counts.
  */
 export function getStationCost(station: Station, owned: number, totalQsos: number = 0): number {
-  const inflation = 1 + totalQsos / 1_000_000;
+  const inflation = 1 + totalQsos / 100_000;
   return Math.floor(station.baseCost * Math.pow(station.costMultiplier, owned) * inflation);
 }

@@ -13,6 +13,7 @@ import {
 } from '../types';
 import { stations, getStationCost } from '../data/stations';
 import { upgrades as UPGRADES } from '../data/upgrades';
+import { RESEARCH } from '../data/research';
 import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomUnlicensedName, randomUnlicensedService } from '../data/events';
 import { formatNumber } from '../utils/format';
 
@@ -81,6 +82,8 @@ const initialState: GameState = {
   prestigeLevel: 0,
   prestigeMultiplier: 1,
   qsoQuality: 1,
+  activeResearch: null,
+  completedResearch: [],
 };
 
 // ---- Store actions interface ----
@@ -97,6 +100,7 @@ interface GameActions {
   clearEvent: () => void;
   addLogEntry: (message: string, type: EventLogType) => void;
   clearEventLog: () => void;
+  startResearch: (id: string) => void;
   recalcQps: () => void;
   recalcQuality: () => void;
   getPrestigeCost: () => number;
@@ -195,6 +199,7 @@ function getEventModifiers(event: ActiveEvent | null): {
 function calcQps(
   ownedStations: Record<string, number>,
   ownedUpgrades: string[],
+  completedResearch: string[] = [],
 ): number {
   let totalQps = 0;
 
@@ -214,6 +219,14 @@ function calcQps(
     }
   }
 
+  // Apply completed research qps_mult bonuses
+  for (const rid of completedResearch) {
+    const res = RESEARCH.find((r) => r.id === rid);
+    if (res && res.effect === 'qps_mult') {
+      globalMult *= res.value;
+    }
+  }
+
   for (const st of stations) {
     const count = ownedStations[st.id] ?? 0;
     if (count === 0) continue;
@@ -224,7 +237,7 @@ function calcQps(
   return totalQps * globalMult;
 }
 
-function calcQsoPerClick(ownedUpgrades: string[]): {
+function calcQsoPerClick(ownedUpgrades: string[], completedResearch: string[] = []): {
   flat: number;
   mult: number;
 } {
@@ -236,12 +249,19 @@ function calcQsoPerClick(ownedUpgrades: string[]): {
     if (upg.type === 'click_flat') flat += upg.value;
     if (upg.type === 'click_multiplier') mult *= upg.value;
   }
+  // Apply completed research click_mult bonuses
+  for (const rid of completedResearch) {
+    const res = RESEARCH.find((r) => r.id === rid);
+    if (res && res.effect === 'click_mult') {
+      mult *= res.value;
+    }
+  }
   return { flat, mult };
 }
 
 // ---- QSO Quality calculator ----
 
-function calcQsoQuality(ownedUpgrades: string[]): number {
+function calcQsoQuality(ownedUpgrades: string[], completedResearch: string[] = []): number {
   const uniqueBands = ownedUpgrades.filter(id => id.startsWith('band_')).length;
   const uniqueModes = ownedUpgrades.filter(id => {
     const upg = UPGRADES.find(u => u.id === id);
@@ -251,7 +271,15 @@ function calcQsoQuality(ownedUpgrades: string[]): number {
     const upg = UPGRADES.find(u => u.id === id);
     return upg?.category === 'antenna';
   }).length;
-  return 1 + (uniqueBands * 0.1) + (uniqueModes * 0.05) + (uniqueAntennas * 0.08);
+  let quality = 1 + (uniqueBands * 0.1) + (uniqueModes * 0.05) + (uniqueAntennas * 0.08);
+  // Apply completed research quality_bonus
+  for (const rid of completedResearch) {
+    const res = RESEARCH.find((r) => r.id === rid);
+    if (res && res.effect === 'quality_bonus') {
+      quality += res.value;
+    }
+  }
+  return quality;
 }
 
 // ---- The Store ----
@@ -402,6 +430,40 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
       patch.activeEvent = activeEvent;
 
+      // -- Research completion --
+      if (s.activeResearch && now >= s.activeResearch.endsAt) {
+        const researchId = s.activeResearch.id;
+        const research = RESEARCH.find((r) => r.id === researchId);
+        const newCompleted = [...s.completedResearch, researchId];
+        patch.activeResearch = null;
+        patch.completedResearch = newCompleted;
+
+        if (research) {
+          // Log completion
+          patch.eventLog = [
+            makeLogEntry(`🔬 Research complete: ${research.name}!`, 'milestone'),
+            ...(patch.eventLog ?? s.eventLog),
+          ].slice(0, 200);
+
+          // Apply SWR reduction effect immediately
+          if (research.effect === 'swr_reduction') {
+            swr.current = Math.max(1.0, swr.current - research.value);
+            // Also reduce base drift permanently
+            swr.baseDrift = Math.max(0.005, swr.baseDrift * (1 - research.value));
+          }
+
+          // Recalculate QPS/click/quality with new completed research
+          if (research.effect === 'qps_mult' || research.effect === 'click_mult' || research.effect === 'quality_bonus') {
+            const newQps = calcQps(s.stations, s.upgrades, newCompleted);
+            const clickCalc = calcQsoPerClick(s.upgrades, newCompleted);
+            patch.qsoPerSecond = newQps;
+            patch.qsoPerClick = clickCalc.flat;
+            patch.clickMultiplier = clickCalc.mult;
+            patch.qsoQuality = calcQsoQuality(s.upgrades, newCompleted);
+          }
+        }
+      }
+
       // -- Passive QSO production --
       const eventMods = getEventModifiers(activeEvent);
       if (!eventMods.noPassive && s.qsoPerSecond > 0) {
@@ -430,7 +492,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (s.qsos < cost) return;
 
     const newStations = { ...s.stations, [id]: owned + 1 };
-    const newQps = calcQps(newStations, s.upgrades);
+    const newQps = calcQps(newStations, s.upgrades, s.completedResearch);
 
     set({
       qsos: s.qsos - cost,
@@ -458,8 +520,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (s.qsos < cost) return;
 
     const newUpgrades = [...s.upgrades, id];
-    const newQps = calcQps(s.stations, newUpgrades);
-    const clickCalc = calcQsoPerClick(newUpgrades);
+    const newQps = calcQps(s.stations, newUpgrades, s.completedResearch);
+    const clickCalc = calcQsoPerClick(newUpgrades, s.completedResearch);
 
     const patch: Partial<GameState> = {
       qsos: s.qsos - cost,
@@ -486,7 +548,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Recalculate QSO quality after buying upgrade
-    patch.qsoQuality = calcQsoQuality(newUpgrades);
+    patch.qsoQuality = calcQsoQuality(newUpgrades, s.completedResearch);
 
     set(patch);
   },
@@ -602,11 +664,40 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ eventLog: [] });
   },
 
+  // --- Start Research ---
+  startResearch: (id: string) => {
+    const s = get();
+    if (s.activeResearch) return; // already researching
+    if (s.completedResearch.includes(id)) return; // already done
+
+    const research = RESEARCH.find((r) => r.id === id);
+    if (!research) return;
+
+    // Check prerequisite
+    if (research.requires && !s.completedResearch.includes(research.requires)) return;
+
+    if (s.qsos < research.cost) return;
+
+    const now = Date.now();
+    set({
+      qsos: s.qsos - research.cost,
+      activeResearch: {
+        id,
+        startedAt: now,
+        endsAt: now + research.duration * 1000,
+      },
+      eventLog: [
+        makeLogEntry(`🔬 Research started: ${research.name} (${research.duration}s)`, 'milestone'),
+        ...s.eventLog,
+      ].slice(0, 200),
+    });
+  },
+
   // --- Recalc QPS ---
   recalcQps: () => {
     const s = get();
-    const newQps = calcQps(s.stations, s.upgrades);
-    const clickCalc = calcQsoPerClick(s.upgrades);
+    const newQps = calcQps(s.stations, s.upgrades, s.completedResearch);
+    const clickCalc = calcQsoPerClick(s.upgrades, s.completedResearch);
     set({
       qsoPerSecond: newQps,
       qsoPerClick: clickCalc.flat,
@@ -617,18 +708,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // --- Recalc Quality ---
   recalcQuality: () => {
     const s = get();
-    set({ qsoQuality: calcQsoQuality(s.upgrades) });
+    set({ qsoQuality: calcQsoQuality(s.upgrades, s.completedResearch) });
   },
 
   // --- Prestige ---
   getPrestigeCost: () => {
     const s = get();
-    return 100_000 * Math.pow(3, s.prestigeLevel);
+    let discount = 0;
+    for (const rid of s.completedResearch) {
+      const res = RESEARCH.find((r) => r.id === rid);
+      if (res && res.effect === 'prestige_discount') {
+        discount += res.value;
+      }
+    }
+    return Math.floor(100_000 * Math.pow(3, s.prestigeLevel) * (1 - Math.min(discount, 0.5)));
   },
 
   prestige: () => {
     const s = get();
-    const cost = 100_000 * Math.pow(3, s.prestigeLevel);
+    const cost = get().getPrestigeCost();
     if (s.totalQsos < cost) return;
 
     const newLevel = s.prestigeLevel + 1;
@@ -641,9 +739,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       id === 'extra_class_license'
     );
 
-    // Recalc click stats from kept upgrades only
+    // Recalc click stats from kept upgrades only (research resets on prestige)
     const clickCalc = calcQsoPerClick(keptUpgrades);
-    const newQps = calcQps({}, keptUpgrades);
+    const newQps = calcQps({}, keptUpgrades, []);
 
     set({
       qsos: 0,
@@ -667,7 +765,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       transmitPower: 5,
       prestigeLevel: newLevel,
       prestigeMultiplier: newMultiplier,
-      qsoQuality: calcQsoQuality(keptUpgrades),
+      qsoQuality: calcQsoQuality(keptUpgrades, []),
+      activeResearch: null,
+      completedResearch: [],
       eventLog: [
         makeLogEntry(`⭐ PRESTIGE LEVEL ${newLevel}! All QSO earnings now ${newMultiplier}x!`, 'milestone'),
       ],
@@ -712,6 +812,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       prestigeLevel: s.prestigeLevel,
       prestigeMultiplier: s.prestigeMultiplier,
       qsoQuality: s.qsoQuality,
+      activeResearch: s.activeResearch,
+      completedResearch: s.completedResearch,
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));

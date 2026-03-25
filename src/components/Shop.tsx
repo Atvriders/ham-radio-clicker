@@ -8,6 +8,7 @@ import { stations, getStationCost } from '../data/stations';
 import { upgrades, UPGRADES } from '../data/upgrades';
 import { formatNumber } from '../utils/format';
 import Achievements from './Achievements';
+import ResearchPanel from './ResearchPanel';
 
 const COLORS = {
   green: '#33ff33',
@@ -18,7 +19,7 @@ const COLORS = {
   border: 'rgba(51,255,51,0.2)',
 };
 
-type ShopTab = 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'GEAR' | 'ACTIVITIES' | 'EVENTS' | 'AWARDS' | 'PRESTIGE';
+type ShopTab = 'RADIOS' | 'ANTENNAS' | 'AMPS' | 'MODES' | 'BANDS' | 'GEAR' | 'ACTIVITIES' | 'EVENTS' | 'AWARDS' | 'RESEARCH' | 'PRESTIGE';
 
 const TAB_DEFS: { key: ShopTab; label: string }[] = [
   { key: 'RADIOS', label: 'RADIO' },
@@ -30,6 +31,7 @@ const TAB_DEFS: { key: ShopTab; label: string }[] = [
   { key: 'ACTIVITIES', label: 'ACT' },
   { key: 'EVENTS', label: 'EVT' },
   { key: 'AWARDS', label: 'AWD' },
+  { key: 'RESEARCH', label: 'RSCH' },
   { key: 'PRESTIGE', label: 'PRST' },
 ];
 
@@ -66,7 +68,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tabRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(5, 1fr)',
+    gridTemplateColumns: 'repeat(6, 1fr)',
     gap: 2,
     marginBottom: 6,
     flexShrink: 0,
@@ -488,6 +490,9 @@ const Shop: React.FC = () => {
       case 'AWARDS':
         return <Achievements />;
 
+      case 'RESEARCH':
+        return <ResearchPanel />;
+
       case 'PRESTIGE': {
         const cost = getPrestigeCost();
         const canPrestige = totalQsos >= cost;
@@ -633,6 +638,12 @@ const Shop: React.FC = () => {
             style={{
               ...styles.tab,
               ...(tab === t.key ? styles.tabActive : {}),
+              ...(t.key === 'RESEARCH' ? {
+                color: tab === 'RESEARCH' ? '#0a0e1a' : 'rgba(0,204,255,0.4)',
+                borderColor: tab === 'RESEARCH' ? '#00ccff' : 'rgba(0,204,255,0.2)',
+                background: tab === 'RESEARCH' ? '#00ccff' : 'rgba(8,16,24,0.9)',
+                boxShadow: 'none',
+              } : {}),
               ...(t.key === 'PRESTIGE' ? {
                 color: tab === 'PRESTIGE' ? '#0a0e1a' : 'rgba(255,215,0,0.4)',
                 borderColor: tab === 'PRESTIGE' ? '#ffd700' : 'rgba(255,215,0,0.2)',

@@ -121,6 +121,21 @@ export interface EventLogEntry {
   type: EventLogType;
 }
 
+// --- Research ---
+
+export interface Research {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;           // QSO cost to START research
+  duration: number;       // seconds to complete
+  effect: 'qps_mult' | 'click_mult' | 'swr_reduction' | 'quality_bonus' | 'prestige_discount';
+  value: number;
+  requires?: string;      // previous research ID
+  category: 'propagation' | 'digital' | 'rf_engineering' | 'operations';
+  icon: string;
+}
+
 // --- Game State ---
 
 export interface GameState {
@@ -145,4 +160,6 @@ export interface GameState {
   prestigeLevel: number;
   prestigeMultiplier: number;
   qsoQuality: number;
+  activeResearch: { id: string; startedAt: number; endsAt: number } | null;
+  completedResearch: string[];
 }
