@@ -2,40 +2,34 @@
 
 **[https://clicker.hamclock-reborn.org](https://clicker.hamclock-reborn.org/)**
 
-**Click your way from a rubber duck antenna to a Deep Space Network.**
-
-An idle/clicker game for ham radio operators (and aspiring ones). Start on MURS/FRS talking to random people, earn your Technician License, then climb the ladder to Extra Class while managing your SWR, dodging solar flares, and trying not to blow your finals.
+An idle/clicker game for ham radio operators and aspiring ones. Start on MURS/FRS talking to random people with no license, earn your Technician ticket, then climb the ladder through General to Extra Class -- all while managing your SWR, dodging solar flares, upgrading your station, and prestiging for multipliers. Click PTT, buy gear, make QSOs, repeat.
 
 ---
 
-## How It Works
+## Core Mechanics
 
-You start on **MURS/FRS** (Multi-Use Radio Service / Family Radio Service) — no license needed. Click the PTT button to talk to random people on MURS channels (CH1-CH5) and FRS channels (CH1-CH22). Once you earn enough to buy your **Technician License**, you enter the world of amateur radio and start making real QSOs with callsigns.
+- **MURS/FRS Start** -- Begin on MURS (CH1-CH5) and FRS (CH1-CH22) with no license. Contacts are random first names (Mike, Karen, Steve...).
+- **License Progression** -- Buy Technician, General, and Extra Class licenses to unlock ham radio callsigns, HF bands, DX contacts, and higher-tier gear.
+- **PTT Clicking** -- Click the PTT button to make contacts. Each click earns QSOs based on click power, multipliers, and SWR penalty.
+- **Passive QPS** -- Stations you own generate QSOs per second automatically.
+- **SWR Management** -- Your antenna's Standing Wave Ratio drifts over time. High SWR reduces output. Above 10.0, you blow your finals. Tune manually or buy an auto-tuner.
+- **Transmit Power** -- Start at QRP 5W, progress through 8 power levels up to the FCC legal maximum of 1500W.
+- **Prestige System** -- Reset your progress for a permanent QSO earnings multiplier that stacks with every prestige level.
 
-**Click the PTT button** to make contacts manually. Buy stations to generate QSOs passively. Spend your QSOs as currency to buy upgrades, new equipment, and higher power levels. Progress through three license classes to unlock bigger and better gear.
+---
 
-### Core Mechanics
-
-- **MURS/FRS → Ham Radio** -- Start on MURS/FRS (no license needed). Buy a Technician License to start making ham radio QSOs with real callsigns.
-- **PTT Button** -- Click to transmit and make contacts. Each click earns QSOs based on your click power and upgrades.
-- **Passive QSO Generation** -- Stations you own produce QSOs per second automatically.
-- **SWR Management** -- Your antenna's Standing Wave Ratio drifts over time. High SWR reduces your output. Let it climb above 10.0 and you blow your finals (ouch). Tune it manually, or buy an auto-tuner.
-- **Transmit Power Progression** -- Start at QRP 5W and work your way up to the FCC legal maximum of 1500W.
-
-### License Progression
+## License Progression
 
 | License | Cost | Effect | Contacts | Unlocks |
 |---------|------|--------|----------|---------|
-| **None** | -- | -- | MURS/FRS (random names: Mike, Karen...) | Handheld, Mobile Rig |
-| **Technician** | 50 QSOs | QPS x1.2 | US local VHF/UHF callsigns (WB9ABC, N3QSO) | 1500W on VHF/UHF, limited HF, repeater access, entry-level upgrades |
-| **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | 1500W all bands, HF privileges, Base Station, Linear Amp, Beam, POTA/SOTA |
-| **Extra Class** | 50,000 QSOs | 3x click | Full worldwide DX (ZL, PY, HS, A6, ZS...) | 1500W all band segments, Tower, Remote, EME, Contest Station |
+| **None** | -- | -- | MURS/FRS random names | Handheld, Mobile Rig |
+| **Technician** | 50 QSOs | QPS x1.2 | US VHF/UHF callsigns (WB9ABC, N3QSO) | Repeater access, entry-level upgrades, VHF/UHF |
+| **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | HF privileges, Base Station, Beam, POTA/SOTA |
+| **Extra Class** | 50,000 QSOs | 3x click power | Full worldwide DX (ZL, PY, HS, A6, ZS...) | All band segments, Tower, Remote, EME, Contest Station |
 
 ---
 
-## Stations
-
-12 stations to collect, from humble beginnings to intergalactic ambitions:
+## Stations (12)
 
 | # | Station | QPS | Cost | License |
 |---|---------|-----|------|---------|
@@ -43,85 +37,125 @@ You start on **MURS/FRS** (Multi-Use Radio Service / Family Radio Service) — n
 | 2 | Mobile Rig | 0.5 | 100 | -- |
 | 3 | Base Station | 2 | 500 | General |
 | 4 | Linear Amplifier | 8 | 2,500 | General |
-| 5 | Beam Antenna | 25 | 10,000 | General |
-| 6 | Tower + SteppIR | 80 | 50,000 | Extra |
-| 7 | Remote Station | 250 | 200,000 | Extra |
-| 8 | EME (Moonbounce) | 800 | 1,000,000 | Extra |
-| 9 | Contest Super Station | 2,500 | 5,000,000 | Extra |
-| 10 | DXCC Honor Roll Station | 8,000 | 25,000,000 | Extra |
-| 11 | Satellite Ground Station | 25,000 | 100,000,000 | Extra |
-| 12 | Deep Space Network | 100,000 | 500,000,000 | Extra |
+| 5 | Beam Antenna | 30 | 10,000 | General |
+| 6 | Tower + SteppIR | 120 | 50,000 | Extra |
+| 7 | Remote Station | 400 | 200,000 | Extra |
+| 8 | EME (Moonbounce) | 2,200 | 1,000,000 | Extra |
+| 9 | Contest Super Station | 11,000 | 5,000,000 | Extra |
+| 10 | DXCC Honor Roll Station | 55,000 | 25,000,000 | Extra |
+| 11 | Satellite Ground Station | 220,000 | 100,000,000 | Extra |
+| 12 | Deep Space Network | 1,100,000 | 500,000,000 | Extra |
 
-Each station can be purchased multiple times. Costs increase by 15% per unit owned.
-
----
-
-## Upgrades
-
-36+ upgrades across several categories:
-
-**Licenses** -- Technician (unlocks ham radio), General (unlocks HF), Extra Class (unlocks all bands)
-
-**Equipment** -- Better Coax, Antenna Analyzer, Manual Tuner, Auto-Tuner (LDG), Remote Auto-Tuner, FT8 Mode, DX Cluster, QSL Card Printer, LoTW Account, Hardline Coax, Propagation Prediction Software, Contest Logger (N1MM+), SDR Panadapter, Dummy Load, CW Keyer, Repeater Access, Galactic Repeater
-
-**Operating Activities** -- Weekly Rag Chew Net, ARES/RACES Emergency Comms, POTA Activation, SOTA Activation, Field Day Station, DXpedition, IOTA Activation, Satellite Operations
-
-**Power Levels** -- 10W → 25W → 50W → 100W → 200W → 500W → 1000W → 1500W (sequential chain, any license class — power controls wattage, license controls bands)
+Each station can be purchased multiple times. Cost increases by 15% per unit owned.
 
 ---
 
-## Achievements
+## Shop Categories (77 upgrades total)
 
-25 achievements to unlock, including:
+### RADIOS -- 12 stations
+See the station table above. From a 5-watt HT to a planetary-scale antenna array.
 
-- **First QSO** -- Make your very first contact
-- **Ragchewer** -- 100 total QSOs
-- **Worked All States** -- 1,000 total QSOs
-- **DXCC** -- 10,000 total QSOs
-- **Field Day Champion** -- 1,000,000 total QSOs
-- **Rubber Duck** -- Own 10 Handheld radios
-- **QRO** -- Own 5 Linear Amplifiers
-- **Elmer** -- Own at least one of every station type
-- **SWR Nightmare** -- Survive an SWR above 9.0 (hidden)
-- **Finals Blown!** -- Blow your finals for the first time
-- **Maximum Legal Power** -- Unlock the 1500W power upgrade
+### ANTENNAS -- 7 upgrades
+Rubber Duck, J-Pole, Yagi, Hex Beam, Log Periodic, Stacked Array, Dipole Farm. QPS multipliers from x1.1 to x3.0.
 
-Some achievements are hidden until you earn them. Keep playing.
+### AMPS -- 13 upgrades
+8 power levels (10W through 1500W FCC legal max) plus QRP Kit, Mobile Amplifier, Desktop Amplifier, Legal Limit Amplifier, and LDMOS Solid-State Amp. QPS and click multipliers stacking up to x7.0.
 
----
+### MODES -- 13 upgrades
+FM Repeater, SSB, CW, FT8, CW Keyer, FT4, WSPR, VarAC, JS8Call, RTTY, SSTV, Winlink, Packet Radio. QPS and click multipliers from x1.1 to x3.0.
 
-## Random Events
+### BANDS -- 13 upgrades
+2m, 70cm, 6m, 10m, 15m, 20m, 40m, 80m, 160m, 30m, 17m, 12m, 60m. QPS multipliers from x1.1 to x1.5. HF bands require General or Extra license.
 
-Events fire every 30-90 seconds and can help or hurt your operation:
+### EQUIPMENT -- 15 upgrades
+Better Coax, Antenna Analyzer, Manual Tuner, Auto-Tuner (LDG), DX Cluster, QSL Card Printer, LoTW Account, Hardline Coax, Propagation Prediction Software, Remote Auto-Tuner, Contest Logger (N1MM+), SDR Panadapter, Dummy Load, Repeater Access, Galactic Repeater.
 
-**Good news:** Solar Flare (3x QPS), 6 Meter Opening (10x QPS), Rare DX Spotted (+500 QSOs), Hamfest Bargain (50% off), ARRL Field Day (4x QPS), Contest Weekend (5x QPS), QSO Party Weekend (2x click power)
+### ACTIVITIES -- 8 upgrades
+Weekly Rag Chew Net, ARES/RACES Emergency Comms, POTA Activation, SOTA Activation, Field Day Station, DXpedition, IOTA Activation, Satellite Operations.
 
-**Bad news:** Thunderstorm (SWR spike), Power Outage (no passive income), QRM Interference (halved clicks), Neighbor Complains About TVI, Propagation Blackout, Repeater Kerchunker, Antenna Icing
+### EVENT BOOSTERS -- 5 upgrades
+Coffee Boost (2x click/30s), Propagation Report (3x QPS/20s), Contest Weekend (5x QPS/30s), Band Opening (10x QPS/15s), DXpedition Pileup (+1000 QSOs instant). Consumable temporary boosts.
 
 ---
 
-## Login & Identity
+## Prestige System
 
-Log in with your callsign or any username. No password, no email — just your identity. Your callsign is stored in localStorage and synced to the server for cloud saves and leaderboard tracking.
+Reset your progress for a permanent earnings multiplier.
 
-No callsign? No problem — use any name or username. New player? You're automatically registered. Returning operator? Your game state is restored from the server.
+- **Cost formula:** `100 * 2^level` total QSOs required (100, 200, 400, 800...)
+- **Multiplier formula:** `1 + (level * 0.5)` -- so level 1 = 1.5x, level 2 = 2.0x, level 3 = 2.5x, etc.
+- **Keeps:** Licenses, achievements, total QSOs, callsign, prestige stats
+- **Resets:** Current QSOs, all non-license upgrades, stations, SWR, transmit power
+
+---
+
+## Achievements (24)
+
+| Achievement | Condition |
+|-------------|-----------|
+| First QSO | 1 total QSO |
+| Technician | 50 QSOs |
+| Ragchewer | 100 QSOs |
+| Worked All States | 1,000 QSOs |
+| General Class | 5,000 QSOs |
+| Silent Key Memorial | 7,500 QSOs |
+| DXCC | 10,000 QSOs |
+| POTA Hunter | 25,000 QSOs |
+| 5 Band DXCC | 50,000 QSOs |
+| Extra Class Operator | 50,000 QSOs |
+| Honor Roll | 100,000 QSOs |
+| DX Chaser | 150,000 QSOs |
+| Kilowatt Club | 175,000 QSOs |
+| Extra Class | 200,000 QSOs |
+| Contester | 500,000 QSOs |
+| Maximum Legal Power | 750,000 QSOs |
+| Field Day Champion | 1,000,000 QSOs |
+| QRP Hero | 2,000 QSOs |
+| Rubber Duck | Own 10 Handhelds |
+| QRO | Own 5 Linear Amplifiers |
+| Elmer | Own one of every station type |
+| Finals Blown! | Blow your finals |
+| Lid | SWR above 7.0 (hidden) |
+| SWR Nightmare | SWR above 9.0 (hidden) |
+
+---
+
+## Random Events (19)
+
+Events fire every 30-90 seconds.
+
+**Positive:** Solar Flare (3x QPS), 6 Meter Opening (10x QPS), Sporadic E Opening (5x QPS), ARRL Field Day (4x QPS), Contest Weekend (5x QPS), POTA Pileup (3x QPS), QSO Party Weekend (2x click), Rare DX Spotted (+500 QSOs), DXpedition Spotted (+1000 QSOs), Packet Radio Revival (+200 QSOs), Hamfest Bargain (50% off), Antenna Raising Party (SWR reduction)
+
+**Negative:** Thunderstorm (SWR spike), Antenna Icing (SWR spike), Power Outage (no passive), Propagation Blackout (no passive), QRM Interference (0.5x click), Neighbor Complains About TVI (0.5x click), Repeater Kerchunker (0.3x click)
+
+---
+
+## Login and Identity
+
+Log in with your callsign or any username. No password, no email. Your identity is stored in localStorage and synced to the server for cloud saves and leaderboard tracking. New players are auto-registered; returning operators get their game state restored.
 
 ## Global Leaderboard
 
-Compete with operators worldwide. The leaderboard tracks:
-- Total QSOs
-- QSOs per second
-- Stations owned
-- Achievements unlocked
-- License class
+Top 50 operators ranked by total QSOs, QPS, stations owned, achievements, and license class. Live online/offline indicators with green pulse dots. Refreshes every 30 seconds.
 
-Top 50 operators displayed, refreshed every 30 seconds.
+## Live Chat
+
+WebSocket-based ephemeral chat between online operators. Messages are temporary -- not stored on the server, lost on page reload. Shows who is online with green indicators.
+
+## QSO Log
+
+Real-time log with license-based band, mode, and power tags:
+
+- **No license:** `[MURS CH3 QRP] Contact with Mike (+1.0)` or `[FRS CH14 QRP] Contact with Steve (+1.0)`
+- **Technician:** `[2m FM QRP] VHF QSO with WB9ABC (+1.0)`
+- **General:** `[20m FT8 HP] QSO with DL5ABC (+1.0)`
+- **Extra:** `[17m CW HP] DX QSO with ZL2QSO (+1.0)`
 
 ## Saving
 
-- **Auto-save** every 30 seconds
-- **Cloud save** to the server (synced on login and periodically)
-- **localStorage fallback** when the server is unreachable
+- Auto-save every 30 seconds
+- Cloud save synced on login and periodically
+- localStorage fallback when server is unreachable
 - Manual save button in the header
 
 ---
@@ -130,27 +164,22 @@ Top 50 operators displayed, refreshed every 30 seconds.
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, TypeScript, Zustand (state management) |
+| Frontend | React 18, TypeScript, Zustand |
 | Build | Vite 5 |
 | Backend | Express 4, better-sqlite3 |
 | Database | SQLite (WAL mode) |
-| Realtime | requestAnimationFrame game loop |
+| Realtime | WebSocket (chat + leaderboard), requestAnimationFrame game loop |
 
 ## Quick Start
 
 ```bash
-# Clone the repo
 git clone https://github.com/Atvriders/ham-radio-clicker.git
 cd ham-radio-clicker
-
-# Install dependencies
 npm install
-
-# Start development (frontend + backend concurrently)
 npm run dev
 ```
 
-The Vite dev server runs on `http://localhost:3012` with API proxy to the Express backend on port 3011.
+Vite dev server on `http://localhost:3012` with API proxy to Express backend on port 3011.
 
 ### Production Build
 
@@ -159,77 +188,36 @@ npm run build
 npm start
 ```
 
-This builds the frontend to `dist/` and serves everything from the Express server on port 3011.
+Builds frontend to `dist/` and serves from Express on port 3011.
 
 ## Docker Deployment
 
-Pre-built multi-arch images (amd64, arm64, armv7) available from GitHub Container Registry.
-
-```bash
-# Quick start with docker-compose
-git clone https://github.com/Atvriders/ham-radio-clicker.git
-cd ham-radio-clicker
-docker compose up -d
-```
-
-Open `http://localhost:3011` in your browser.
-
-### docker-compose.yml
+Pre-built multi-arch images (amd64, arm64, armv7) from GitHub Container Registry.
 
 ```yaml
+# docker-compose.yml
 services:
   hamclicker:
     image: ghcr.io/atvriders/ham-radio-clicker:latest
     ports:
       - "3011:3011"
     volumes:
-      - ./data:/app/data   # SQLite persistence
+      - ./data:/app/data
     environment:
       - NODE_ENV=production
     restart: unless-stopped
 ```
 
-### Docker Commands
-
 ```bash
-# View logs
-docker logs -f hamclicker
-
-# Update to latest
-docker compose pull && docker compose up -d
-
-# Stop
-docker compose down
-
-# Build locally instead of pulling
-docker build -t ham-radio-clicker .
-docker run -d -p 3011:3011 -v ./data:/app/data ham-radio-clicker
+docker compose up -d          # Start
+docker compose pull && docker compose up -d  # Update
+docker logs -f hamclicker     # Logs
+docker compose down           # Stop
 ```
-
-## Live Chat
-
-WebSocket-based ephemeral chat between online operators. Messages are temporary — lost on page reload. Shows who's online with green indicators. No chat history stored on server.
 
 ## Mobile Support
 
-Fully responsive with a tabbed mobile interface (Play, Stats, Shop, Log) and a bottom navigation bar. Touch-friendly PTT button. Works on any screen size.
-
-## UI Layout
-
-Packed instrument panel design — no wasted space:
-- **Center:** PTT button + SWR meter + S-meter side by side, QSO log fills remaining space
-- **Left:** Station status with live stats (band, last QSO, awards), station list with QPS contribution bars
-- **Right:** Equipment rack shop with stations, upgrades (sorted by cost), and achievements
-
-## QSO Log
-
-Real-time log with band and mode information matching your license:
-- **MURS/FRS:** `[MURS CH3 QRP] Contact with Mike (+1.0)` or `[FRS CH14 QRP] Contact with Steve (+1.0)`
-- **Technician:** `[2m FM QRP] VHF QSO with WB9ABC (+1.0)`
-- **General:** `[20m FT8 HP] QSO with DL5ABC (+1.0)`
-- **Extra:** `[17m CW HP] DX QSO with ZL2QSO (+1.0)`
-
-Flavor messages also match your license level (no HF references for Tech operators).
+Fully responsive with tabbed mobile interface (Play, Stats, Shop, Log) and bottom navigation bar. Touch-friendly PTT button. Works on any screen size.
 
 ---
 
@@ -243,7 +231,7 @@ ham-radio-clicker/
     components/
       PTTButton.tsx     Main click target with floating callsigns
       SWRMeter.tsx      Animated SVG SWR gauge
-      SMeter.tsx        Signal strength meter with jitter
+      SMeter.tsx        Signal strength meter
       StatsPanel.tsx    Station status with live stats
       StationList.tsx   Owned stations with QPS bars
       Shop.tsx          Equipment rack (stations/upgrades/achievements)
@@ -253,14 +241,14 @@ ham-radio-clicker/
       Login.tsx         Callsign/username login
       Leaderboard.tsx   Global rankings with online status
     data/
-      stations.ts       12 station definitions (balanced QPS curve)
-      upgrades.ts       36+ upgrades (licenses, activities, power, equipment)
-      achievements.ts   25+ achievement definitions
-      events.ts         20+ random events + callsign generators
+      stations.ts       12 station definitions
+      upgrades.ts       77 upgrades across 8 categories
+      achievements.ts   24 achievement definitions
+      events.ts         19 random events + callsign generators
     hooks/
       useGameLoop.ts    requestAnimationFrame game loop
     stores/
-      useGameStore.ts   Zustand state (SWR, physics, save/load)
+      useGameStore.ts   Zustand state (SWR, physics, prestige, save/load)
     types/
       index.ts          TypeScript type definitions
     utils/
