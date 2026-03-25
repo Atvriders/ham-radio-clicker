@@ -181,7 +181,7 @@ const EventLog: React.FC = () => {
   if (!hasTech) {
     flavorPool = MURS_FLAVOR;
   } else if (!hasGeneral) {
-    flavorPool = [...MURS_FLAVOR, ...TECH_FLAVOR];
+    flavorPool = TECH_FLAVOR;
   } else {
     flavorPool = [...TECH_FLAVOR, ...GENERAL_FLAVOR];
   }
@@ -203,7 +203,7 @@ const EventLog: React.FC = () => {
       }
     }, 5000 + Math.random() * 5000);
     return () => clearInterval(interval);
-  }, [addLogEntry]);
+  }, [addLogEntry, flavorPool]);
 
   const handleClear = useCallback(() => {
     clearEventLog();

@@ -10,9 +10,9 @@ interface QuizStripProps {
   licenseLevel: 'technician' | 'general' | 'extra';
 }
 
-// Quiz bonus scales: 5% of current QSOs, minimum 50, maximum 10,000
+// Quiz bonus scales: 5% of current QSOs, minimum 50, no cap
 function getBonus(currentQsos: number): number {
-  return Math.max(50, Math.min(10_000, Math.floor(currentQsos * 0.05)));
+  return Math.max(50, Math.floor(currentQsos * 0.05));
 }
 
 function getQuestionsForLevel(level: string): QuizQuestion[] {

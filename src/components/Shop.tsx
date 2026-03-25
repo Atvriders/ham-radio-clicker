@@ -77,7 +77,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 8,
     letterSpacing: 0.5,
     cursor: 'pointer',
-    border: `1px solid ${COLORS.border}`,
+    border: '1px solid rgba(51,255,51,0.3)',
     background: 'rgba(8,16,24,0.9)',
     color: 'rgba(51,255,51,0.4)',
     fontFamily: 'monospace',
@@ -90,7 +90,7 @@ const styles: Record<string, React.CSSProperties> = {
   tabActive: {
     background: '#33ff33',
     color: '#0a0e1a',
-    borderColor: '#33ff33',
+    border: '1px solid #33ff33',
     boxShadow: 'none',
   },
   list: {
