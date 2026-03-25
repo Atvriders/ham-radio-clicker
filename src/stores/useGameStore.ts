@@ -32,6 +32,24 @@ export function getSwrPenalty(swr: number, damaged: boolean): number {
   return Math.max(0.01, 0.3 - ((swr - 5.0) / 5.0) * 0.29);
 }
 
+// ---- Band ownership helper ----
+
+const BAND_MAP: Record<string, string> = {
+  band_2m: '2m', band_70cm: '70cm', band_6m: '6m', band_10m: '10m',
+  band_15m: '15m', band_20m: '20m', band_40m: '40m', band_80m: '80m',
+  band_160m: '160m', band_60m: '60m', band_30m: '30m', band_17m: '17m',
+  band_12m: '12m', band_23cm: '23cm', band_13cm: '13cm', band_9cm: '9cm',
+  band_5cm: '5cm', band_3cm: '3cm',
+};
+
+export function getOwnedBands(upgrades: string[]): string[] {
+  const owned = upgrades
+    .filter(id => id.startsWith('band_'))
+    .map(id => BAND_MAP[id])
+    .filter(Boolean);
+  return owned.length > 0 ? owned : ['2m']; // default to 2m
+}
+
 // ---- Initial state ----
 
 const initialState: GameState = {
@@ -258,29 +276,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
         // MURS/FRS — no license
         const svc = randomUnlicensedService();
         contactLabel = `[${svc.service} ${svc.channel} ${pwrTag}] Contact with ${randomUnlicensedName()} (+${gained.toFixed(1)})`;
-      } else if (!hasGeneral) {
-        // Technician — VHF only
-        const band = pick(['2m', '70cm', '6m']);
-        const mode = weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]]);
-        contactLabel = `[${band} ${mode} ${pwrTag}] VHF QSO with ${randomLocalCallsign()} (+${gained.toFixed(1)})`;
-      } else if (!hasExtra) {
-        // General — VHF + HF
-        const band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m']);
-        const isVhf = ['2m', '70cm', '6m'].includes(band);
-        const mode = isVhf
-          ? weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]])
-          : weightedPick([['FT8', 60], ['SSB', 20], ['CW', 10], ['FT4', 10]]);
-        const callFn = isVhf ? randomLocalCallsign : randomDomesticDxCallsign;
-        contactLabel = `[${band} ${mode} ${pwrTag}] QSO with ${callFn()} (+${gained.toFixed(1)})`;
       } else {
-        // Extra — all bands
-        const band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m', '160m', '30m', '17m', '12m', '60m']);
-        const isVhf = ['2m', '70cm', '6m'].includes(band);
+        // Licensed — pick ONLY from purchased bands
+        const ownedBands = getOwnedBands(s.upgrades);
+        const band = pick(ownedBands);
+        const isVhf = ['2m', '70cm', '6m', '23cm', '13cm', '9cm', '5cm', '3cm'].includes(band);
         const mode = isVhf
           ? weightedPick([['FM', 70], ['SSB', 20], ['FT8', 10]])
           : weightedPick([['FT8', 60], ['SSB', 20], ['CW', 10], ['FT4', 10]]);
-        const callFn = isVhf ? randomLocalCallsign : randomWorldwideCallsign;
-        contactLabel = `[${band} ${mode} ${pwrTag}] DX QSO with ${callFn()} (+${gained.toFixed(1)})`;
+        // Pick callsign generator based on license level and band type
+        let callFn: () => string;
+        if (isVhf) {
+          callFn = randomLocalCallsign;
+        } else if (hasExtra) {
+          callFn = randomWorldwideCallsign;
+        } else if (hasGeneral) {
+          callFn = randomDomesticDxCallsign;
+        } else {
+          callFn = randomLocalCallsign;
+        }
+        const label = hasExtra ? 'DX QSO' : hasGeneral ? 'QSO' : 'VHF QSO';
+        contactLabel = `[${band} ${mode} ${pwrTag}] ${label} with ${callFn()} (+${gained.toFixed(1)})`;
       }
       const newLog = [
         makeLogEntry(contactLabel, 'milestone'),

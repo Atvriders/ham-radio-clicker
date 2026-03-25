@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useGameStore } from '../stores/useGameStore';
+import { useGameStore, getOwnedBands } from '../stores/useGameStore';
 import { randomLocalCallsign, randomDomesticDxCallsign, randomWorldwideCallsign, randomUnlicensedName } from '../data/events';
 
 interface FloatingText {
@@ -61,15 +61,19 @@ export const PTTButton: React.FC = () => {
     if (!hasTech) {
       band = pick(['MURS', 'FRS']);
       contactName = randomUnlicensedName();
-    } else if (!hasGeneral) {
-      band = pick(['2m', '70cm', '6m']);
-      contactName = randomLocalCallsign();
-    } else if (!hasExtra) {
-      band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m']);
-      contactName = ['2m', '70cm', '6m'].includes(band) ? randomLocalCallsign() : randomDomesticDxCallsign();
     } else {
-      band = pick(['2m', '70cm', '6m', '20m', '40m', '15m', '10m', '80m', '160m', '30m', '17m', '12m', '60m']);
-      contactName = ['2m', '70cm', '6m'].includes(band) ? randomLocalCallsign() : randomWorldwideCallsign();
+      const ownedBands = getOwnedBands(upgrades);
+      band = pick(ownedBands);
+      const isVhf = ['2m', '70cm', '6m', '23cm', '13cm', '9cm', '5cm', '3cm'].includes(band);
+      if (isVhf) {
+        contactName = randomLocalCallsign();
+      } else if (hasExtra) {
+        contactName = randomWorldwideCallsign();
+      } else if (hasGeneral) {
+        contactName = randomDomesticDxCallsign();
+      } else {
+        contactName = randomLocalCallsign();
+      }
     }
 
     setLastBand(band);
@@ -80,7 +84,7 @@ export const PTTButton: React.FC = () => {
     setTimeout(() => {
       setFloats((prev) => prev.filter((f) => f.id !== id));
     }, 1200);
-  }, [click, qsoPerClick, swr.equipmentDamaged, hasTech, hasGeneral, hasExtra]);
+  }, [click, qsoPerClick, swr.equipmentDamaged, hasTech, hasGeneral, hasExtra, upgrades, transmitPower]);
 
   // Spacebar trigger
   useEffect(() => {
