@@ -235,7 +235,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const hasExtra = s.upgrades.includes('extra_class_license');
 
       // Pick random item from array
-      const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+      const pick = <T,>(arr: T[]): T => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : ('' as unknown as T);
 
       // Weighted random selection
       const weightedPick = (options: [string, number][]): string => {
