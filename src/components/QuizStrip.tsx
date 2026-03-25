@@ -10,7 +10,10 @@ interface QuizStripProps {
   licenseLevel: 'technician' | 'general' | 'extra';
 }
 
-const BONUS_AMOUNT = 50;
+// Quiz bonus scales: 5% of current QSOs, minimum 50, maximum 10,000
+function getBonus(currentQsos: number): number {
+  return Math.max(50, Math.min(10_000, Math.floor(currentQsos * 0.05)));
+}
 
 function getQuestionsForLevel(level: string): QuizQuestion[] {
   if (level === 'extra') return questions.filter((q) => q.level === 'extra');
@@ -29,6 +32,8 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 const QuizStrip: React.FC<QuizStripProps> = ({ licenseLevel }) => {
   const addQuizBonus = useGameStore((s) => s.addQuizBonus);
+  const currentQsos = useGameStore((s) => s.qsos);
+  const bonus = getBonus(currentQsos);
 
   const [pool, setPool] = useState<QuizQuestion[]>(() =>
     shuffleArray(getQuestionsForLevel(licenseLevel)).slice(0, 10)
@@ -60,7 +65,7 @@ const QuizStrip: React.FC<QuizStripProps> = ({ licenseLevel }) => {
 
       if (isCorrect) {
         setScore((s) => s + 1);
-        addQuizBonus(BONUS_AMOUNT);
+        addQuizBonus(bonus);
       }
 
       timerRef.current = setTimeout(() => {
@@ -233,7 +238,7 @@ const QuizStrip: React.FC<QuizStripProps> = ({ licenseLevel }) => {
             : '0 0 6px rgba(255,68,68,0.4)',
         }}>
           {flash === 'correct'
-            ? `Correct! +${BONUS_AMOUNT} QSOs`
+            ? `Correct! +${bonus} QSOs`
             : `Wrong — ${String.fromCharCode(65 + current.correct)} is correct`}
         </div>
       )}
