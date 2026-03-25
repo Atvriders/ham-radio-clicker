@@ -23,8 +23,8 @@ An idle/clicker game for ham radio operators and aspiring ones. Start on MURS/FR
 | License | Cost | Effect | Contacts | Unlocks |
 |---------|------|--------|----------|---------|
 | **None** | -- | -- | MURS/FRS random names | Handheld, Mobile Rig |
-| **Technician** | 50 QSOs | QPS x1.2 | US VHF/UHF callsigns (WB9ABC, N3QSO) | Repeater access, entry-level upgrades, VHF/UHF |
-| **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | HF privileges, Base Station, Beam, POTA/SOTA |
+| **Technician** | 50 QSOs | QPS x1.2 | US VHF/UHF callsigns (WB9ABC, N3QSO) | Repeater access, entry-level upgrades, 9 VHF/UHF/microwave bands |
+| **General** | 5,000 QSOs | QPS x1.5 | US + common DX (VE, G, DL, JA, VK...) | HF privileges, Base Station, Beam, POTA/SOTA, 9 HF bands |
 | **Extra Class** | 50,000 QSOs | 3x click power | Full worldwide DX (ZL, PY, HS, A6, ZS...) | All band segments, Tower, Remote, EME, Contest Station |
 
 ---
@@ -50,7 +50,7 @@ Each station can be purchased multiple times. Cost increases by 15% per unit own
 
 ---
 
-## Shop Categories (77 upgrades total)
+## Shop Categories (10 tabs, 82 upgrades total)
 
 ### RADIOS -- 12 stations
 See the station table above. From a 5-watt HT to a planetary-scale antenna array.
@@ -64,17 +64,25 @@ Rubber Duck, J-Pole, Yagi, Hex Beam, Log Periodic, Stacked Array, Dipole Farm. Q
 ### MODES -- 13 upgrades
 FM Repeater, SSB, CW, FT8, CW Keyer, FT4, WSPR, VarAC, JS8Call, RTTY, SSTV, Winlink, Packet Radio. QPS and click multipliers from x1.1 to x3.0.
 
-### BANDS -- 13 upgrades
-2m, 70cm, 6m, 10m, 15m, 20m, 40m, 80m, 160m, 30m, 17m, 12m, 60m. QPS multipliers from x1.1 to x1.5. HF bands require General or Extra license.
+### BANDS -- 18 upgrades
+**Technician (9 bands):** 2m, 70cm, 6m, 10m, 23cm, 13cm, 9cm, 5cm, 3cm. VHF/UHF plus microwave bands up to 10 GHz.
+**General (9 bands):** 15m, 20m, 40m, 80m, 160m, 60m, 30m, 17m, 12m. Full HF access.
+QPS multipliers from x1.1 to x2.0.
 
-### EQUIPMENT -- 15 upgrades
+### GEAR -- 15 upgrades
 Better Coax, Antenna Analyzer, Manual Tuner, Auto-Tuner (LDG), DX Cluster, QSL Card Printer, LoTW Account, Hardline Coax, Propagation Prediction Software, Remote Auto-Tuner, Contest Logger (N1MM+), SDR Panadapter, Dummy Load, Repeater Access, Galactic Repeater.
 
 ### ACTIVITIES -- 8 upgrades
 Weekly Rag Chew Net, ARES/RACES Emergency Comms, POTA Activation, SOTA Activation, Field Day Station, DXpedition, IOTA Activation, Satellite Operations.
 
-### EVENT BOOSTERS -- 5 upgrades
+### EVENTS -- 5 upgrades
 Coffee Boost (2x click/30s), Propagation Report (3x QPS/20s), Contest Weekend (5x QPS/30s), Band Opening (10x QPS/15s), DXpedition Pileup (+1000 QSOs instant). Consumable temporary boosts.
+
+### AWARDS
+Achievement showcase with progress tracking.
+
+### PRESTIGE
+Reset for permanent multiplier. See Prestige System below.
 
 ---
 
@@ -114,6 +122,7 @@ Reset your progress for a permanent earnings multiplier.
 | Rubber Duck | Own 10 Handhelds |
 | QRO | Own 5 Linear Amplifiers |
 | Elmer | Own one of every station type |
+| Worked All Bands | Own one of every station type (hidden) |
 | Finals Blown! | Blow your finals |
 | Lid | SWR above 7.0 (hidden) |
 | SWR Nightmare | SWR above 9.0 (hidden) |
@@ -234,7 +243,7 @@ ham-radio-clicker/
       SMeter.tsx        Signal strength meter
       StatsPanel.tsx    Station status with live stats
       StationList.tsx   Owned stations with QPS bars
-      Shop.tsx          Equipment rack (stations/upgrades/achievements)
+      Shop.tsx          Equipment rack (10 tabs: stations/upgrades/achievements/prestige)
       EventLog.tsx      QSO log with band/mode info
       EventPopup.tsx    Random event notifications
       Chat.tsx          WebSocket ephemeral chat
@@ -242,7 +251,7 @@ ham-radio-clicker/
       Leaderboard.tsx   Global rankings with online status
     data/
       stations.ts       12 station definitions
-      upgrades.ts       77 upgrades across 8 categories
+      upgrades.ts       82 upgrades across 10 categories
       achievements.ts   24 achievement definitions
       events.ts         19 random events + callsign generators
     hooks/
