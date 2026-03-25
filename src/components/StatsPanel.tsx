@@ -115,47 +115,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderTop: `1px solid rgba(51,255,51,0.1)`,
     margin: '4px 0',
   },
-  sessionTimer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-    padding: '5px 0',
-    borderTop: `1px solid rgba(51,255,51,0.1)`,
-    marginTop: 4,
-  },
-  sessionLabel: {
-    fontSize: 9,
-    color: 'rgba(51,255,51,0.4)',
-    letterSpacing: 2,
-    textTransform: 'uppercase' as const,
-  },
-  sessionValue: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: COLORS.blue,
-    textShadow: '0 0 6px rgba(0,204,255,0.3)',
-    letterSpacing: 1,
-    fontFamily: 'monospace',
-  },
-  eventBanner: {
-    background: 'rgba(255,170,0,0.08)',
-    border: `1px solid ${COLORS.amber}44`,
-    borderRadius: 3,
-    padding: '4px 6px',
-    fontSize: 10,
-  },
-  eventName: {
-    color: COLORS.amber,
-    fontWeight: 'bold',
-    marginBottom: 2,
-    fontSize: 10,
-  },
-  eventTime: {
-    color: COLORS.amber,
-    opacity: 0.8,
-    fontSize: 10,
-  },
 };
 
 const StatsPanel: React.FC = () => {
@@ -165,7 +124,6 @@ const StatsPanel: React.FC = () => {
     qsoPerClick,
     qsoPerSecond,
     swr,
-    activeEvent,
     startTime,
     transmitPower,
     upgrades,
@@ -177,20 +135,13 @@ const StatsPanel: React.FC = () => {
   const currentBand = getBandFromUpgrades(upgrades);
 
   const [elapsed, setElapsed] = useState(0);
-  const [sessionElapsed, setSessionElapsed] = useState(0);
-  const [eventRemaining, setEventRemaining] = useState(0);
-  const [sessionStart] = useState(() => Date.now());
 
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsed(Date.now() - startTime);
-      setSessionElapsed(Date.now() - sessionStart);
-      if (activeEvent) {
-        setEventRemaining(Math.max(0, activeEvent.endsAt - Date.now()));
-      }
     }, 1000);
     return () => clearInterval(interval);
-  }, [startTime, activeEvent, sessionStart]);
+  }, [startTime]);
 
   const swrColor = getSWRColor(swr.current);
 
@@ -331,24 +282,6 @@ const StatsPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Session Timer */}
-      <div style={styles.sessionTimer}>
-        <span style={styles.sessionLabel}>SHIFT</span>
-        <span style={styles.sessionValue}>{formatTime(sessionElapsed)}</span>
-      </div>
-
-      {/* Active Event */}
-      {activeEvent && eventRemaining > 0 && (
-        <>
-          <div style={styles.divider} />
-          <div style={styles.eventBanner}>
-            <div style={styles.eventName}>{activeEvent.id}</div>
-            <div style={styles.eventTime}>
-              {formatTime(eventRemaining)} remaining
-            </div>
-          </div>
-        </>
-      )}
 
       <style>{`
         @keyframes blink {

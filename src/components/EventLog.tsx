@@ -2,7 +2,7 @@
 // Ham Radio Clicker -- Event Log (Fills center column - Polished)
 // ============================================================
 
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import { useGameStore } from '../stores/useGameStore';
 import { EventLogEntry } from '../types';
 
@@ -174,17 +174,19 @@ const EventLog: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Build flavor messages based on license level
+  // Once the player has any ham license, MURS/FRS messages are excluded entirely
   const hasTech = upgrades.includes('technician_license');
   const hasGeneral = upgrades.includes('general_license');
 
-  let flavorPool: string[];
-  if (!hasTech) {
-    flavorPool = MURS_FLAVOR;
-  } else if (!hasGeneral) {
-    flavorPool = TECH_FLAVOR;
-  } else {
-    flavorPool = [...TECH_FLAVOR, ...GENERAL_FLAVOR];
-  }
+  const flavorPool = useMemo(() => {
+    if (!hasTech) {
+      return MURS_FLAVOR;
+    } else if (!hasGeneral) {
+      return TECH_FLAVOR;
+    } else {
+      return [...TECH_FLAVOR, ...GENERAL_FLAVOR];
+    }
+  }, [hasTech, hasGeneral]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -193,17 +195,21 @@ const EventLog: React.FC = () => {
     }
   }, [eventLog]);
 
+  // Keep a ref to the current flavor pool so the interval always uses the latest
+  const flavorPoolRef = useRef(flavorPool);
+  flavorPoolRef.current = flavorPool;
+
   // Periodic flavor messages
   useEffect(() => {
     const interval = setInterval(() => {
-      const msg =
-        flavorPool[Math.floor(Math.random() * flavorPool.length)];
+      const pool = flavorPoolRef.current;
+      const msg = pool[Math.floor(Math.random() * pool.length)];
       if (addLogEntry) {
         addLogEntry(msg, 'event');
       }
     }, 5000 + Math.random() * 5000);
     return () => clearInterval(interval);
-  }, [addLogEntry, flavorPool]);
+  }, [addLogEntry]);
 
   const handleClear = useCallback(() => {
     clearEventLog();

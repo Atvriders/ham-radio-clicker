@@ -372,7 +372,7 @@ const styles: Record<string, React.CSSProperties> = {
     overflow: 'hidden',
   },
   leftCol: {
-    width: '260px',
+    width: '240px',
     flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',
@@ -408,7 +408,7 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: '150px',
   },
   rightCol: {
-    width: '340px',
+    width: '380px',
     flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',
