@@ -2,7 +2,7 @@
 // Ham Radio Clicker -- QuizStrip (Compact inline quiz)
 // ============================================================
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { questions, QuizQuestion } from '../data/questions';
 import { useGameStore } from '../stores/useGameStore';
 
@@ -50,7 +50,6 @@ const QuizStrip: React.FC = () => {
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<number | null>(null);
   const [flash, setFlash] = useState<'correct' | 'wrong' | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Reset pool when license level changes
   useEffect(() => {
@@ -60,7 +59,6 @@ const QuizStrip: React.FC = () => {
     setScore(0);
     setAnswered(null);
     setFlash(null);
-    if (timerRef.current) clearTimeout(timerRef.current);
   }, [licenseLevel]);
 
   const current = pool[index];
@@ -76,29 +74,23 @@ const QuizStrip: React.FC = () => {
         setScore((s) => s + 1);
         addQuizBonus(bonus);
       }
-
-      timerRef.current = setTimeout(() => {
-        setAnswered(null);
-        setFlash(null);
-        if (index < 9) {
-          setIndex((i) => i + 1);
-        } else {
-          // Reset cycle
-          const newPool = shuffleArray(getQuestionsForLevel(licenseLevel)).slice(0, 10);
-          setPool(newPool);
-          setIndex(0);
-          setScore(0);
-        }
-      }, 2000);
     },
-    [answered, current, index, licenseLevel, addQuizBonus, bonus]
+    [answered, current, addQuizBonus, bonus]
   );
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
+  const handleNext = useCallback(() => {
+    setAnswered(null);
+    setFlash(null);
+    if (index < 9) {
+      setIndex((i) => i + 1);
+    } else {
+      // Reset cycle
+      const newPool = shuffleArray(getQuestionsForLevel(licenseLevel)).slice(0, 10);
+      setPool(newPool);
+      setIndex(0);
+      setScore(0);
+    }
+  }, [index, licenseLevel]);
 
   if (!current) return null;
 
@@ -203,11 +195,11 @@ const QuizStrip: React.FC = () => {
           {current.question}
         </div>
 
-        {/* Answer buttons row */}
+        {/* Answer buttons — stacked vertically */}
         <div style={{
           display: 'flex',
+          flexDirection: 'column',
           gap: 4,
-          flexWrap: 'wrap',
         }}>
           {current.answers.map((ans, i) => {
             const letter = String.fromCharCode(65 + i);
@@ -236,10 +228,9 @@ const QuizStrip: React.FC = () => {
                 onClick={() => handleAnswer(i)}
                 disabled={answered !== null}
                 style={{
-                  flex: '1 1 auto',
-                  minWidth: 0,
-                  padding: '3px 6px',
-                  fontSize: 9,
+                  width: '100%',
+                  padding: '4px 8px',
+                  fontSize: 10,
                   fontFamily: 'monospace',
                   background: btnBg,
                   border: `1px solid ${btnBorder}`,
@@ -247,12 +238,10 @@ const QuizStrip: React.FC = () => {
                   color: btnColor,
                   cursor: answered !== null ? 'default' : 'pointer',
                   transition: 'all 0.2s ease',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
                   textAlign: 'left',
+                  whiteSpace: 'normal',
+                  wordWrap: 'break-word',
                 }}
-                title={ans}
               >
                 <strong>{letter}.</strong> {ans}
               </button>
@@ -260,19 +249,42 @@ const QuizStrip: React.FC = () => {
           })}
         </div>
 
-        {/* Feedback row */}
+        {/* Feedback row + NEXT button */}
         {flash && (
           <div style={{
-            fontSize: 9,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
             marginTop: 4,
-            color: flash === 'correct' ? '#33ff33' : '#ff4444',
-            textShadow: flash === 'correct'
-              ? '0 0 6px rgba(51,255,51,0.4)'
-              : '0 0 6px rgba(255,68,68,0.4)',
           }}>
-            {flash === 'correct'
-              ? `Correct! +${bonus} QSOs (${levelConfig.multiplier}x)`
-              : `Wrong — ${String.fromCharCode(65 + current.correct)} is correct`}
+            <span style={{
+              fontSize: 9,
+              color: flash === 'correct' ? '#33ff33' : '#ff4444',
+              textShadow: flash === 'correct'
+                ? '0 0 6px rgba(51,255,51,0.4)'
+                : '0 0 6px rgba(255,68,68,0.4)',
+            }}>
+              {flash === 'correct'
+                ? `Correct! +${bonus} QSOs (${levelConfig.multiplier}x)`
+                : `Wrong — ${String.fromCharCode(65 + current.correct)} is correct`}
+            </span>
+            <button
+              onClick={handleNext}
+              style={{
+                padding: '2px 10px',
+                fontSize: 9,
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                background: '#33ff33',
+                color: '#0a0e1a',
+                border: 'none',
+                borderRadius: 10,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              NEXT →
+            </button>
           </div>
         )}
       </div>
