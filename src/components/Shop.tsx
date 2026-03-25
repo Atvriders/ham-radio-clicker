@@ -38,13 +38,13 @@ const ALL_TAB_DEFS: { key: ShopTab; label: string }[] = [
 
 // IDs of gear items that make sense without a license (receive-only / no-transmit)
 const UNLICENSED_GEAR_IDS = new Set([
-  'matchbox_radio', 'tin_can_antenna', 'homebrew_dipole', 'diy_dummy_load',
-  'better_coax', 'antenna_analyzer', 'manual_tuner', 'auto_tuner_ldg', 'dummy_load',
+  'matchbox_radio', 'tin_can_antenna', 'diy_dummy_load',
+  'dummy_load', 'antenna_analyzer', 'better_coax',
 ]);
 
 // IDs of antennas that can be used receive-only (no license needed)
 const UNLICENSED_ANTENNA_IDS = new Set([
-  'wire_random', 'rubber_duck_antenna', 'end_fed_halfwave', 'homebrew_dipole',
+  'wire_random', 'rubber_duck_antenna',
 ]);
 
 // Event items that don't require transmitting
